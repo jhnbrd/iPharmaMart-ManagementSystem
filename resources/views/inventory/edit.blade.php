@@ -1,0 +1,114 @@
+<x-layout title="Edit Product">
+    <div class="max-w-3xl">
+        <div class="page-header">
+            <h1 class="page-title">Edit Product</h1>
+        </div>
+
+        <div class="card">
+            <form action="{{ route('inventory.update', $product) }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group md:col-span-2">
+                        <label for="name" class="form-label">Product Name *</label>
+                        <input type="text" id="name" name="name" class="form-input"
+                            value="{{ old('name', $product->name) }}" required>
+                        @error('name')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category_id" class="form-label">Category *</label>
+                        <select id="category_id" name="category_id" class="form-select" required>
+                            <option value="">Select Category</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('category_id')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="supplier_id" class="form-label">Supplier *</label>
+                        <select id="supplier_id" name="supplier_id" class="form-select" required>
+                            <option value="">Select Supplier</option>
+                            @foreach ($suppliers as $supplier)
+                                <option value="{{ $supplier->id }}"
+                                    {{ old('supplier_id', $product->supplier_id) == $supplier->id ? 'selected' : '' }}>
+                                    {{ $supplier->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('supplier_id')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stock" class="form-label">Stock Quantity *</label>
+                        <input type="number" id="stock" name="stock" class="form-input"
+                            value="{{ old('stock', $product->stock) }}" min="0" required>
+                        @error('stock')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="low_stock_threshold" class="form-label">Low Stock Alert Level *</label>
+                        <input type="number" id="low_stock_threshold" name="low_stock_threshold" class="form-input"
+                            value="{{ old('low_stock_threshold', $product->low_stock_threshold) }}" min="0"
+                            required>
+                        @error('low_stock_threshold')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="price" class="form-label">Price ($) *</label>
+                        <input type="number" id="price" name="price" class="form-input"
+                            value="{{ old('price', $product->price) }}" step="0.01" min="0" required>
+                        @error('price')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" id="expiry_date" name="expiry_date" class="form-input"
+                            value="{{ old('expiry_date', $product->expiry_date?->format('Y-m-d')) }}">
+                        @error('expiry_date')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group md:col-span-2">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" name="description" class="form-textarea">{{ old('description', $product->description) }}</textarea>
+                        @error('description')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                    <button type="submit" class="btn btn-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Update Product
+                    </button>
+                    <a href="{{ route('inventory.index') }}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</x-layout>
