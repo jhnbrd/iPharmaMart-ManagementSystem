@@ -31,7 +31,10 @@
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
                         <td>
-                            @if ($user->role === 'admin')
+                            @if ($user->role === 'superadmin')
+                                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium">⚡
+                                    Super Admin</span>
+                            @elseif($user->role === 'admin')
                                 <span class="badge-danger">Admin</span>
                             @elseif($user->role === 'cashier')
                                 <span class="badge-info">Cashier</span>
@@ -74,5 +77,9 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-6">
+        {{ $users->links() }}
     </div>
 </x-layout>

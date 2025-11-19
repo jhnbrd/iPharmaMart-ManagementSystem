@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
+    use LogsActivity;
     /**
      * Show the login form.
      */
@@ -36,6 +38,8 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
+            self::logActivity('login', "User logged in: " . Auth::user()->name);
+
             return redirect()->intended(route('dashboard'));
         }
 
@@ -49,6 +53,10 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        $userName = Auth::user()->name;
+
+        self::logActivity('logout', "User logged out: {$userName}");
+
         Auth::logout();
 
         $request->session()->invalidate();

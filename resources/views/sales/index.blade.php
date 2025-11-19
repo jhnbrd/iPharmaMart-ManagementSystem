@@ -37,7 +37,7 @@
                                 @endif
                             @endforeach
                         </td>
-                        <td class="font-semibold text-[var(--color-brand-green)]">${{ number_format($sale->total, 2) }}
+                        <td class="font-semibold text-[var(--color-brand-green)]">₱{{ number_format($sale->total, 2) }}
                         </td>
                         <td>
                             <a href="{{ route('sales.show', $sale) }}"
@@ -57,5 +57,9 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-6">
+        {{ $sales->links() }}
     </div>
 </x-layout>

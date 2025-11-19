@@ -20,6 +20,15 @@ class AppDataSeeder extends Seeder
     public function run(): void
     {
         User::create([
+            'username' => 'superadmin',
+            'name' => 'Super Administrator',
+            'email' => 'superadmin@ipharmamart.com',
+            'password' => Hash::make('password'),
+            'role' => 'superadmin',
+            'is_active' => true,
+        ]);
+
+        User::create([
             'username' => 'admin',
             'name' => 'Admin User',
             'email' => 'admin@ipharmamart.com',

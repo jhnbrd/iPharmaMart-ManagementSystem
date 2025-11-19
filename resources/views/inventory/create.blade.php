@@ -74,6 +74,33 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="unit" class="form-label">Unit *</label>
+                        <select id="unit" name="unit" class="form-select" required>
+                            <option value="pcs" {{ old('unit', 'pcs') == 'pcs' ? 'selected' : '' }}>Pieces (pcs)
+                            </option>
+                            <option value="box" {{ old('unit') == 'box' ? 'selected' : '' }}>Box</option>
+                            <option value="bottle" {{ old('unit') == 'bottle' ? 'selected' : '' }}>Bottle</option>
+                            <option value="pack" {{ old('unit') == 'pack' ? 'selected' : '' }}>Pack</option>
+                            <option value="kg" {{ old('unit') == 'kg' ? 'selected' : '' }}>Kilogram (kg)</option>
+                            <option value="liter" {{ old('unit') == 'liter' ? 'selected' : '' }}>Liter</option>
+                        </select>
+                        @error('unit')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="unit_quantity" class="form-label">Unit Quantity *</label>
+                        <input type="number" id="unit_quantity" name="unit_quantity" class="form-input"
+                            value="{{ old('unit_quantity', 1) }}" min="1" required>
+                        <p class="text-xs text-[var(--color-text-secondary)] mt-1">Quantity per unit (e.g., 12 for a
+                            dozen)</p>
+                        @error('unit_quantity')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="stock" class="form-label">Stock Quantity *</label>
                         <input type="number" id="stock" name="stock" class="form-input"
                             value="{{ old('stock', 0) }}" min="0" required>
@@ -92,7 +119,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="price" class="form-label">Price ($) *</label>
+                        <label for="stock_danger_level" class="form-label">Critical Stock Level *</label>
+                        <input type="number" id="stock_danger_level" name="stock_danger_level" class="form-input"
+                            value="{{ old('stock_danger_level', 10) }}" min="0" required>
+                        <p class="text-xs text-[var(--color-text-secondary)] mt-1">Critical threshold (below low stock)
+                        </p>
+                        @error('stock_danger_level')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="price" class="form-label">Price (₱) *</label>
                         <input type="number" id="price" name="price" class="form-input"
                             value="{{ old('price') }}" step="0.01" min="0" required>
                         @error('price')

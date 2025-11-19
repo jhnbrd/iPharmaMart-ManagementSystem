@@ -7,11 +7,9 @@
     <div class="flex-1 overflow-y-auto">
         <!-- Logo -->
         <div class="sidebar-logo">
-            <div class="w-10 h-10 bg-[var(--color-accent-orange)] rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                        d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                </svg>
+            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1">
+                <img src="{{ asset('images/logo/ipharma-logo.png') }}" alt="iPharma Mart"
+                    class="w-full h-full object-contain">
             </div>
             <div>
                 <h1 class="text-lg font-bold">iPharma Mart</h1>
@@ -21,6 +19,7 @@
 
         <!-- Navigation -->
         <nav class="sidebar-nav">
+            <!-- Dashboard -->
             <a href="{{ route('dashboard') }}"
                 class="sidebar-nav-item {{ $currentRoute === 'dashboard' ? 'active' : '' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,59 +29,98 @@
                 <span>Dashboard</span>
             </a>
 
-            <a href="{{ route('pos.index') }}"
-                class="sidebar-nav-item {{ str_starts_with($currentRoute, 'pos.') ? 'active' : '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span>Point of Sale</span>
-            </a>
+            @if (in_array(auth()->user()->role, ['superadmin', 'admin', 'cashier']))
+                <!-- SALES SECTION -->
+                <div class="px-4 pt-4 pb-2">
+                    <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Sales</h3>
+                </div>
 
-            <a href="{{ route('inventory.index') }}"
-                class="sidebar-nav-item {{ str_starts_with($currentRoute, 'inventory.') ? 'active' : '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-                <span>Inventory</span>
-            </a>
+                <a href="{{ route('pos.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'pos.') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Point of Sale</span>
+                </a>
 
-            <a href="{{ route('sales.index') }}"
-                class="sidebar-nav-item {{ str_starts_with($currentRoute, 'sales.') ? 'active' : '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <span>Sales History</span>
-            </a>
+                <a href="{{ route('sales.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'sales.') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span>Sales History</span>
+                </a>
 
-            <a href="{{ route('customers.index') }}"
-                class="sidebar-nav-item {{ str_starts_with($currentRoute, 'customers.') ? 'active' : '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span>Customers</span>
-            </a>
+                <a href="{{ route('customers.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'customers.') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Customers</span>
+                </a>
+            @endif
 
-            <a href="{{ route('suppliers.index') }}"
-                class="sidebar-nav-item {{ str_starts_with($currentRoute, 'suppliers.') ? 'active' : '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <span>Suppliers</span>
-            </a>
+            @if (in_array(auth()->user()->role, ['superadmin', 'admin', 'inventory_manager']))
+                <!-- INVENTORY SECTION -->
+                <div class="px-4 pt-4 pb-2">
+                    <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Inventory</h3>
+                </div>
 
-            <a href="{{ route('users.index') }}"
-                class="sidebar-nav-item {{ str_starts_with($currentRoute, 'users.') ? 'active' : '' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <span>Users</span>
-            </a>
+                <a href="{{ route('inventory.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'inventory.') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <span>Products</span>
+                </a>
+
+                <a href="{{ route('stock.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'stock.') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    <span>Stock In/Out</span>
+                </a>
+
+                <a href="{{ route('suppliers.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'suppliers.') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>Suppliers</span>
+                </a>
+            @endif
+
+            @if (auth()->user()->role === 'superadmin')
+                <!-- ADMINISTRATION SECTION -->
+                <div class="px-4 pt-4 pb-2">
+                    <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Administration</h3>
+                </div>
+
+                <a href="{{ route('users.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'users.') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <span>Users</span>
+                </a>
+
+                <a href="{{ route('audit-logs.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'audit-logs.') ? 'active' : '' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Audit Logs</span>
+                </a>
+            @endif
         </nav>
     </div>
 
@@ -95,9 +133,11 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-white text-sm font-semibold truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-white/60 text-xs truncate">@{{ auth() - > user() - > username }}</p>
+                    <p class="text-white/60 text-xs truncate">{{ '@' . auth()->user()->username }}</p>
                     <p class="text-white/50 text-xs truncate">
-                        @if (auth()->user()->role === 'admin')
+                        @if (auth()->user()->role === 'superadmin')
+                            ⚡ Super Admin
+                        @elseif(auth()->user()->role === 'admin')
                             👑 Admin
                         @elseif(auth()->user()->role === 'cashier')
                             💰 Cashier

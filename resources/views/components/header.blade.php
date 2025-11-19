@@ -17,13 +17,5 @@
         <!-- Search - Hidden on mobile -->
         <div class="relative hidden md:block">
         </div>
-
-        <!-- User Menu -->
-        <div class="flex items-center gap-3">
-            <div
-                class="w-10 h-10 rounded-full bg-[var(--color-brand-green)] text-white flex items-center justify-center font-semibold cursor-pointer">
-                A
-            </div>
-        </div>
     </div>
 </header>

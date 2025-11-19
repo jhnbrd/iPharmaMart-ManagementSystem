@@ -4,7 +4,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">Total Revenue</p>
-                    <p class="text-3xl font-bold text-[var(--color-brand-green)]">${{ number_format($totalRevenue, 2) }}
+                    <p class="text-3xl font-bold text-[var(--color-brand-green)]">₱{{ number_format($totalRevenue, 2) }}
                     </p>
                 </div>
                 <div
@@ -101,7 +101,7 @@
                             </div>
                             <div class="text-right">
                                 <p class="font-bold text-[var(--color-brand-green)]">
-                                    ${{ number_format($sale->total, 2) }}</p>
+                                    ₱{{ number_format($sale->total, 2) }}</p>
                             </div>
                         </div>
                     @endforeach

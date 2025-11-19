@@ -40,6 +40,10 @@
                     <label for="role" class="form-label">Role *</label>
                     <select id="role" name="role" class="form-select" required>
                         <option value="">Select Role</option>
+                        @if (auth()->user()->role === 'superadmin')
+                            <option value="superadmin" {{ old('role') == 'superadmin' ? 'selected' : '' }}>Super Admin
+                            </option>
+                        @endif
                         <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="cashier" {{ old('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
                         <option value="inventory_manager" {{ old('role') == 'inventory_manager' ? 'selected' : '' }}>

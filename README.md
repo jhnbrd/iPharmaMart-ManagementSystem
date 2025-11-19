@@ -1,6 +1,10 @@
-# 🏥 iPharma Mart - Pharmacy Management System<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
 
-<div align="center"><p align="center">
+<img src="public/images/logo/ipharma-logo.png" width="200" alt="iPharma Mart Logo">
+
+# 🏥 iPharma Mart - Pharmacy Management System
+
+<p align="center">
 
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
 
@@ -359,12 +363,22 @@ php artisan view:cache
 
 After seeding the database, use these credentials:
 
+### Super Admin Account (Full System Access + Audit Logs)
+
+```
+Username: superadmin
+Password: password
+Role: Super Admin
+Access: All features + Audit Logs
+```
+
 ### Admin Account (Full Access)
 
 ```
 Username: admin
 Password: password
 Role: Admin
+Access: All features except Audit Logs
 ```
 
 ### Cashier Account (POS & Sales)
@@ -373,6 +387,7 @@ Role: Admin
 Username: cashier1
 Password: password
 Role: Cashier
+Access: POS, Sales, Customers
 ```
 
 ### Inventory Manager (Products & Stock)
@@ -381,6 +396,7 @@ Role: Cashier
 Username: inventory1
 Password: password
 Role: Inventory Manager
+Access: Inventory, Suppliers
 ```
 
 **⚠️ Security Warning:**
@@ -388,6 +404,54 @@ Role: Inventory Manager
 -   Change all default passwords immediately after first login!
 -   Update `.env` file with `APP_ENV=production` and `APP_DEBUG=false` for production use
 -   Login now uses **username** instead of email for easier access
+
+## 🔒 Role-Based Access Control
+
+The system implements strict role-based access control:
+
+-   **Super Admin**: Full system access including audit logs
+-   **Admin**: Manage users, inventory, POS, sales, customers, suppliers
+-   **Cashier**: Point of sale, view sales history, manage customers
+-   **Inventory Manager**: Manage products, inventory, suppliers
+
+## 📋 Audit Logging System
+
+The system includes a comprehensive audit logging feature accessible only to Super Admins:
+
+### What Gets Logged
+
+-   **User Authentication**: Login and logout events
+-   **User Management**: Create, update, and delete operations
+-   **Inventory Operations**: Product changes (planned)
+-   **Sales Transactions**: Sales creation (planned)
+-   **Customer/Supplier Management**: CRUD operations (planned)
+
+### Information Captured
+
+-   **User Details**: Who performed the action
+-   **Action Type**: create, update, delete, login, logout
+-   **Description**: Human-readable action summary
+-   **Old/New Values**: Complete before/after data in JSON format
+-   **IP Address**: Client IP address
+-   **User Agent**: Browser and device information
+-   **Timestamp**: When the action occurred
+
+### How to Access
+
+1. Login as Super Admin (`superadmin` / `password`)
+2. Navigate to **Audit Logs** from the sidebar
+3. Use filters to find specific events:
+    - Filter by action type (create, update, delete, login, logout)
+    - Filter by user
+    - Filter by date
+4. Click "Show Details" to view old/new values
+
+### Security Features
+
+-   Only Super Admins can access audit logs
+-   All changes are tracked immutably
+-   IP addresses and user agents logged for security analysis
+-   Complete audit trail for compliance requirements
 
 ---
 

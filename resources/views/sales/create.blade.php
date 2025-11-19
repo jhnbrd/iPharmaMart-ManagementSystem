@@ -80,7 +80,7 @@
                                 </div>
 
                                 <div class="md:col-span-2">
-                                    <label class="form-label text-sm">Unit Price ($)</label>
+                                    <label class="form-label text-sm">Unit Price (₱)</label>
                                     <input type="number" name="items[0][unit_price]" class="form-input price-input"
                                         step="0.01" readonly>
                                 </div>

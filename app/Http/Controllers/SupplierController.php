@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Supplier;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
+    use LogsActivity;
     public function index()
     {
         $suppliers = Supplier::withCount('products')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(15);
 
         return view('suppliers.index', compact('suppliers'));
     }
@@ -30,7 +32,15 @@ class SupplierController extends Controller
             'address' => 'nullable|string',
         ]);
 
-        Supplier::create($validated);
+        $supplier = Supplier::create($validated);
+
+        self::logActivity(
+            'create',
+            "Created supplier: {$supplier->name}",
+            $supplier,
+            null,
+            $supplier->toArray()
+        );
 
         return redirect()->route('suppliers.index')
             ->with('success', 'Supplier added successfully.');
@@ -43,6 +53,8 @@ class SupplierController extends Controller
 
     public function update(Request $request, Supplier $supplier)
     {
+        $oldValues = $supplier->toArray();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|unique:suppliers,email,' . $supplier->id,
@@ -52,13 +64,32 @@ class SupplierController extends Controller
 
         $supplier->update($validated);
 
+        self::logActivity(
+            'update',
+            "Updated supplier: {$supplier->name}",
+            $supplier,
+            $oldValues,
+            $supplier->fresh()->toArray()
+        );
+
         return redirect()->route('suppliers.index')
             ->with('success', 'Supplier updated successfully.');
     }
 
     public function destroy(Supplier $supplier)
     {
+        $supplierName = $supplier->name;
+        $supplierData = $supplier->toArray();
+
         $supplier->delete();
+
+        self::logActivity(
+            'delete',
+            "Deleted supplier: {$supplierName}",
+            null,
+            $supplierData,
+            null
+        );
 
         return redirect()->route('suppliers.index')
             ->with('success', 'Supplier deleted successfully.');

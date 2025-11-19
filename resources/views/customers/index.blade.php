@@ -59,4 +59,8 @@
             </tbody>
         </table>
     </div>
+
+    <div class="mt-6">
+        {{ $customers->links() }}
+    </div>
 </x-layout>

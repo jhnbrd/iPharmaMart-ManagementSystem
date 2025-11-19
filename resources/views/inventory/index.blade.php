@@ -16,8 +16,10 @@
             <thead>
                 <tr>
                     <th>Product Name</th>
+                    <th>Barcode</th>
                     <th>Type</th>
                     <th>Category</th>
+                    <th>Unit</th>
                     <th>Stock</th>
                     <th>Price</th>
                     <th>Supplier</th>
@@ -31,6 +33,11 @@
                     <tr>
                         <td class="font-medium">{{ $product->name }}</td>
                         <td>
+                            <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
+                                {{ $product->barcode ?? 'N/A' }}
+                            </span>
+                        </td>
+                        <td>
                             @if ($product->product_type === 'pharmacy')
                                 <span class="badge-info">Pharmacy</span>
                             @else
@@ -38,24 +45,30 @@
                             @endif
                         </td>
                         <td>{{ $product->category->name }}</td>
-                        <td>{{ $product->stock }}</td>
+                        <td>{{ $product->unit }} ({{ $product->unit_quantity }})</td>
+                        <td>
+                            <span class="font-medium">{{ $product->stock }}</span>
+                            <span class="text-xs text-[var(--color-text-secondary)]">{{ $product->unit }}</span>
+                        </td>
                         <td>₱{{ number_format($product->price, 2) }}</td>
                         <td>{{ $product->supplier->name }}</td>
                         <td>{{ $product->expiry_date ? $product->expiry_date->format('Y-m-d') : 'N/A' }}</td>
                         <td>
-                            @if ($product->isLowStock())
-                                <span class="badge-danger">Low Stock</span>
+                            @if ($product->isDangerStock())
+                                <span class="badge-danger">Critical</span>
+                            @elseif ($product->isLowStock())
+                                <span class="badge-warning">Low Stock</span>
                             @else
                                 <span class="badge-success">In Stock</span>
                             @endif
                         </td>
                         <td>
                             <div class="flex gap-2">
-                                <a href="{{ route('inventory.edit', $product) }}"
+                                <a href="{{ route('inventory.edit', $product->id) }}"
                                     class="text-[var(--color-brand-green)] hover:underline">
                                     Edit
                                 </a>
-                                <form action="{{ route('inventory.destroy', $product) }}" method="POST"
+                                <form action="{{ route('inventory.destroy', $product->id) }}" method="POST"
                                     onsubmit="return confirm('Are you sure?');">
                                     @csrf
                                     @method('DELETE')
@@ -68,7 +81,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="text-center py-8 text-[var(--color-text-secondary)]">
+                        <td colspan="11" class="text-center py-8 text-[var(--color-text-secondary)]">
                             No products found. <a href="{{ route('inventory.create') }}"
                                 class="text-[var(--color-brand-green)] hover:underline">Add your first product</a>
                         </td>
@@ -76,5 +89,9 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-6">
+        {{ $products->links() }}
     </div>
 </x-layout>

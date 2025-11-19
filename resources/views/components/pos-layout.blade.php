@@ -256,30 +256,28 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button onclick="toggleFullscreen()" class="fullscreen-btn" id="fullscreenBtn">
+                <button onclick="toggleFullscreen()" class="fullscreen-btn" id="fullscreenBtn"
+                    title="Toggle Fullscreen">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                     </svg>
-                    <span id="fullscreenText">Fullscreen</span>
                 </button>
 
-                <a href="{{ route('dashboard') }}" class="fullscreen-btn">
+                <a href="{{ route('dashboard') }}" class="fullscreen-btn" title="Back to Dashboard">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    Dashboard
                 </a>
 
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="fullscreen-btn">
+                    <button type="submit" class="fullscreen-btn" title="Logout">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        Logout
                     </button>
                 </form>
             </div>
@@ -323,31 +321,109 @@
 
         // Monitor fullscreen changes
         document.addEventListener('fullscreenchange', () => {
-            const btn = document.getElementById('fullscreenText');
+            const btn = document.getElementById('fullscreenBtn');
 
             if (document.fullscreenElement) {
                 // In fullscreen mode
-                btn.textContent = 'Exit Fullscreen';
+                btn.title = 'Exit Fullscreen';
                 modal.classList.add('hidden');
                 posContent.classList.add('active');
             } else {
                 // Exited fullscreen mode
-                btn.textContent = 'Fullscreen';
+                btn.title = 'Toggle Fullscreen';
                 modal.classList.remove('hidden');
                 posContent.classList.remove('active');
             }
         });
 
         // Check fullscreen status on page load
-        window.addEventListener('load', () => {
-            if (!document.fullscreenElement) {
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check if we were in fullscreen before navigation
+            const wasFullscreen = localStorage.getItem('posFullscreen') === 'true';
+
+            if (!document.fullscreenElement && !wasFullscreen) {
+                // Not in fullscreen and wasn't before - show modal
                 modal.classList.remove('hidden');
                 posContent.classList.remove('active');
+            } else if (!document.fullscreenElement && wasFullscreen) {
+                // Was in fullscreen but navigation exited it - try to re-enter
+                // Small delay to ensure page is fully loaded
+                setTimeout(() => {
+                    document.documentElement.requestFullscreen()
+                        .then(() => {
+                            modal.classList.add('hidden');
+                            posContent.classList.add('active');
+                        })
+                        .catch((err) => {
+                            // Browser blocked auto re-entry, show minimal prompt
+                            console.log('Auto fullscreen blocked:', err);
+                            showQuickFullscreenPrompt();
+                        });
+                }, 100);
             } else {
+                // Already in fullscreen
                 modal.classList.add('hidden');
                 posContent.classList.add('active');
             }
         });
+
+        // Show a minimal inline prompt to re-enter fullscreen
+        function showQuickFullscreenPrompt() {
+            const prompt = document.createElement('div');
+            prompt.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #2c6356 0%, #3a7d6f 100%);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 0.75rem;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 99999;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                animation: slideDown 0.3s ease;
+                cursor: pointer;
+                font-weight: 600;
+            `;
+            prompt.innerHTML = `
+                <svg style="width: 24px; height: 24px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+                <span>Click here to return to fullscreen mode</span>
+            `;
+
+            // Add animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideDown {
+                    from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            prompt.onclick = () => {
+                document.documentElement.requestFullscreen()
+                    .then(() => {
+                        prompt.remove();
+                        modal.classList.add('hidden');
+                        posContent.classList.add('active');
+                    });
+            };
+
+            document.body.appendChild(prompt);
+
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                if (prompt.parentNode) {
+                    prompt.style.animation = 'slideDown 0.3s ease reverse';
+                    setTimeout(() => prompt.remove(), 300);
+                }
+            }, 10000);
+        }
 
         // Handle F11 key
         document.addEventListener('keydown', (e) => {
@@ -357,13 +433,66 @@
             }
         });
 
-        // Prevent accidental navigation when not in fullscreen
-        window.addEventListener('beforeunload', (e) => {
+        // Store fullscreen state in localStorage (persists across page loads)
+        document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement) {
-                // Allow navigation if in fullscreen (user is actively using POS)
-                return undefined;
+                localStorage.setItem('posFullscreen', 'true');
+            } else {
+                // Only remove if user manually exited (not from navigation)
+                if (!window.navigating) {
+                    localStorage.removeItem('posFullscreen');
+                }
             }
         });
+
+        // Track navigation state
+        window.navigating = false;
+
+        // Save fullscreen state before any navigation
+        window.addEventListener('beforeunload', () => {
+            window.navigating = true;
+            if (document.fullscreenElement) {
+                localStorage.setItem('posFullscreen', 'true');
+            }
+        });
+
+        // Intercept all form submissions to save fullscreen state
+        document.addEventListener('submit', (e) => {
+            window.navigating = true;
+            if (document.fullscreenElement) {
+                localStorage.setItem('posFullscreen', 'true');
+            }
+        });
+
+        // Intercept all link clicks to save fullscreen state
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a[href]');
+            if (link && document.fullscreenElement) {
+                window.navigating = true;
+                localStorage.setItem('posFullscreen', 'true');
+            }
+        });
+
+        // Initial state save if currently in fullscreen
+        if (document.fullscreenElement) {
+            localStorage.setItem('posFullscreen', 'true');
+        }
+
+        // Clear flag when leaving POS
+        const dashboardLink = document.querySelector('a[href*="dashboard"]');
+        const logoutForm = document.querySelector('form[action*="logout"]');
+
+        if (dashboardLink) {
+            dashboardLink.addEventListener('click', () => {
+                localStorage.removeItem('posFullscreen');
+            });
+        }
+
+        if (logoutForm) {
+            logoutForm.addEventListener('submit', () => {
+                localStorage.removeItem('posFullscreen');
+            });
+        }
     </script>
 </body>
 

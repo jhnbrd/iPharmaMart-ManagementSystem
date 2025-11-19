@@ -5,7 +5,7 @@
         </div>
 
         <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">
-            <form action="{{ route('inventory.update', $product) }}" method="POST">
+            <form action="{{ route('inventory.update', $inventory) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -13,7 +13,7 @@
                     <div class="form-group md:col-span-2">
                         <label for="name" class="form-label">Product Name *</label>
                         <input type="text" id="name" name="name" class="form-input"
-                            value="{{ old('name', $product->name) }}" required>
+                            value="{{ old('name', $inventory->name) }}" required>
                         @error('name')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
@@ -24,10 +24,11 @@
                         <select id="product_type" name="product_type" class="form-select" required>
                             <option value="">Select Product Type</option>
                             <option value="pharmacy"
-                                {{ old('product_type', $product->product_type) == 'pharmacy' ? 'selected' : '' }}>
+                                {{ old('product_type', $inventory->product_type) == 'pharmacy' ? 'selected' : '' }}>
                                 Pharmacy</option>
                             <option value="mini_mart"
-                                {{ old('product_type', $product->product_type) == 'mini_mart' ? 'selected' : '' }}>Mini
+                                {{ old('product_type', $inventory->product_type) == 'mini_mart' ? 'selected' : '' }}>
+                                Mini
                                 Mart</option>
                         </select>
                         @error('product_type')
@@ -38,7 +39,7 @@
                     <div class="form-group">
                         <label for="barcode" class="form-label">Barcode</label>
                         <input type="text" id="barcode" name="barcode" class="form-input"
-                            value="{{ old('barcode', $product->barcode) }}" placeholder="Optional">
+                            value="{{ old('barcode', $inventory->barcode) }}" placeholder="Optional">
                         @error('barcode')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
@@ -50,7 +51,7 @@
                             <option value="">Select Category</option>
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id }}"
-                                    {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
+                                    {{ old('category_id', $inventory->category_id) == $category->id ? 'selected' : '' }}>
                                     {{ $category->name }}
                                 </option>
                             @endforeach
@@ -66,7 +67,7 @@
                             <option value="">Select Supplier</option>
                             @foreach ($suppliers as $supplier)
                                 <option value="{{ $supplier->id }}"
-                                    {{ old('supplier_id', $product->supplier_id) == $supplier->id ? 'selected' : '' }}>
+                                    {{ old('supplier_id', $inventory->supplier_id) == $supplier->id ? 'selected' : '' }}>
                                     {{ $supplier->name }}
                                 </option>
                             @endforeach
@@ -77,18 +78,58 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="stock" class="form-label">Stock Quantity *</label>
-                        <input type="number" id="stock" name="stock" class="form-input"
-                            value="{{ old('stock', $product->stock) }}" min="0" required>
-                        @error('stock')
+                        <label for="unit" class="form-label">Unit *</label>
+                        <select id="unit" name="unit" class="form-select" required>
+                            <option value="pcs" {{ old('unit', $inventory->unit) == 'pcs' ? 'selected' : '' }}>
+                                Pieces
+                                (pcs)</option>
+                            <option value="box" {{ old('unit', $inventory->unit) == 'box' ? 'selected' : '' }}>Box
+                            </option>
+                            <option value="bottle" {{ old('unit', $inventory->unit) == 'bottle' ? 'selected' : '' }}>
+                                Bottle</option>
+                            <option value="pack" {{ old('unit', $inventory->unit) == 'pack' ? 'selected' : '' }}>Pack
+                            </option>
+                            <option value="kg" {{ old('unit', $inventory->unit) == 'kg' ? 'selected' : '' }}>
+                                Kilogram
+                                (kg)</option>
+                            <option value="liter" {{ old('unit', $inventory->unit) == 'liter' ? 'selected' : '' }}>
+                                Liter
+                            </option>
+                        </select>
+                        @error('unit')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div class="form-group">
+                        <label for="unit_quantity" class="form-label">Unit Quantity *</label>
+                        <input type="number" id="unit_quantity" name="unit_quantity" class="form-input"
+                            value="{{ old('unit_quantity', $inventory->unit_quantity) }}" min="1" required>
+                        <p class="text-xs text-[var(--color-text-secondary)] mt-1">Quantity per unit (e.g., 12 for a
+                            dozen)</p>
+                        @error('unit_quantity')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Current Stock Quantity</label>
+                        <div class="form-input bg-gray-100 cursor-not-allowed"
+                            style="display: flex; align-items: center; justify-content: space-between;">
+                            <span class="font-semibold text-lg">{{ $inventory->stock }} {{ $inventory->unit }}</span>
+                            <span class="text-xs text-[var(--color-text-secondary)]">
+                                Use Stock In/Out to adjust
+                            </span>
+                        </div>
+                        <p class="text-xs text-[var(--color-text-secondary)] mt-1">
+                            Stock can only be modified through the Stock In/Out module
+                        </p>
+                    </div>
+
+                    <div class="form-group">
                         <label for="low_stock_threshold" class="form-label">Low Stock Alert Level *</label>
                         <input type="number" id="low_stock_threshold" name="low_stock_threshold" class="form-input"
-                            value="{{ old('low_stock_threshold', $product->low_stock_threshold) }}" min="0"
+                            value="{{ old('low_stock_threshold', $inventory->low_stock_threshold) }}" min="0"
                             required>
                         @error('low_stock_threshold')
                             <p class="form-error">{{ $message }}</p>
@@ -96,9 +137,21 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="price" class="form-label">Price ($) *</label>
+                        <label for="stock_danger_level" class="form-label">Critical Stock Level *</label>
+                        <input type="number" id="stock_danger_level" name="stock_danger_level" class="form-input"
+                            value="{{ old('stock_danger_level', $inventory->stock_danger_level) }}" min="0"
+                            required>
+                        <p class="text-xs text-[var(--color-text-secondary)] mt-1">Critical threshold (below low stock)
+                        </p>
+                        @error('stock_danger_level')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="price" class="form-label">Price (₱) *</label>
                         <input type="number" id="price" name="price" class="form-input"
-                            value="{{ old('price', $product->price) }}" step="0.01" min="0" required>
+                            value="{{ old('price', $inventory->price) }}" step="0.01" min="0" required>
                         @error('price')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
@@ -107,7 +160,7 @@
                     <div class="form-group">
                         <label for="expiry_date" class="form-label">Expiry Date</label>
                         <input type="date" id="expiry_date" name="expiry_date" class="form-input"
-                            value="{{ old('expiry_date', $product->expiry_date?->format('Y-m-d')) }}">
+                            value="{{ old('expiry_date', $inventory->expiry_date?->format('Y-m-d')) }}">
                         @error('expiry_date')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
@@ -115,7 +168,7 @@
 
                     <div class="form-group md:col-span-2">
                         <label for="description" class="form-label">Description</label>
-                        <textarea id="description" name="description" class="form-textarea">{{ old('description', $product->description) }}</textarea>
+                        <textarea id="description" name="description" class="form-textarea">{{ old('description', $inventory->description) }}</textarea>
                         @error('description')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
