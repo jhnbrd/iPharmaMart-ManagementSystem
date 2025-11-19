@@ -11,8 +11,7 @@
             </a>
         </div>
 
-        <!-- Sale Receipt Card -->
-        <div class="card">
+        <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">
             <!-- Header -->
             <div class="border-b border-gray-200 pb-4 mb-6">
                 <div class="flex justify-between items-start mb-4">

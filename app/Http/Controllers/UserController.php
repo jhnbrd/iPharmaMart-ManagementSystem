@@ -24,12 +24,15 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'username' => 'required|string|max:255|unique:users,username|alpha_dash',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'role' => 'required|in:admin,cashier,inventory_manager',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['is_active'] = true;
 
         User::create($validated);
 
@@ -45,8 +48,10 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id . '|alpha_dash',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:admin,cashier,inventory_manager',
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 

@@ -4,9 +4,19 @@
             <h1 class="page-title">Add New User</h1>
         </div>
 
-        <div class="card">
+        <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">
             <form action="{{ route('users.store') }}" method="POST">
                 @csrf
+
+                <div class="form-group">
+                    <label for="username" class="form-label">Username *</label>
+                    <input type="text" id="username" name="username" class="form-input"
+                        value="{{ old('username') }}" required>
+                    <p class="form-help">For login purposes</p>
+                    @error('username')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
 
                 <div class="form-group">
                     <label for="name" class="form-label">Full Name *</label>
@@ -22,6 +32,20 @@
                     <input type="email" id="email" name="email" class="form-input" value="{{ old('email') }}"
                         required>
                     @error('email')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="role" class="form-label">Role *</label>
+                    <select id="role" name="role" class="form-select" required>
+                        <option value="">Select Role</option>
+                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="cashier" {{ old('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
+                        <option value="inventory_manager" {{ old('role') == 'inventory_manager' ? 'selected' : '' }}>
+                            Inventory Manager</option>
+                    </select>
+                    @error('role')
                         <p class="form-error">{{ $message }}</p>
                     @enderror
                 </div>

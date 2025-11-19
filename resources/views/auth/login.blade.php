@@ -52,15 +52,15 @@
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 
-                        <!-- Email Address -->
+                        <!-- Username -->
                         <div class="mb-5">
-                            <label for="email" class="block text-[#2c6356] text-sm font-semibold mb-2">
-                                Email Address
+                            <label for="username" class="block text-[#2c6356] text-sm font-semibold mb-2">
+                                Username
                             </label>
                             <div class="relative">
-                                <input type="email" id="email" name="email" value="{{ old('email') }}"
+                                <input type="text" id="username" name="username" value="{{ old('username') }}"
                                     class="w-full px-4 py-3.5 bg-[#f8f9fa] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3a7d6f] focus:border-transparent focus:bg-white transition-all"
-                                    placeholder="Enter your email address" required autofocus>
+                                    placeholder="Enter your username" required autofocus>
                                 <svg class="w-5 h-5 text-gray-400 absolute right-4 top-1/2 transform -translate-y-1/2"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

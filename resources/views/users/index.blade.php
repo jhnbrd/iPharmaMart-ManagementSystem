@@ -15,9 +15,11 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>Username</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Status</th>
                     <th>Created At</th>
                     <th>Actions</th>
                 </tr>
@@ -25,9 +27,25 @@
             <tbody>
                 @forelse($users as $user)
                     <tr>
-                        <td class="font-medium">{{ $user->name }}</td>
+                        <td class="font-medium">{{ $user->username }}</td>
+                        <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
-                        <td><span class="badge-info">Admin</span></td>
+                        <td>
+                            @if ($user->role === 'admin')
+                                <span class="badge-danger">Admin</span>
+                            @elseif($user->role === 'cashier')
+                                <span class="badge-info">Cashier</span>
+                            @else
+                                <span class="badge-warning">Inventory Manager</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if ($user->is_active)
+                                <span class="badge-success">Active</span>
+                            @else
+                                <span class="badge-secondary">Inactive</span>
+                            @endif
+                        </td>
                         <td>{{ $user->created_at->format('Y-m-d') }}</td>
                         <td>
                             <div class="flex gap-2">
@@ -48,7 +66,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center py-8 text-[var(--color-text-secondary)]">
+                        <td colspan="7" class="text-center py-8 text-[var(--color-text-secondary)]">
                             No users found. <a href="{{ route('users.create') }}"
                                 class="text-[var(--color-brand-green)] hover:underline">Add your first user</a>
                         </td>

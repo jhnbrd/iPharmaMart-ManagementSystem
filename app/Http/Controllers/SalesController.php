@@ -7,6 +7,7 @@ use App\Models\SaleItem;
 use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SalesController extends Controller
@@ -74,7 +75,7 @@ class SalesController extends Controller
             // Create sale
             $sale = Sale::create([
                 'customer_id' => $customerId,
-                'user_id' => auth()->id() ?? 1,
+                'user_id' => Auth::id(),
                 'total' => $total,
             ]);
 

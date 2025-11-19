@@ -4,7 +4,7 @@
             <h1 class="page-title">Add New Customer</h1>
         </div>
 
-        <div class="card">
+        <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">
             <form action="{{ route('customers.store') }}" method="POST">
                 @csrf
 

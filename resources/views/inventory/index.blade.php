@@ -16,6 +16,7 @@
             <thead>
                 <tr>
                     <th>Product Name</th>
+                    <th>Type</th>
                     <th>Category</th>
                     <th>Stock</th>
                     <th>Price</th>
@@ -29,9 +30,16 @@
                 @forelse($products as $product)
                     <tr>
                         <td class="font-medium">{{ $product->name }}</td>
+                        <td>
+                            @if ($product->product_type === 'pharmacy')
+                                <span class="badge-info">Pharmacy</span>
+                            @else
+                                <span class="badge-warning">Mini Mart</span>
+                            @endif
+                        </td>
                         <td>{{ $product->category->name }}</td>
                         <td>{{ $product->stock }}</td>
-                        <td>${{ number_format($product->price, 2) }}</td>
+                        <td>₱{{ number_format($product->price, 2) }}</td>
                         <td>{{ $product->supplier->name }}</td>
                         <td>{{ $product->expiry_date ? $product->expiry_date->format('Y-m-d') : 'N/A' }}</td>
                         <td>
@@ -60,7 +68,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center py-8 text-[var(--color-text-secondary)]">
+                        <td colspan="9" class="text-center py-8 text-[var(--color-text-secondary)]">
                             No products found. <a href="{{ route('inventory.create') }}"
                                 class="text-[var(--color-brand-green)] hover:underline">Add your first product</a>
                         </td>

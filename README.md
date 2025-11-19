@@ -359,15 +359,35 @@ php artisan view:cache
 
 After seeding the database, use these credentials:
 
+### Admin Account (Full Access)
+
 ```
-Email: admin@ipharmamart.com
+Username: admin
 Password: password
+Role: Admin
+```
+
+### Cashier Account (POS & Sales)
+
+```
+Username: cashier1
+Password: password
+Role: Cashier
+```
+
+### Inventory Manager (Products & Stock)
+
+```
+Username: inventory1
+Password: password
+Role: Inventory Manager
 ```
 
 **⚠️ Security Warning:**
 
--   Change the default password immediately after first login!
+-   Change all default passwords immediately after first login!
 -   Update `.env` file with `APP_ENV=production` and `APP_DEBUG=false` for production use
+-   Login now uses **username** instead of email for easier access
 
 ---
 

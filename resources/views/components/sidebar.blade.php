@@ -95,7 +95,16 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-white text-sm font-semibold truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-white/60 text-xs truncate">{{ auth()->user()->email }}</p>
+                    <p class="text-white/60 text-xs truncate">@{{ auth() - > user() - > username }}</p>
+                    <p class="text-white/50 text-xs truncate">
+                        @if (auth()->user()->role === 'admin')
+                            👑 Admin
+                        @elseif(auth()->user()->role === 'cashier')
+                            💰 Cashier
+                        @else
+                            📦 Inventory Manager
+                        @endif
+                    </p>
                 </div>
             </div>
         </div>

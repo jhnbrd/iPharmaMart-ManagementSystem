@@ -4,7 +4,7 @@
             <h1 class="page-title">Edit Product</h1>
         </div>
 
-        <div class="card">
+        <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">
             <form action="{{ route('inventory.update', $product) }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -15,6 +15,31 @@
                         <input type="text" id="name" name="name" class="form-input"
                             value="{{ old('name', $product->name) }}" required>
                         @error('name')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product_type" class="form-label">Product Type *</label>
+                        <select id="product_type" name="product_type" class="form-select" required>
+                            <option value="">Select Product Type</option>
+                            <option value="pharmacy"
+                                {{ old('product_type', $product->product_type) == 'pharmacy' ? 'selected' : '' }}>
+                                Pharmacy</option>
+                            <option value="mini_mart"
+                                {{ old('product_type', $product->product_type) == 'mini_mart' ? 'selected' : '' }}>Mini
+                                Mart</option>
+                        </select>
+                        @error('product_type')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="barcode" class="form-label">Barcode</label>
+                        <input type="text" id="barcode" name="barcode" class="form-input"
+                            value="{{ old('barcode', $product->barcode) }}" placeholder="Optional">
+                        @error('barcode')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>
@@ -100,7 +125,8 @@
                 <div class="flex flex-col sm:flex-row gap-3 mt-6">
                     <button type="submit" class="btn btn-primary">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 13l4 4L19 7" />
                         </svg>
                         Update Product
                     </button>

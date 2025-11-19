@@ -30,6 +30,8 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'product_type' => 'required|in:pharmacy,mini_mart',
+            'barcode' => 'nullable|string|unique:products,barcode',
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'stock' => 'required|integer|min:0',
@@ -57,6 +59,8 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'product_type' => 'required|in:pharmacy,mini_mart',
+            'barcode' => 'nullable|string|unique:products,barcode,' . $product->id,
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'stock' => 'required|integer|min:0',

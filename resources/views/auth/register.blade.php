@@ -47,6 +47,17 @@
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
 
+                        <!-- Username -->
+                        <div class="mb-4">
+                            <label for="username" class="block text-[#2c6356] text-sm font-semibold mb-2">
+                                Username
+                            </label>
+                            <input type="text" id="username" name="username" value="{{ old('username') }}"
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3a7d6f] focus:border-transparent transition-all"
+                                placeholder="Choose a username" required autofocus>
+                            <p class="text-xs text-gray-500 mt-1">Letters, numbers, dashes and underscores only</p>
+                        </div>
+
                         <!-- Name -->
                         <div class="mb-4">
                             <label for="name" class="block text-[#2c6356] text-sm font-semibold mb-2">
@@ -54,7 +65,7 @@
                             </label>
                             <input type="text" id="name" name="name" value="{{ old('name') }}"
                                 class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3a7d6f] focus:border-transparent transition-all"
-                                placeholder="Enter your full name" required autofocus>
+                                placeholder="Enter your full name" required>
                         </div>
 
                         <!-- Email Address -->

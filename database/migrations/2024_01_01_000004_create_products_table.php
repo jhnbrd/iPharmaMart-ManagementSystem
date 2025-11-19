@@ -11,8 +11,10 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->enum('product_type', ['mini_mart', 'pharmacy'])->default('pharmacy');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+            $table->string('barcode')->unique()->nullable();
             $table->integer('stock')->default(0);
             $table->integer('low_stock_threshold')->default(50);
             $table->decimal('price', 10, 2);

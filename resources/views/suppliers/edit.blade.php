@@ -4,7 +4,7 @@
             <h1 class="page-title">Edit Supplier</h1>
         </div>
 
-        <div class="card">
+        <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">
             <form action="{{ route('suppliers.update', $supplier) }}" method="POST">
                 @csrf
                 @method('PUT')

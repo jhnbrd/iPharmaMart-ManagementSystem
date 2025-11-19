@@ -19,11 +19,31 @@ class AppDataSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create default user
         User::create([
+            'username' => 'admin',
             'name' => 'Admin User',
             'email' => 'admin@ipharmamart.com',
             'password' => Hash::make('password'),
+            'role' => 'admin',
+            'is_active' => true,
+        ]);
+
+        User::create([
+            'username' => 'cashier1',
+            'name' => 'Juan Dela Cruz',
+            'email' => 'cashier@ipharmamart.com',
+            'password' => Hash::make('password'),
+            'role' => 'cashier',
+            'is_active' => true,
+        ]);
+
+        User::create([
+            'username' => 'inventory1',
+            'name' => 'Maria Santos',
+            'email' => 'inventory@ipharmamart.com',
+            'password' => Hash::make('password'),
+            'role' => 'inventory_manager',
+            'is_active' => true,
         ]);
 
         // Create Categories
@@ -90,12 +110,13 @@ class AppDataSeeder extends Seeder
             Customer::create($customer);
         }
 
-        // Create Products (matching Figma design)
         $products = [
             [
                 'name' => 'Paracetamol 500mg',
-                'category_id' => 1, // Pain Relief
+                'product_type' => 'pharmacy',
+                'category_id' => 1,
                 'supplier_id' => 1,
+                'barcode' => '8901234567890',
                 'stock' => 150,
                 'low_stock_threshold' => 100,
                 'price' => 5.99,
@@ -104,8 +125,10 @@ class AppDataSeeder extends Seeder
             ],
             [
                 'name' => 'Amoxicillin 250mg',
-                'category_id' => 2, // Antibiotics
+                'product_type' => 'pharmacy',
+                'category_id' => 2,
                 'supplier_id' => 2,
+                'barcode' => '8901234567891',
                 'stock' => 75,
                 'low_stock_threshold' => 100,
                 'price' => 12.50,
@@ -114,8 +137,10 @@ class AppDataSeeder extends Seeder
             ],
             [
                 'name' => 'Vitamin D3 1000IU',
-                'category_id' => 3, // Supplements
+                'product_type' => 'pharmacy',
+                'category_id' => 3,
                 'supplier_id' => 3,
+                'barcode' => '8901234567892',
                 'stock' => 200,
                 'low_stock_threshold' => 50,
                 'price' => 8.99,
@@ -124,13 +149,39 @@ class AppDataSeeder extends Seeder
             ],
             [
                 'name' => 'Ibuprofen 400mg',
-                'category_id' => 1, // Pain Relief
+                'product_type' => 'pharmacy',
+                'category_id' => 1,
                 'supplier_id' => 1,
+                'barcode' => '8901234567893',
                 'stock' => 120,
                 'low_stock_threshold' => 80,
                 'price' => 7.25,
                 'expiry_date' => '2025-09-30',
                 'description' => 'Anti-inflammatory pain reliever'
+            ],
+            [
+                'name' => 'Coca Cola 1.5L',
+                'product_type' => 'mini_mart',
+                'category_id' => 3,
+                'supplier_id' => 3,
+                'barcode' => '8901234567894',
+                'stock' => 250,
+                'low_stock_threshold' => 50,
+                'price' => 65.00,
+                'expiry_date' => '2025-12-31',
+                'description' => 'Soft drink beverage'
+            ],
+            [
+                'name' => 'Lucky Me Instant Noodles',
+                'product_type' => 'mini_mart',
+                'category_id' => 3,
+                'supplier_id' => 2,
+                'barcode' => '8901234567895',
+                'stock' => 300,
+                'low_stock_threshold' => 100,
+                'price' => 12.00,
+                'expiry_date' => '2025-08-30',
+                'description' => 'Instant noodle pack'
             ],
         ];
 
