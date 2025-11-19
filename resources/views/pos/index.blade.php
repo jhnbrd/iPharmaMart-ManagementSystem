@@ -597,6 +597,60 @@
             </div>
         </div>
     </div>
+
+    <!-- Void Item Authorization Modal -->
+    <div id="voidItemModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50"
+        style="display: none;">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 m-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Admin Authorization Required</h3>
+                <button onclick="closeVoidItemModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 mb-2">
+                    You are about to remove the item: <span id="voidItemName" class="font-bold text-gray-900"></span>
+                </p>
+                <p class="text-sm text-red-600">
+                    ⚠️ This action requires admin authorization.
+                </p>
+            </div>
+            <form id="voidItemForm" onsubmit="processVoidItem(event)">
+                <input type="hidden" id="voidItemId">
+                <div class="space-y-4">
+                    <div>
+                        <label class="form-label">Admin Username *</label>
+                        <input type="text" id="voidAdminUsername" class="form-input" required autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="form-label">Admin Password *</label>
+                        <input type="password" id="voidAdminPassword" class="form-input" required
+                            autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="form-label">Reason for Void *</label>
+                        <textarea id="voidReason" class="form-input" rows="2" required
+                            placeholder="Enter reason for removing this item..."></textarea>
+                    </div>
+                    <div id="voidAuthError"
+                        class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeVoidItemModal()" class="btn btn-secondary flex-1">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-danger flex-1">
+                        Void Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     </div>
 
     <script>
@@ -646,6 +700,67 @@
             updateCart();
         }
 
+        // Void Item Functions
+        function openVoidItemModal(productId, productName) {
+            document.getElementById('voidItemId').value = productId;
+            document.getElementById('voidItemName').textContent = productName;
+            document.getElementById('voidItemForm').reset();
+            document.getElementById('voidItemId').value = productId; // Reset clears this, so set again
+            document.getElementById('voidAuthError').classList.add('hidden');
+            document.getElementById('voidItemModal').style.display = 'flex';
+        }
+
+        function closeVoidItemModal() {
+            document.getElementById('voidItemModal').style.display = 'none';
+        }
+
+        function processVoidItem(event) {
+            event.preventDefault();
+
+            const productId = parseInt(document.getElementById('voidItemId').value);
+            const username = document.getElementById('voidAdminUsername').value;
+            const password = document.getElementById('voidAdminPassword').value;
+            const reason = document.getElementById('voidReason').value;
+
+            // Verify admin credentials via AJAX
+            fetch('{{ route('pos.verify-admin') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        action: 'void_item',
+                        item_id: productId,
+                        reason: reason
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove item from cart
+                        removeFromCart(productId);
+                        closeVoidItemModal();
+
+                        // Show success message
+                        alert(`Item voided successfully by ${data.admin_name}`);
+                    } else {
+                        // Show error
+                        const errorDiv = document.getElementById('voidAuthError');
+                        errorDiv.textContent = data.message || 'Invalid admin credentials';
+                        errorDiv.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Void verification error:', error);
+                    const errorDiv = document.getElementById('voidAuthError');
+                    errorDiv.textContent = 'Error verifying credentials. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                });
+        }
+
         function updateCart() {
             const cartTableBody = document.getElementById('cartTableBody');
 
@@ -683,7 +798,7 @@
                         <td class="text-right">₱${item.price.toFixed(2)}</td>
                         <td class="text-right font-semibold">₱${subtotal.toFixed(2)}</td>
                         <td>
-                            <button onclick="removeFromCart(${item.id})" class="text-red-600 hover:text-red-800">
+                            <button onclick="openVoidItemModal(${item.id}, '${item.name.replace(/'/g, "\\'")}')" class="text-red-600 hover:text-red-800" title="Void Item">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>

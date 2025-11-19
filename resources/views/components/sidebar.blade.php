@@ -29,7 +29,7 @@
                 <span>Dashboard</span>
             </a>
 
-            @if (in_array(auth()->user()->role, ['superadmin', 'admin', 'cashier']))
+            @if (in_array(auth()->user()->role, ['admin', 'cashier']))
                 <!-- SALES SECTION -->
                 <div class="px-4 pt-4 pb-2">
                     <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Sales</h3>
@@ -63,7 +63,7 @@
                 </a>
             @endif
 
-            @if (in_array(auth()->user()->role, ['superadmin', 'admin', 'inventory_manager']))
+            @if (in_array(auth()->user()->role, ['admin', 'inventory_manager']))
                 <!-- INVENTORY SECTION -->
                 <div class="px-4 pt-4 pb-2">
                     <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Inventory</h3>

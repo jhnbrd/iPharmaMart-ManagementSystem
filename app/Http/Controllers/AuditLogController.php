@@ -23,7 +23,7 @@ class AuditLogController extends Controller
             $query->whereDate('created_at', $request->date);
         }
 
-        $logs = $query->paginate(50);
+        $logs = $query->paginate(10);
         $actions = AuditLog::distinct()->pluck('action');
 
         return view('audit-logs.index', compact('logs', 'actions'));

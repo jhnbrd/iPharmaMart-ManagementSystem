@@ -13,11 +13,34 @@ class StockController extends Controller
 {
     use LogsActivity;
 
-    public function index()
+    public function index(Request $request)
     {
-        $movements = StockMovement::with(['product.category', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(50);
+        $query = StockMovement::with(['product.category', 'user']);
+
+        // Filter by type
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Filter by product name
+        if ($request->filled('product')) {
+            $query->whereHas('product', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->product . '%');
+            });
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $movements = $query->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->appends($request->except('page'));
 
         return view('stock.index', compact('movements'));
     }

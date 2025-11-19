@@ -13,7 +13,7 @@ class SupplierController extends Controller
     {
         $suppliers = Supplier::withCount('products')
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate(10);
 
         return view('suppliers.index', compact('suppliers'));
     }

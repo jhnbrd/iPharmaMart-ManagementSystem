@@ -19,6 +19,48 @@
         </div>
     </div>
 
+    <!-- Filters -->
+    <div class="bg-white p-4 shadow-sm border border-[var(--color-border-light)] mb-6">
+        <form method="GET" action="{{ route('stock.index') }}" class="flex flex-wrap gap-3 items-end">
+            <div class="form-group mb-0" style="min-width: 150px; flex: 1;">
+                <label for="type" class="form-label text-xs mb-1">Type</label>
+                <select id="type" name="type" class="form-select text-sm py-1.5">
+                    <option value="">All Types</option>
+                    <option value="in" {{ request('type') === 'in' ? 'selected' : '' }}>Stock In</option>
+                    <option value="out" {{ request('type') === 'out' ? 'selected' : '' }}>Stock Out</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-0" style="min-width: 180px; flex: 1;">
+                <label for="product" class="form-label text-xs mb-1">Product</label>
+                <input type="text" id="product" name="product" class="form-input text-sm py-1.5"
+                    value="{{ request('product') }}" placeholder="Search product...">
+            </div>
+
+            <div class="form-group mb-0" style="min-width: 150px; flex: 1;">
+                <label for="date_from" class="form-label text-xs mb-1">From Date</label>
+                <input type="date" id="date_from" name="date_from" class="form-input text-sm py-1.5"
+                    value="{{ request('date_from') }}">
+            </div>
+
+            <div class="form-group mb-0" style="min-width: 150px; flex: 1;">
+                <label for="date_to" class="form-label text-xs mb-1">To Date</label>
+                <input type="date" id="date_to" name="date_to" class="form-input text-sm py-1.5"
+                    value="{{ request('date_to') }}">
+            </div>
+
+            <div class="form-group mb-0">
+                <button type="submit" class="btn btn-primary text-sm py-1.5 px-4">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- Movements Table -->
     <div class="table-container">
         <table class="table">
@@ -88,7 +130,6 @@
         </table>
     </div>
 
-    <!-- Pagination -->
     <div class="mt-6">
         {{ $movements->links() }}
     </div>

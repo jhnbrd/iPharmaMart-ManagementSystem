@@ -13,7 +13,7 @@ class CustomerController extends Controller
     {
         $customers = Customer::withCount('sales')
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate(10);
 
         return view('customers.index', compact('customers'));
     }

@@ -11,13 +11,51 @@ use Illuminate\Http\Request;
 class InventoryController extends Controller
 {
     use LogsActivity;
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['category', 'supplier'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = Product::with(['category', 'supplier']);
 
-        return view('inventory.index', compact('products'));
+        // Filter by product name
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter by product type
+        if ($request->filled('product_type')) {
+            $query->where('product_type', $request->product_type);
+        }
+
+        // Filter by category
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Filter by stock status
+        if ($request->filled('stock_status')) {
+            switch ($request->stock_status) {
+                case 'out':
+                    $query->where('stock', 0);
+                    break;
+                case 'critical':
+                    $query->whereColumn('stock', '<=', 'stock_danger_level')->where('stock', '>', 0);
+                    break;
+                case 'low':
+                    $query->whereColumn('stock', '<=', 'low_stock_threshold')
+                        ->whereColumn('stock', '>', 'stock_danger_level');
+                    break;
+                case 'ok':
+                    $query->whereColumn('stock', '>', 'low_stock_threshold');
+                    break;
+            }
+        }
+
+        $products = $query->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->appends($request->except('page'));
+
+        $categories = Category::all();
+
+        return view('inventory.index', compact('products', 'categories'));
     }
 
     public function create()
@@ -100,6 +138,47 @@ class InventoryController extends Controller
 
         return redirect()->route('inventory.index')
             ->with('success', 'Product updated successfully.');
+    }
+
+    public function void(Request $request, Product $inventory)
+    {
+        $validated = $request->validate([
+            'admin_username' => 'required|string',
+            'admin_password' => 'required|string',
+            'void_reason' => 'required|string',
+        ]);
+
+        // Verify admin credentials
+        $admin = \App\Models\User::where('username', $validated['admin_username'])
+            ->whereIn('role', ['admin', 'superadmin'])
+            ->first();
+
+        if (!$admin || !\Illuminate\Support\Facades\Hash::check($validated['admin_password'], $admin->password)) {
+            return redirect()->back()
+                ->with('error', 'Invalid admin credentials. Only admin users can void products.');
+        }
+
+        $productName = $inventory->name;
+        $productData = $inventory->toArray();
+
+        // Delete the product
+        $inventory->delete();
+
+        // Log the void action with admin authorization details
+        self::logActivity(
+            'delete',
+            "VOIDED product: {$productName} - Reason: {$validated['void_reason']} - Authorized by: {$admin->name}",
+            null,
+            $productData,
+            [
+                'void_reason' => $validated['void_reason'],
+                'authorized_by' => $admin->name,
+                'authorized_by_username' => $admin->username,
+            ]
+        );
+
+        return redirect()->route('inventory.index')
+            ->with('success', "Product '{$productName}' has been voided successfully.");
     }
 
     public function destroy(Product $inventory)

@@ -9,6 +9,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -39,12 +40,14 @@ Route::middleware('auth')->group(function () {
     // Point of Sale - Superadmin, Admin, Cashier only
     Route::middleware('role:superadmin,admin,cashier')->group(function () {
         Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
+        Route::post('/pos/verify-admin', [POSController::class, 'verifyAdmin'])->name('pos.verify-admin');
         Route::resource('sales', SalesController::class)->except(['edit', 'update', 'destroy']);
         Route::resource('customers', CustomerController::class)->except(['show']);
     });
 
     // Inventory Management - Superadmin, Admin, Inventory Manager only
     Route::middleware('role:superadmin,admin,inventory_manager')->group(function () {
+        Route::delete('/inventory/{inventory}/void', [InventoryController::class, 'void'])->name('inventory.void');
         Route::resource('inventory', InventoryController::class);
         Route::resource('suppliers', SupplierController::class)->except(['show']);
 
@@ -65,4 +68,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:superadmin')->group(function () {
         Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
     });
+
+    // Reports - All authenticated users
+    Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+    Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
 });

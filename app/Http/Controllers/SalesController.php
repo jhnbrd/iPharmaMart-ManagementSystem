@@ -14,11 +14,34 @@ use Illuminate\Support\Facades\DB;
 class SalesController extends Controller
 {
     use LogsActivity;
-    public function index()
+    public function index(Request $request)
     {
-        $sales = Sale::with(['customer', 'items.product', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = Sale::with(['customer', 'items.product', 'user']);
+
+        // Filter by customer
+        if ($request->filled('customer')) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->customer . '%');
+            });
+        }
+
+        // Filter by payment method
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $sales = $query->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->appends($request->except('page'));
 
         return view('sales.index', compact('sales'));
     }
