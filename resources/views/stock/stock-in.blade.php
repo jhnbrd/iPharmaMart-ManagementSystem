@@ -14,11 +14,11 @@
                         <select id="product_id" name="product_id" class="form-select" required>
                             <option value="">Select Product</option>
                             @foreach ($products as $product)
-                                <option value="{{ $product->id }}" data-stock="{{ $product->stock }}"
-                                    data-unit="{{ $product->unit }}"
+                                <option value="{{ $product->id }}" data-shelf="{{ $product->shelf_stock }}"
+                                    data-back="{{ $product->back_stock }}" data-unit="{{ $product->unit }}"
                                     {{ old('product_id') == $product->id ? 'selected' : '' }}>
                                     {{ $product->name }} - {{ $product->category->name }}
-                                    (Current Stock: {{ $product->stock }} {{ $product->unit }})
+                                    (Shelf: {{ $product->shelf_stock }}, Back: {{ $product->back_stock }})
                                 </option>
                             @endforeach
                         </select>
@@ -29,12 +29,19 @@
 
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4" id="product-info"
                         style="display: none;">
-                        <div class="flex justify-between items-center">
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <p class="text-sm font-medium text-blue-900">Current Stock</p>
+                                <p class="text-sm font-medium text-blue-900">Shelf Stock</p>
                                 <p class="text-2xl font-bold text-blue-700">
-                                    <span id="current-stock">0</span>
-                                    <span id="stock-unit" class="text-lg">pcs</span>
+                                    <span id="shelf-stock">0</span>
+                                    <span id="stock-unit-1" class="text-lg">pcs</span>
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-green-900">Back Stock</p>
+                                <p class="text-2xl font-bold text-green-700">
+                                    <span id="back-stock">0</span>
+                                    <span id="stock-unit-2" class="text-lg">pcs</span>
                                 </p>
                             </div>
                         </div>
@@ -104,7 +111,8 @@
                 <div class="flex flex-col sm:flex-row gap-3 mt-6">
                     <button type="submit" class="btn btn-success">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 13l4 4L19 7" />
                         </svg>
                         Add Stock
                     </button>
@@ -122,11 +130,14 @@
             const productInfo = document.getElementById('product-info');
 
             if (this.value) {
-                const stock = selectedOption.getAttribute('data-stock');
+                const shelf = selectedOption.getAttribute('data-shelf');
+                const back = selectedOption.getAttribute('data-back');
                 const unit = selectedOption.getAttribute('data-unit');
 
-                document.getElementById('current-stock').textContent = stock;
-                document.getElementById('stock-unit').textContent = unit;
+                document.getElementById('shelf-stock').textContent = shelf;
+                document.getElementById('back-stock').textContent = back;
+                document.getElementById('stock-unit-1').textContent = unit;
+                document.getElementById('stock-unit-2').textContent = unit;
                 productInfo.style.display = 'block';
             } else {
                 productInfo.style.display = 'none';

@@ -114,12 +114,19 @@
 
                     <div class="form-group">
                         <label class="form-label">Current Stock Quantity</label>
-                        <div class="form-input bg-gray-100 cursor-not-allowed"
-                            style="display: flex; align-items: center; justify-content: space-between;">
-                            <span class="font-semibold text-lg">{{ $inventory->stock }} {{ $inventory->unit }}</span>
-                            <span class="text-xs text-[var(--color-text-secondary)]">
-                                Use Stock In/Out to adjust
-                            </span>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="form-input bg-blue-50 cursor-not-allowed text-center">
+                                <div class="text-xs text-[var(--color-text-secondary)]">Shelf</div>
+                                <div class="font-semibold text-lg text-blue-700">{{ $inventory->shelf_stock }}</div>
+                            </div>
+                            <div class="form-input bg-green-50 cursor-not-allowed text-center">
+                                <div class="text-xs text-[var(--color-text-secondary)]">Back</div>
+                                <div class="font-semibold text-lg text-green-700">{{ $inventory->back_stock }}</div>
+                            </div>
+                            <div class="form-input bg-gray-100 cursor-not-allowed text-center">
+                                <div class="text-xs text-[var(--color-text-secondary)]">Total</div>
+                                <div class="font-semibold text-lg">{{ $inventory->total_stock }} {{ $inventory->unit }}</div>
+                            </div>
                         </div>
                         <p class="text-xs text-[var(--color-text-secondary)] mt-1">
                             Stock can only be modified through the Stock In/Out module
