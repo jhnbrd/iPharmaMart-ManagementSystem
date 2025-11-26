@@ -37,18 +37,42 @@ Route::middleware('auth')->group(function () {
     // Dashboard - All roles
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Point of Sale - Superadmin, Admin, Cashier only
-    Route::middleware('role:superadmin,admin,cashier')->group(function () {
+    // Superadmin Only - Owner access
+    Route::middleware('role:superadmin')->group(function () {
+        Route::resource('users', UserController::class)->except(['show']);
+        Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
+    });
+
+    // Admin Only - Pharmacist & Back Office Staff (NO POS, NO Sales History, NO Users, NO Audit Logs)
+    Route::middleware('role:admin')->group(function () {
+        Route::delete('/inventory/{inventory}/void', [InventoryController::class, 'void'])->name('inventory.void');
+        Route::resource('inventory', InventoryController::class);
+        Route::resource('suppliers', SupplierController::class)->except(['show']);
+        Route::resource('customers', CustomerController::class)->except(['show']);
+
+        // Stock In/Out Module
+        Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
+        Route::get('/stock/in', [StockController::class, 'stockIn'])->name('stock.in');
+        Route::post('/stock/in', [StockController::class, 'processStockIn'])->name('stock.in.process');
+        Route::get('/stock/out', [StockController::class, 'stockOut'])->name('stock.out');
+        Route::post('/stock/out', [StockController::class, 'processStockOut'])->name('stock.out.process');
+
+        // Reports
+        Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+        Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
+    });
+
+    // Cashier Only - Cashier/OIC (POS, Sales History, Customers)
+    Route::middleware('role:cashier')->group(function () {
         Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
         Route::post('/pos/verify-admin', [POSController::class, 'verifyAdmin'])->name('pos.verify-admin');
-        Route::resource('sales', SalesController::class)->except(['edit', 'update', 'destroy']);
+        Route::resource('sales', SalesController::class)->only(['index', 'show']);
         Route::resource('customers', CustomerController::class)->except(['show']);
     });
 
-    // Inventory Management - Superadmin, Admin, Inventory Manager only
-    Route::middleware('role:superadmin,admin,inventory_manager')->group(function () {
-        Route::delete('/inventory/{inventory}/void', [InventoryController::class, 'void'])->name('inventory.void');
-        Route::resource('inventory', InventoryController::class);
+    // Inventory Manager Only - Pharmacist Assistant (Inventory operations)
+    Route::middleware('role:inventory_manager')->group(function () {
+        Route::resource('inventory', InventoryController::class)->except(['destroy']);
         Route::resource('suppliers', SupplierController::class)->except(['show']);
 
         // Stock In/Out Module
@@ -57,19 +81,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/stock/in', [StockController::class, 'processStockIn'])->name('stock.in.process');
         Route::get('/stock/out', [StockController::class, 'stockOut'])->name('stock.out');
         Route::post('/stock/out', [StockController::class, 'processStockOut'])->name('stock.out.process');
-    });
 
-    // User Management - Superadmin and Admin only
-    Route::middleware('role:superadmin,admin')->group(function () {
-        Route::resource('users', UserController::class)->except(['show']);
+        // Reports
+        Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
     });
-
-    // Audit Logs - Superadmin only
-    Route::middleware('role:superadmin')->group(function () {
-        Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
-    });
-
-    // Reports - All authenticated users
-    Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
-    Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
 });

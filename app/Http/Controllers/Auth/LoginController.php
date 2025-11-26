@@ -40,6 +40,11 @@ class LoginController extends Controller
 
             self::logActivity('login', "User logged in: " . Auth::user()->name);
 
+            // Redirect cashiers to POS, others to dashboard
+            if (Auth::user()->role === 'cashier') {
+                return redirect()->intended(route('pos.index'));
+            }
+
             return redirect()->intended(route('dashboard'));
         }
 
