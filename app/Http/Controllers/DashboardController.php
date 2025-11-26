@@ -23,8 +23,8 @@ class DashboardController extends Controller
             // Get total customers count
             $totalCustomers = Customer::count();
 
-            // Get low stock items count
-            $lowStockItems = Product::whereRaw('stock <= low_stock_threshold')->count();
+            // Low stock items count (using new shelf + back stock)
+            $lowStockItems = Product::whereRaw('(shelf_stock + back_stock) <= low_stock_threshold')->count();
 
             // Get monthly sales (current month)
             $monthlySales = Sale::whereMonth('created_at', Carbon::now()->month)
@@ -36,10 +36,27 @@ class DashboardController extends Controller
                 ->whereYear('created_at', Carbon::now()->year)
                 ->count();
 
-            // Stock reports
-            $totalStock = Product::sum('stock') ?? 0;
-            $criticalStockItems = Product::whereRaw('stock <= stock_danger_level')->count();
-            $outOfStockItems = Product::where('stock', 0)->count();
+            // Stock reports (using new structure)
+            $totalStock = Product::sum(DB::raw('shelf_stock + back_stock')) ?? 0;
+            $criticalStockItems = Product::whereRaw('(shelf_stock + back_stock) <= stock_danger_level')->count();
+            $outOfStockItems = Product::whereRaw('(shelf_stock + back_stock) = 0')->count();
+
+            // Expiry alerts - batches expiring within 30 days
+            $expiringBatches = \App\Models\ProductBatch::with('product')
+                ->where('expiry_date', '<=', Carbon::now()->addDays(30))
+                ->where('expiry_date', '>', Carbon::now())
+                ->whereRaw('(shelf_quantity + back_quantity) > 0')
+                ->orderBy('expiry_date', 'asc')
+                ->take(5)
+                ->get();
+
+            // Expired batches
+            $expiredBatches = \App\Models\ProductBatch::with('product')
+                ->where('expiry_date', '<=', Carbon::now())
+                ->whereRaw('(shelf_quantity + back_quantity) > 0')
+                ->orderBy('expiry_date', 'desc')
+                ->take(5)
+                ->get();
 
             // Top products (by quantity sold in current month)
             $topProducts = DB::table('sale_items')
@@ -61,10 +78,10 @@ class DashboardController extends Controller
                 ->take(3)
                 ->get();
 
-            // Low stock products (detailed)
+            // Low stock products (detailed) - using new structure
             $lowStockProducts = Product::with(['category', 'supplier'])
-                ->whereRaw('stock <= low_stock_threshold')
-                ->orderBy('stock', 'asc')
+                ->whereRaw('(shelf_stock + back_stock) <= low_stock_threshold')
+                ->orderByRaw('(shelf_stock + back_stock) ASC')
                 ->take(3)
                 ->get();
 
@@ -79,7 +96,9 @@ class DashboardController extends Controller
                 'criticalStockItems',
                 'outOfStockItems',
                 'topProducts',
-                'lowStockProducts'
+                'lowStockProducts',
+                'expiringBatches',
+                'expiredBatches'
             ));
         } catch (\Exception $e) {
             return view('dashboard')->with('error', 'Failed to load dashboard data: ' . $e->getMessage());

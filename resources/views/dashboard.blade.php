@@ -173,6 +173,74 @@
             </div>
         </div>
 
+        <!-- Expiry Alerts -->
+        @if ($expiredBatches->isNotEmpty() || $expiringBatches->isNotEmpty())
+            <div class="bg-white border border-red-300">
+                <div class="px-6 py-3 border-b border-red-200 bg-red-50">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base font-semibold text-red-900">⚠️ Expiry Alerts</h2>
+                        <span
+                            class="badge-danger text-xs">{{ $expiredBatches->count() + $expiringBatches->count() }}</span>
+                    </div>
+                </div>
+                <div class="p-4">
+                    @if ($expiredBatches->isNotEmpty())
+                        <div class="mb-4">
+                            <h3 class="text-sm font-semibold text-red-700 mb-2">Expired Batches</h3>
+                            <div class="space-y-2">
+                                @foreach ($expiredBatches as $batch)
+                                    <div
+                                        class="flex items-center justify-between py-2 border-b border-red-100 bg-red-50 px-3 rounded">
+                                        <div class="flex-1">
+                                            <div class="text-sm font-medium text-red-900">{{ $batch->product->name }}
+                                            </div>
+                                            <div class="text-xs text-red-600">
+                                                Batch: {{ $batch->batch_number }} • Expired:
+                                                {{ $batch->expiry_date->format('Y-m-d') }}
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="badge-danger text-xs">EXPIRED</span>
+                                            <div class="text-sm font-bold text-red-700">{{ $batch->total_quantity }}
+                                                units</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($expiringBatches->isNotEmpty())
+                        <div>
+                            <h3 class="text-sm font-semibold text-orange-700 mb-2">Expiring Soon (Next 30 Days)</h3>
+                            <div class="space-y-2">
+                                @foreach ($expiringBatches as $batch)
+                                    <div
+                                        class="flex items-center justify-between py-2 border-b border-orange-100 bg-orange-50 px-3 rounded">
+                                        <div class="flex-1">
+                                            <div class="text-sm font-medium text-orange-900">
+                                                {{ $batch->product->name }}</div>
+                                            <div class="text-xs text-orange-600">
+                                                Batch: {{ $batch->batch_number }} • Expires:
+                                                {{ $batch->expiry_date->format('Y-m-d') }}
+                                                ({{ $batch->days_until_expiry }} days)
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="badge-warning text-xs">{{ $batch->days_until_expiry }}d
+                                                left</span>
+                                            <div class="text-sm font-bold text-orange-700">
+                                                {{ $batch->total_quantity }} units</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         <!-- Low Stock Products -->
         <div class="bg-white border border-[var(--color-border-light)]">
             <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
@@ -197,16 +265,16 @@
                                     </div>
                                 </div>
                                 <div class="text-right flex items-center gap-2">
-                                    @if ($product->stock == 0)
+                                    @if ($product->total_stock == 0)
                                         <span class="badge-danger text-xs">OUT</span>
-                                    @elseif ($product->stock <= $product->stock_danger_level)
+                                    @elseif ($product->total_stock <= $product->stock_danger_level)
                                         <span class="badge-danger text-xs">CRITICAL</span>
                                     @else
                                         <span class="badge-warning text-xs">LOW</span>
                                     @endif
                                     <span
-                                        class="text-xl font-bold {{ $product->stock == 0 ? 'text-[var(--color-danger)]' : ($product->stock <= $product->stock_danger_level ? 'text-[var(--color-danger)]' : 'text-[var(--color-accent-orange)]') }}">
-                                        {{ $product->stock }}
+                                        class="text-xl font-bold {{ $product->total_stock == 0 ? 'text-[var(--color-danger)]' : ($product->total_stock <= $product->stock_danger_level ? 'text-[var(--color-danger)]' : 'text-[var(--color-accent-orange)]') }}">
+                                        {{ $product->total_stock }}
                                     </span>
                                 </div>
                             </div>
