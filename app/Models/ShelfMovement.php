@@ -2,29 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StockMovement extends Model
+class ShelfMovement extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'product_id',
         'batch_id',
         'user_id',
-        'type',
-        'stock_in',
-        'stock_out',
-        'previous_stock',
-        'new_stock',
-        'reference_number',
-        'reason',
-    ];
-
-    protected $casts = [
-        'created_at' => 'datetime',
+        'quantity',
+        'previous_shelf_stock',
+        'new_shelf_stock',
+        'previous_back_stock',
+        'new_back_stock',
+        'remarks',
     ];
 
     public function product(): BelongsTo

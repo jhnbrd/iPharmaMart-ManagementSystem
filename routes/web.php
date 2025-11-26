@@ -43,12 +43,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
     });
 
-    // Admin Only - Pharmacist & Back Office Staff (NO POS, NO Sales History, NO Users, NO Audit Logs)
-    Route::middleware('role:admin')->group(function () {
-        Route::delete('/inventory/{inventory}/void', [InventoryController::class, 'void'])->name('inventory.void');
-        Route::resource('inventory', InventoryController::class);
-        Route::resource('suppliers', SupplierController::class)->except(['show']);
-        Route::resource('customers', CustomerController::class)->except(['show']);
+    // Admin & Inventory Manager - Inventory Management
+    Route::middleware('role:admin,inventory_manager')->group(function () {
+        Route::resource('inventory', InventoryController::class)->except(['destroy']);
 
         // Stock In/Out Module
         Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
@@ -56,33 +53,38 @@ Route::middleware('auth')->group(function () {
         Route::post('/stock/in', [StockController::class, 'processStockIn'])->name('stock.in.process');
         Route::get('/stock/out', [StockController::class, 'stockOut'])->name('stock.out');
         Route::post('/stock/out', [StockController::class, 'processStockOut'])->name('stock.out.process');
+
+        // Shelf Restocking
+        Route::get('/stock/restock', [StockController::class, 'restock'])->name('stock.restock');
+        Route::post('/stock/restock', [StockController::class, 'processRestock'])->name('stock.restock.process');
+    });
+
+    // Admin Only - Additional Admin Permissions
+    Route::middleware('role:admin')->group(function () {
+        Route::delete('/inventory/{inventory}/void', [InventoryController::class, 'void'])->name('inventory.void');
+        Route::delete('/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+        Route::resource('suppliers', SupplierController::class)->except(['show']);
 
         // Reports
         Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
     });
 
-    // Cashier Only - Cashier/OIC (POS, Sales History, Customers)
-    Route::middleware('role:cashier')->group(function () {
-        Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
-        Route::post('/pos/verify-admin', [POSController::class, 'verifyAdmin'])->name('pos.verify-admin');
+    // Inventory Manager Only - Reports
+    Route::middleware('role:inventory_manager')->group(function () {
+        Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
+    });
+
+    // Admin & Cashier - Sales & Customers
+    Route::middleware('role:admin,cashier')->group(function () {
         Route::resource('sales', SalesController::class)->only(['index', 'show']);
         Route::resource('customers', CustomerController::class)->except(['show']);
     });
 
-    // Inventory Manager Only - Pharmacist Assistant (Inventory operations)
-    Route::middleware('role:inventory_manager')->group(function () {
-        Route::resource('inventory', InventoryController::class)->except(['destroy']);
-        Route::resource('suppliers', SupplierController::class)->except(['show']);
-
-        // Stock In/Out Module
-        Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
-        Route::get('/stock/in', [StockController::class, 'stockIn'])->name('stock.in');
-        Route::post('/stock/in', [StockController::class, 'processStockIn'])->name('stock.in.process');
-        Route::get('/stock/out', [StockController::class, 'stockOut'])->name('stock.out');
-        Route::post('/stock/out', [StockController::class, 'processStockOut'])->name('stock.out.process');
-
-        // Reports
-        Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
+    // Cashier Only - POS
+    Route::middleware('role:cashier')->group(function () {
+        Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
+        Route::post('/pos/verify-admin', [POSController::class, 'verifyAdmin'])->name('pos.verify-admin');
+        Route::post('/sales', [SalesController::class, 'store'])->name('sales.store');
     });
 });

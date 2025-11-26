@@ -41,45 +41,58 @@ class POSController extends Controller
 
     public function verifyAdmin(Request $request)
     {
-        $validated = $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
-            'action' => 'required|string',
-            'item_id' => 'nullable|integer',
-            'reason' => 'required|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'username' => 'required|string',
+                'password' => 'required|string',
+                'action' => 'required|string',
+                'item_id' => 'nullable|integer',
+                'reason' => 'required|string',
+            ]);
 
-        // Verify admin credentials
-        $admin = \App\Models\User::where('username', $validated['username'])
-            ->whereIn('role', ['admin', 'superadmin'])
-            ->first();
+            // Verify admin credentials
+            $admin = \App\Models\User::where('username', $validated['username'])
+                ->whereIn('role', ['admin', 'superadmin'])
+                ->first();
 
-        if (!$admin || !\Illuminate\Support\Facades\Hash::check($validated['password'], $admin->password)) {
+            if (!$admin || !\Illuminate\Support\Facades\Hash::check($validated['password'], $admin->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid admin credentials. Only admin users can perform this action.'
+                ], 401);
+            }
+
+            // Log the void action
+            \App\Traits\LogsActivity::logActivity(
+                'void_item_pos',
+                "Voided item from POS cart - Item ID: {$validated['item_id']} - Reason: {$validated['reason']} - Authorized by: {$admin->name}",
+                null,
+                null,
+                [
+                    'action' => $validated['action'],
+                    'item_id' => $validated['item_id'],
+                    'reason' => $validated['reason'],
+                    'authorized_by' => $admin->name,
+                    'authorized_by_username' => $admin->username,
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'admin_name' => $admin->name,
+                'message' => 'Authorization successful'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid admin credentials. Only admin users can perform this action.'
-            ], 401);
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Log the void action
-        \App\Traits\LogsActivity::logActivity(
-            'void_item_pos',
-            "Voided item from POS cart - Item ID: {$validated['item_id']} - Reason: {$validated['reason']} - Authorized by: {$admin->name}",
-            null,
-            null,
-            [
-                'action' => $validated['action'],
-                'item_id' => $validated['item_id'],
-                'reason' => $validated['reason'],
-                'authorized_by' => $admin->name,
-                'authorized_by_username' => $admin->username,
-            ]
-        );
-
-        return response()->json([
-            'success' => true,
-            'admin_name' => $admin->name,
-            'message' => 'Authorization successful'
-        ]);
     }
 }

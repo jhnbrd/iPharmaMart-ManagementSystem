@@ -28,29 +28,37 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'username' => ['required', 'string'],
-            'password' => ['required'],
-        ]);
+        try {
+            $credentials = $request->validate([
+                'username' => ['required', 'string'],
+                'password' => ['required'],
+            ]);
 
-        $remember = $request->boolean('remember');
+            $remember = $request->boolean('remember');
 
-        if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
+            if (Auth::attempt($credentials, $remember)) {
+                $request->session()->regenerate();
 
-            self::logActivity('login', "User logged in: " . Auth::user()->name);
+                self::logActivity('login', "User logged in: " . Auth::user()->name);
 
-            // Redirect cashiers to POS, others to dashboard
-            if (Auth::user()->role === 'cashier') {
-                return redirect()->intended(route('pos.index'));
+                // Redirect cashiers to POS, others to dashboard
+                if (Auth::user()->role === 'cashier') {
+                    return redirect()->intended(route('pos.index'));
+                }
+
+                return redirect()->intended(route('dashboard'));
             }
 
-            return redirect()->intended(route('dashboard'));
+            throw ValidationException::withMessages([
+                'username' => __('The provided credentials do not match our records.'),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'An error occurred during login. Please try again.')
+                ->withInput($request->only('username', 'remember'));
         }
-
-        throw ValidationException::withMessages([
-            'username' => __('The provided credentials do not match our records.'),
-        ]);
     }
 
     /**
@@ -58,15 +66,25 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        $userName = Auth::user()->name;
+        try {
+            $userName = Auth::user()->name ?? 'Unknown User';
 
-        self::logActivity('logout', "User logged out: {$userName}");
+            self::logActivity('logout', "User logged out: {$userName}");
 
-        Auth::logout();
+            Auth::logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+            return redirect()->route('login');
+        } catch (\Exception $e) {
+            // Force logout even on error
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')
+                ->with('error', 'Logout completed with warnings.');
+        }
     }
 }

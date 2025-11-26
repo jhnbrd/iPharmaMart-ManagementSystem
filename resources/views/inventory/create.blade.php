@@ -101,15 +101,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="stock" class="form-label">Stock Quantity *</label>
-                        <input type="number" id="stock" name="stock" class="form-input"
-                            value="{{ old('stock', 0) }}" min="0" required>
-                        @error('stock')
-                            <p class="form-error">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
                         <label for="low_stock_threshold" class="form-label">Low Stock Alert Level *</label>
                         <input type="number" id="low_stock_threshold" name="low_stock_threshold" class="form-input"
                             value="{{ old('low_stock_threshold', 50) }}" min="0" required>
@@ -134,15 +125,6 @@
                         <input type="number" id="price" name="price" class="form-input"
                             value="{{ old('price') }}" step="0.01" min="0" required>
                         @error('price')
-                            <p class="form-error">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="expiry_date" class="form-label">Expiry Date</label>
-                        <input type="date" id="expiry_date" name="expiry_date" class="form-input"
-                            value="{{ old('expiry_date') }}">
-                        @error('expiry_date')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>

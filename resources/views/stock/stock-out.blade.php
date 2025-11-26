@@ -66,6 +66,17 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="location" class="form-label">Remove From *</label>
+                        <select id="location" name="location" class="form-select" required>
+                            <option value="shelf" {{ old('location', 'shelf') == 'shelf' ? 'selected' : '' }}>Shelf Stock</option>
+                            <option value="back" {{ old('location') == 'back' ? 'selected' : '' }}>Back Stock</option>
+                        </select>
+                        @error('location')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="reference_number" class="form-label">Reference Number</label>
                         <input type="text" id="reference_number" name="reference_number" class="form-input"
                             value="{{ old('reference_number') }}" placeholder="e.g., DR#12345, Transfer #TRF-001">
@@ -75,10 +86,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="remarks" class="form-label">Remarks *</label>
-                        <textarea id="remarks" name="remarks" class="form-textarea" rows="3"
-                            placeholder="Reason for stock removal (e.g., damaged, expired, transferred)" required>{{ old('remarks') }}</textarea>
-                        @error('remarks')
+                        <label for="reason" class="form-label">Reason *</label>
+                        <textarea id="reason" name="reason" class="form-textarea" rows="3"
+                            placeholder="Reason for stock removal (e.g., damaged, expired, transferred)" required>{{ old('reason') }}</textarea>
+                        @error('reason')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>

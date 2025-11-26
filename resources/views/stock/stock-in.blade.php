@@ -50,6 +50,39 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="location" class="form-label">Stock Location *</label>
+                        <select id="location" name="location" class="form-select" required>
+                            <option value="shelf" {{ old('location') == 'shelf' ? 'selected' : '' }}>On Shelf
+                                (Display)</option>
+                            <option value="back" {{ old('location', 'back') == 'back' ? 'selected' : '' }}>Back Stock
+                                (Storage)</option>
+                        </select>
+                        @error('location')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" id="expiry_date" name="expiry_date" class="form-input"
+                            value="{{ old('expiry_date') }}" min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                        <p class="text-xs text-[var(--color-text-secondary)] mt-1">Optional - for tracking batch expiry
+                        </p>
+                        @error('expiry_date')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="manufacture_date" class="form-label">Manufacture Date</label>
+                        <input type="date" id="manufacture_date" name="manufacture_date" class="form-input"
+                            value="{{ old('manufacture_date') }}" max="{{ date('Y-m-d') }}">
+                        @error('manufacture_date')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="reference_number" class="form-label">Reference Number</label>
                         <input type="text" id="reference_number" name="reference_number" class="form-input"
                             value="{{ old('reference_number') }}" placeholder="e.g., PO#12345, Invoice #INV-001">
@@ -59,10 +92,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="remarks" class="form-label">Remarks</label>
-                        <textarea id="remarks" name="remarks" class="form-textarea" rows="3"
-                            placeholder="Optional notes about this stock movement">{{ old('remarks') }}</textarea>
-                        @error('remarks')
+                        <label for="reason" class="form-label">Reason/Notes</label>
+                        <textarea id="reason" name="reason" class="form-textarea" rows="3"
+                            placeholder="Reason for stock in (e.g., Supplier delivery, Returns)">{{ old('reason') }}</textarea>
+                        @error('reason')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>

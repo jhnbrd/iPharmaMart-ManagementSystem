@@ -17,19 +17,18 @@ class Product extends Model
         'category_id',
         'supplier_id',
         'barcode',
-        'stock',
+        'shelf_stock',
+        'back_stock',
         'low_stock_threshold',
         'stock_danger_level',
         'price',
         'unit',
         'unit_quantity',
-        'expiry_date',
         'description',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
-        'expiry_date' => 'date',
     ];
 
     public function category(): BelongsTo
@@ -52,14 +51,52 @@ class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    public function batches(): HasMany
+    {
+        return $this->hasMany(ProductBatch::class);
+    }
+
+    public function shelfMovements(): HasMany
+    {
+        return $this->hasMany(ShelfMovement::class);
+    }
+
+    public function getTotalStockAttribute(): int
+    {
+        return $this->shelf_stock + $this->back_stock;
+    }
+
+    public function getExpiringSoonBatchesAttribute()
+    {
+        return $this->batches()
+            ->where('expiry_date', '<=', now()->addDays(30))
+            ->where('expiry_date', '>', now())
+            ->where(function ($query) {
+                $query->where('shelf_quantity', '>', 0)
+                    ->orWhere('back_quantity', '>', 0);
+            })
+            ->get();
+    }
+
+    public function getExpiredBatchesAttribute()
+    {
+        return $this->batches()
+            ->where('expiry_date', '<=', now())
+            ->where(function ($query) {
+                $query->where('shelf_quantity', '>', 0)
+                    ->orWhere('back_quantity', '>', 0);
+            })
+            ->get();
+    }
+
     public function isLowStock(): bool
     {
-        return $this->stock <= $this->low_stock_threshold;
+        return $this->total_stock <= $this->low_stock_threshold;
     }
 
     public function isDangerStock(): bool
     {
-        return $this->stock <= $this->stock_danger_level;
+        return $this->total_stock <= $this->stock_danger_level;
     }
 
     public function getStockStatusAttribute(): string

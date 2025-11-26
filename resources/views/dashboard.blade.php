@@ -124,14 +124,9 @@
                         <span class="text-sm text-[var(--color-text-secondary)]">Low Stock</span>
                         <span class="text-xl font-bold text-[var(--color-accent-orange)]">{{ $lowStockItems }}</span>
                     </div>
-                    <div class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
-                        <span class="text-sm text-[var(--color-text-secondary)]">Critical</span>
-                        <span class="text-xl font-bold text-[var(--color-danger)]">{{ $criticalStockItems }}</span>
-                    </div>
                     <div class="flex items-center justify-between py-2">
                         <span class="text-sm text-[var(--color-text-secondary)]">Out of Stock</span>
-                        <span
-                            class="text-xl font-bold text-[var(--color-text-secondary)]">{{ $outOfStockItems }}</span>
+                        <span class="text-xl font-bold text-[var(--color-danger)]">{{ $outOfStockItems }}</span>
                     </div>
                 </div>
             </div>

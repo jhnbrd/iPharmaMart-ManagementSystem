@@ -25,25 +25,35 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:suppliers,email',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'nullable|email|unique:suppliers,email',
+                'phone' => 'nullable|string|max:20',
+                'address' => 'nullable|string',
+            ]);
 
-        $supplier = Supplier::create($validated);
+            $supplier = Supplier::create($validated);
 
-        self::logActivity(
-            'create',
-            "Created supplier: {$supplier->name}",
-            $supplier,
-            null,
-            $supplier->toArray()
-        );
+            self::logActivity(
+                'create',
+                "Created supplier: {$supplier->name}",
+                $supplier,
+                null,
+                $supplier->toArray()
+            );
 
-        return redirect()->route('suppliers.index')
-            ->with('success', 'Supplier added successfully.');
+            return redirect()->route('suppliers.index')
+                ->with('success', 'Supplier added successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to add supplier: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     public function edit(Supplier $supplier)
@@ -53,45 +63,66 @@ class SupplierController extends Controller
 
     public function update(Request $request, Supplier $supplier)
     {
-        $oldValues = $supplier->toArray();
+        try {
+            $oldValues = $supplier->toArray();
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:suppliers,email,' . $supplier->id,
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-        ]);
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'nullable|email|unique:suppliers,email,' . $supplier->id,
+                'phone' => 'nullable|string|max:20',
+                'address' => 'nullable|string',
+            ]);
 
-        $supplier->update($validated);
+            $supplier->update($validated);
 
-        self::logActivity(
-            'update',
-            "Updated supplier: {$supplier->name}",
-            $supplier,
-            $oldValues,
-            $supplier->fresh()->toArray()
-        );
+            self::logActivity(
+                'update',
+                "Updated supplier: {$supplier->name}",
+                $supplier,
+                $oldValues,
+                $supplier->fresh()->toArray()
+            );
 
-        return redirect()->route('suppliers.index')
-            ->with('success', 'Supplier updated successfully.');
+            return redirect()->route('suppliers.index')
+                ->with('success', 'Supplier updated successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to update supplier: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     public function destroy(Supplier $supplier)
     {
-        $supplierName = $supplier->name;
-        $supplierData = $supplier->toArray();
+        try {
+            // Check if supplier has any products
+            if ($supplier->products()->count() > 0) {
+                return redirect()->back()
+                    ->with('error', 'Cannot delete supplier with existing products.');
+            }
 
-        $supplier->delete();
+            $supplierName = $supplier->name;
+            $supplierData = $supplier->toArray();
 
-        self::logActivity(
-            'delete',
-            "Deleted supplier: {$supplierName}",
-            null,
-            $supplierData,
-            null
-        );
+            $supplier->delete();
 
-        return redirect()->route('suppliers.index')
-            ->with('success', 'Supplier deleted successfully.');
+            self::logActivity(
+                'delete',
+                "Deleted supplier: {$supplierName}",
+                null,
+                $supplierData,
+                null
+            );
+
+            return redirect()->route('suppliers.index')
+                ->with('success', 'Supplier deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to delete supplier: ' . $e->getMessage());
+        }
     }
 }

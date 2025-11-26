@@ -29,20 +29,22 @@
                 <span>Dashboard</span>
             </a>
 
-            @if (auth()->user()->role === 'cashier')
-                <!-- SALES SECTION - Cashier Only -->
+            @if (in_array(auth()->user()->role, ['admin', 'cashier']))
+                <!-- SALES SECTION -->
                 <div class="px-4 pt-4 pb-2">
                     <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Sales</h3>
                 </div>
 
-                <a href="{{ route('pos.index') }}"
-                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'pos.') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span>Point of Sale</span>
-                </a>
+                @if (auth()->user()->role === 'cashier')
+                    <a href="{{ route('pos.index') }}"
+                        class="sidebar-nav-item {{ str_starts_with($currentRoute, 'pos.') ? 'active' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span>Point of Sale</span>
+                    </a>
+                @endif
 
                 <a href="{{ route('sales.index') }}"
                     class="sidebar-nav-item {{ str_starts_with($currentRoute, 'sales.') ? 'active' : '' }}">
@@ -87,23 +89,16 @@
                     <span>Stock In/Out</span>
                 </a>
 
-                <a href="{{ route('suppliers.index') }}"
-                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'suppliers.') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <span>Suppliers</span>
-                </a>
-
-                <a href="{{ route('customers.index') }}"
-                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'customers.') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span>Customers</span>
-                </a>
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('suppliers.index') }}"
+                        class="sidebar-nav-item {{ str_starts_with($currentRoute, 'suppliers.') ? 'active' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <span>Suppliers</span>
+                    </a>
+                @endif
             @endif
 
             @if (auth()->user()->role === 'superadmin')
