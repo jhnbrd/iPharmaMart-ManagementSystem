@@ -125,7 +125,8 @@
                             </div>
                             <div class="form-input bg-gray-100 cursor-not-allowed text-center">
                                 <div class="text-xs text-[var(--color-text-secondary)]">Total</div>
-                                <div class="font-semibold text-lg">{{ $inventory->total_stock }} {{ $inventory->unit }}</div>
+                                <div class="font-semibold text-lg">{{ $inventory->total_stock }}
+                                    {{ $inventory->unit }}</div>
                             </div>
                         </div>
                         <p class="text-xs text-[var(--color-text-secondary)] mt-1">
