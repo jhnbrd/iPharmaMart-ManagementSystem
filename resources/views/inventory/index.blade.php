@@ -97,10 +97,11 @@
                     <th>Type</th>
                     <th>Category</th>
                     <th>Unit</th>
-                    <th>Stock</th>
+                    <th>Shelf Stock</th>
+                    <th>Back Stock</th>
+                    <th>Total</th>
                     <th>Price</th>
                     <th>Supplier</th>
-                    <th>Expiry Date</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -124,12 +125,17 @@
                         <td>{{ $product->category->name }}</td>
                         <td>{{ $product->unit }} ({{ $product->unit_quantity }})</td>
                         <td>
-                            <span class="font-medium">{{ $product->stock }}</span>
+                            <span class="font-medium text-blue-600">{{ $product->shelf_stock }}</span>
+                        </td>
+                        <td>
+                            <span class="font-medium text-green-600">{{ $product->back_stock }}</span>
+                        </td>
+                        <td>
+                            <span class="font-bold">{{ $product->total_stock }}</span>
                             <span class="text-xs text-[var(--color-text-secondary)]">{{ $product->unit }}</span>
                         </td>
                         <td>₱{{ number_format($product->price, 2) }}</td>
                         <td>{{ $product->supplier->name }}</td>
-                        <td>{{ $product->expiry_date ? $product->expiry_date->format('Y-m-d') : 'N/A' }}</td>
                         <td>
                             @if ($product->isDangerStock())
                                 <span class="badge-danger">Critical</span>
@@ -155,7 +161,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" class="text-center py-8 text-[var(--color-text-secondary)]">
+                        <td colspan="12" class="text-center py-8 text-[var(--color-text-secondary)]">
                             No products found. <a href="{{ route('inventory.create') }}"
                                 class="text-[var(--color-brand-green)] hover:underline">Add your first product</a>
                         </td>

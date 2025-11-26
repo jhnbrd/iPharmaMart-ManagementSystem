@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\DiscountTransactionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -68,6 +69,8 @@ Route::middleware('auth')->group(function () {
         // Reports
         Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
+        Route::get('/reports/senior-citizen', [ReportController::class, 'seniorCitizen'])->name('reports.senior-citizen');
+        Route::get('/reports/pwd', [ReportController::class, 'pwd'])->name('reports.pwd');
     });
 
     // Inventory Manager Only - Reports
@@ -79,6 +82,10 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin,cashier')->group(function () {
         Route::resource('sales', SalesController::class)->only(['index', 'show']);
         Route::resource('customers', CustomerController::class)->except(['show']);
+
+        // Senior Citizen & PWD Discount Transactions
+        Route::get('/discounts/senior-citizen', [DiscountTransactionController::class, 'seniorCitizenIndex'])->name('discounts.senior-citizen');
+        Route::get('/discounts/pwd', [DiscountTransactionController::class, 'pwdIndex'])->name('discounts.pwd');
     });
 
     // Cashier Only - POS

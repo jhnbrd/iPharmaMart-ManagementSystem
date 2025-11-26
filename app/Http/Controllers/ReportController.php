@@ -14,8 +14,16 @@ class ReportController extends Controller
     public function sales(Request $request)
     {
         try {
-            $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
-            $endDate = $request->input('end_date', Carbon::now()->format('Y-m-d'));
+            // Support month parameter (default to current month)
+            if ($request->filled('month')) {
+                $monthDate = Carbon::parse($request->month . '-01');
+                $startDate = $monthDate->startOfMonth()->format('Y-m-d');
+                $endDate = $monthDate->endOfMonth()->format('Y-m-d');
+            } else {
+                $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
+                $endDate = $request->input('end_date', Carbon::now()->format('Y-m-d'));
+            }
+
             $paymentMethod = $request->input('payment_method', '');
 
             // Validate date range
@@ -79,22 +87,22 @@ class ReportController extends Controller
             }
 
             if ($stockStatus === 'low') {
-                $query->whereRaw('stock <= low_stock_threshold');
+                $query->whereRaw('(shelf_stock + back_stock) <= low_stock_threshold AND (shelf_stock + back_stock) > stock_danger_level');
             } elseif ($stockStatus === 'critical') {
-                $query->whereRaw('stock <= stock_danger_level');
+                $query->whereRaw('(shelf_stock + back_stock) <= stock_danger_level AND (shelf_stock + back_stock) > 0');
             } elseif ($stockStatus === 'out') {
-                $query->where('stock', 0);
+                $query->whereRaw('(shelf_stock + back_stock) = 0');
             }
 
             $products = $query->orderBy('name')->get();
 
             $totalProducts = $products->count();
             $totalStockValue = $products->sum(function ($product) {
-                return $product->stock * $product->price;
+                return $product->total_stock * $product->price;
             });
-            $lowStockCount = Product::whereRaw('stock <= low_stock_threshold')->count();
-            $criticalStockCount = Product::whereRaw('stock <= stock_danger_level')->count();
-            $outOfStockCount = Product::where('stock', 0)->count();
+            $lowStockCount = Product::whereRaw('(shelf_stock + back_stock) <= low_stock_threshold AND (shelf_stock + back_stock) > stock_danger_level')->count();
+            $criticalStockCount = Product::whereRaw('(shelf_stock + back_stock) <= stock_danger_level AND (shelf_stock + back_stock) > 0')->count();
+            $outOfStockCount = Product::whereRaw('(shelf_stock + back_stock) = 0')->count();
 
             $categories = Category::orderBy('name')->get();
 
@@ -113,6 +121,90 @@ class ReportController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Failed to generate inventory report: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    public function seniorCitizen(Request $request)
+    {
+        try {
+            // Support month parameter (default to current month)
+            if ($request->filled('month')) {
+                $monthDate = Carbon::parse($request->month . '-01');
+                $startDate = $monthDate->startOfMonth()->format('Y-m-d');
+                $endDate = $monthDate->endOfMonth()->format('Y-m-d');
+                $month = $request->month;
+            } else {
+                $startDate = Carbon::now()->startOfMonth()->format('Y-m-d');
+                $endDate = Carbon::now()->format('Y-m-d');
+                $month = Carbon::now()->format('Y-m');
+            }
+
+            $transactions = \App\Models\SeniorCitizenTransaction::with('sale')
+                ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $totalDiscounts = $transactions->sum('discount_amount');
+            $totalTransactions = $transactions->count();
+            $totalOriginalAmount = $transactions->sum('original_amount');
+            $totalFinalAmount = $transactions->sum('final_amount');
+
+            return view('reports.senior-citizen', compact(
+                'transactions',
+                'totalDiscounts',
+                'totalTransactions',
+                'totalOriginalAmount',
+                'totalFinalAmount',
+                'month',
+                'startDate',
+                'endDate'
+            ));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to generate senior citizen report: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    public function pwd(Request $request)
+    {
+        try {
+            // Support month parameter (default to current month)
+            if ($request->filled('month')) {
+                $monthDate = Carbon::parse($request->month . '-01');
+                $startDate = $monthDate->startOfMonth()->format('Y-m-d');
+                $endDate = $monthDate->endOfMonth()->format('Y-m-d');
+                $month = $request->month;
+            } else {
+                $startDate = Carbon::now()->startOfMonth()->format('Y-m-d');
+                $endDate = Carbon::now()->format('Y-m-d');
+                $month = Carbon::now()->format('Y-m');
+            }
+
+            $transactions = \App\Models\PwdTransaction::with('sale')
+                ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $totalDiscounts = $transactions->sum('discount_amount');
+            $totalTransactions = $transactions->count();
+            $totalOriginalAmount = $transactions->sum('original_amount');
+            $totalFinalAmount = $transactions->sum('final_amount');
+
+            return view('reports.pwd', compact(
+                'transactions',
+                'totalDiscounts',
+                'totalTransactions',
+                'totalOriginalAmount',
+                'totalFinalAmount',
+                'month',
+                'startDate',
+                'endDate'
+            ));
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to generate PWD report: ' . $e->getMessage())
                 ->withInput();
         }
     }
