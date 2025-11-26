@@ -556,70 +556,7 @@
     }
 }
 
-/* Pagination Styles */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-nav[role="navigation"] {
-    display: flex;
-    justify-content: center;
-}
-
-nav[role="navigation"] > div {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.pagination a,
-.pagination span {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 2.5rem;
-    height: 2.5rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: 0.5rem;
-    border: 1px solid var(--color-border-default);
-    background-color: white;
-    color: var(--color-text-primary);
-    text-decoration: none;
-    transition: all 0.15s ease;
-}
-
-.pagination a:hover {
-    background-color: var(--color-brand-green);
-    color: white;
-    border-color: var(--color-brand-green);
-}
-
-.pagination .active span {
-    background-color: var(--color-brand-green);
-    color: white;
-    border-color: var(--color-brand-green);
-    font-weight: 600;
-}
-
-.pagination .disabled span {
-    background-color: var(--color-gray-100);
-    color: var(--color-gray-400);
-    border-color: var(--color-border-light);
-    cursor: not-allowed;
-}
-
-.pagination svg {
-    width: 1.25rem;
-    height: 1.25rem;
-}
+/* Pagination Styles - Laravel Tailwind Default */
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
