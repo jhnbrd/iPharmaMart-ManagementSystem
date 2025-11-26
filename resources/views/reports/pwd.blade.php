@@ -1,127 +1,137 @@
-<x-layout>
-    <x-slot:title>PWD Report</x-slot:title>
-
-    <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold">PWD Discount Report</h1>
-                <p class="text-sm text-gray-600 mt-1">Monthly report of PWD discount transactions</p>
-            </div>
-            <button onclick="window.print()" class="btn-primary flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                    </path>
-                </svg>
-                Print Report
-            </button>
+<x-layout title="PWD Report">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">PWD Discount Report</h1>
+            <p class="text-[var(--color-text-secondary)] mt-1">Monthly report of PWD discount transactions</p>
         </div>
+        <button onclick="window.print()" class="btn btn-primary print-hide">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print Report
+        </button>
+    </div>
 
-        <!-- Filter Section -->
-        <div class="bg-white p-6 border border-[var(--color-border-light)]">
-            <form method="GET" action="{{ route('reports.pwd') }}">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Report Month</label>
-                        <input type="month" name="month" value="{{ request('month', now()->format('Y-m')) }}"
-                            class="input-field">
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="btn-primary w-full">Generate Report</button>
-                    </div>
+    <!-- Filters -->
+    <div class="bg-white border border-[var(--color-border-light)] mb-6 print-hide">
+        <div class="px-6 py-4 border-b border-[var(--color-border-light)]">
+            <h2 class="text-lg font-semibold">Filter Options</h2>
+        </div>
+        <div class="p-6">
+            <form method="GET" action="{{ route('reports.pwd') }}" class="flex flex-wrap gap-4 items-end">
+                <div class="form-group mb-0" style="min-width: 200px;">
+                    <label for="month" class="form-label">Report Month</label>
+                    <input type="month" id="month" name="month" class="form-input"
+                        value="{{ request('month', now()->format('Y-m')) }}" required>
+                </div>
+
+                <div class="form-group mb-0">
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
                 </div>
             </form>
         </div>
+    </div>
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="stat-card">
-                <div class="stat-title">Total Transactions</div>
-                <div class="stat-value">{{ number_format($transactions->count()) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Total Original Amount</div>
-                <div class="stat-value">₱{{ number_format($transactions->sum('original_amount'), 2) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Total Discounts Given</div>
-                <div class="stat-value text-[var(--color-success)]">
-                    ₱{{ number_format($transactions->sum('discount_amount'), 2) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Total Final Amount</div>
-                <div class="stat-value">₱{{ number_format($transactions->sum('final_amount'), 2) }}</div>
+    <!-- Report Header (Printable) -->
+    <div class="print-only text-center mb-6">
+        <h1 class="text-2xl font-bold">iPharma Mart Management System</h1>
+        <h2 class="text-xl font-semibold mt-2">PWD Discount Report</h2>
+        <p class="text-sm text-gray-600 mt-2">Generated: {{ now()->format('M d, Y h:i A') }}</p>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="bg-white border border-[var(--color-border-light)] mb-6">
+        <div class="px-6 py-4 border-b border-[var(--color-border-light)]">
+            <h2 class="text-lg font-semibold">Summary</h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Total
+                        Transactions</p>
+                    <p class="text-3xl font-bold">{{ number_format($transactions->count()) }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Original Amount
+                    </p>
+                    <p class="text-3xl font-bold">₱{{ number_format($transactions->sum('original_amount'), 2) }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Discounts Given
+                    </p>
+                    <p class="text-3xl font-bold text-[var(--color-brand-green)]">
+                        ₱{{ number_format($transactions->sum('discount_amount'), 2) }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Final Amount</p>
+                    <p class="text-3xl font-bold">₱{{ number_format($transactions->sum('final_amount'), 2) }}</p>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Transactions Table -->
-        <div class="bg-white border border-[var(--color-border-light)]">
-            <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
-                <h2 class="text-base font-semibold">Transaction Details</h2>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-gray-50 text-xs text-gray-600 uppercase">
-                            <th class="px-6 py-3 text-left">Date</th>
-                            <th class="px-6 py-3 text-left">PWD ID Number</th>
-                            <th class="px-6 py-3 text-left">PWD Name</th>
-                            <th class="px-6 py-3 text-left">Birthdate</th>
-                            <th class="px-6 py-3 text-left">Disability Type</th>
-                            <th class="px-6 py-3 text-right">Original Amount</th>
-                            <th class="px-6 py-3 text-right">Discount %</th>
-                            <th class="px-6 py-3 text-right">Discount Amount</th>
-                            <th class="px-6 py-3 text-right">Final Amount</th>
-                            <th class="px-6 py-3 text-center">Items</th>
+    <!-- Transactions Table -->
+    <div class="bg-white border border-[var(--color-border-light)]">
+        <div class="px-6 py-4 border-b border-[var(--color-border-light)]">
+            <h2 class="text-lg font-semibold">Transaction Details</h2>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>PWD ID Number</th>
+                        <th>PWD Name</th>
+                        <th>Birthdate</th>
+                        <th>Disability Type</th>
+                        <th class="text-right">Original Amount</th>
+                        <th class="text-center">Discount %</th>
+                        <th class="text-right">Discount Amount</th>
+                        <th class="text-right">Final Amount</th>
+                        <th class="text-center">Items</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($transactions as $transaction)
+                        <tr>
+                            <td class="font-medium">
+                                {{ \Carbon\Carbon::parse($transaction->created_at)->format('M d, Y h:i A') }}</td>
+                            <td>
+                                <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
+                                    {{ $transaction->pwd_id_number }}
+                                </span>
+                            </td>
+                            <td>{{ $transaction->pwd_name }}</td>
+                            <td>
+                                {{ \Carbon\Carbon::parse($transaction->pwd_birthdate)->format('Y-m-d') }}
+                                <span class="text-xs text-[var(--color-text-secondary)]">
+                                    ({{ \Carbon\Carbon::parse($transaction->pwd_birthdate)->age }} yrs)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-info">{{ $transaction->disability_type }}</span>
+                            </td>
+                            <td class="text-right">₱{{ number_format($transaction->original_amount, 2) }}</td>
+                            <td class="text-center">
+                                <span class="badge-warning">{{ $transaction->discount_percentage }}%</span>
+                            </td>
+                            <td class="text-right font-semibold text-[var(--color-brand-green)]">
+                                -₱{{ number_format($transaction->discount_amount, 2) }}
+                            </td>
+                            <td class="text-right font-bold">₱{{ number_format($transaction->final_amount, 2) }}</td>
+                            <td class="text-center">{{ $transaction->items_purchased }}</td>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-[var(--color-border-light)]">
-                        @forelse ($transactions as $transaction)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 text-sm">
-                                    {{ \Carbon\Carbon::parse($transaction->created_at)->format('Y-m-d H:i') }}
-                                </td>
-                                <td class="px-6 py-4 text-sm font-medium">{{ $transaction->pwd_id_number }}</td>
-                                <td class="px-6 py-4 text-sm">{{ $transaction->pwd_name }}</td>
-                                <td class="px-6 py-4 text-sm">
-                                    {{ \Carbon\Carbon::parse($transaction->pwd_birthdate)->format('Y-m-d') }}
-                                    <span class="text-xs text-gray-500">
-                                        ({{ \Carbon\Carbon::parse($transaction->pwd_birthdate)->age }} years)
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-sm">
-                                    <span class="badge-info text-xs">{{ $transaction->disability_type }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-right">
-                                    ₱{{ number_format($transaction->original_amount, 2) }}</td>
-                                <td class="px-6 py-4 text-sm text-right">{{ $transaction->discount_percentage }}%</td>
-                                <td class="px-6 py-4 text-sm text-right text-[var(--color-success)]">
-                                    ₱{{ number_format($transaction->discount_amount, 2) }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-right font-medium">
-                                    ₱{{ number_format($transaction->final_amount, 2) }}</td>
-                                <td class="px-6 py-4 text-sm text-center">{{ $transaction->items_purchased }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="10" class="px-6 py-12 text-center text-gray-500">
-                                    <div class="flex flex-col items-center gap-2">
-                                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                            </path>
-                                        </svg>
-                                        <p class="text-sm">No PWD transactions for this month</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                    @empty
+                        <tr>
+                            <td colspan="10" class="text-center py-8 text-[var(--color-text-secondary)]">
+                                No PWD transactions found for this month
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
