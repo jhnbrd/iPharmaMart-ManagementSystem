@@ -27,10 +27,14 @@ class CustomerController extends Controller
     {
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'nullable|email|unique:customers,email',
-                'phone' => 'nullable|string|max:20',
-                'address' => 'nullable|string',
+                'name' => 'required|string|max:255|min:2',
+                'email' => 'nullable|email:rfc,dns|unique:customers,email|max:255',
+                'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'address' => 'nullable|string|max:500',
+            ], [
+                'name.min' => 'Customer name must be at least 2 characters.',
+                'phone.regex' => 'Phone number format is invalid. Use numbers, spaces, +, -, or parentheses.',
+                'email.email' => 'Please provide a valid email address.',
             ]);
 
             $customer = Customer::create($validated);
@@ -67,10 +71,14 @@ class CustomerController extends Controller
             $oldValues = $customer->toArray();
 
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'nullable|email|unique:customers,email,' . $customer->id,
-                'phone' => 'nullable|string|max:20',
-                'address' => 'nullable|string',
+                'name' => 'required|string|max:255|min:2',
+                'email' => 'nullable|email:rfc,dns|unique:customers,email,' . $customer->id . '|max:255',
+                'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'address' => 'nullable|string|max:500',
+            ], [
+                'name.min' => 'Customer name must be at least 2 characters.',
+                'phone.regex' => 'Phone number format is invalid. Use numbers, spaces, +, -, or parentheses.',
+                'email.email' => 'Please provide a valid email address.',
             ]);
 
             $customer->update($validated);

@@ -14,20 +14,17 @@
     </div>
 
     <!-- Summary Card -->
-    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 mb-6 text-white">
-        <div class="flex justify-between items-center">
-            <div>
-                <h3 class="text-lg font-semibold mb-2">Total Discounts Given</h3>
-                <p class="text-3xl font-bold">₱{{ number_format($totalDiscounts, 2) }}</p>
-                <p class="text-sm mt-1 opacity-90">
-                    {{ request('month') ? date('F Y', strtotime(request('month') . '-01')) : date('F Y') }}
-                </p>
+    <div class="bg-white border-2 border-purple-500 rounded-lg shadow-md p-5 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div>
+                    <p class="text-sm text-gray-600">Total Discounts Given - <span
+                            class="text-xs text-gray-500">{{ request('month') ? date('F Y', strtotime(request('month') . '-01')) : date('F Y') }}</span>
+                    </p>
+                </div>
             </div>
-            <div class="text-5xl opacity-20">
-                <svg fill="currentColor" viewBox="0 0 24 24" class="w-20 h-20">
-                    <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7v-2z" />
-                </svg>
+            <div class="text-right">
+                <p class="text-2xl font-bold text-purple-600">₱{{ number_format($totalDiscounts, 2) }}</p>
             </div>
         </div>
     </div>

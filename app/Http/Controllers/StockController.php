@@ -56,12 +56,16 @@ class StockController extends Controller
         try {
             $validated = $request->validate([
                 'product_id' => 'required|exists:products,id',
-                'quantity' => 'required|integer|min:1',
+                'quantity' => 'required|integer|min:1|max:100000',
                 'location' => 'required|in:shelf,back',
                 'expiry_date' => 'nullable|date|after:today',
                 'manufacture_date' => 'nullable|date|before_or_equal:today',
                 'reference_number' => 'nullable|string|max:255',
-                'reason' => 'nullable|string',
+                'reason' => 'nullable|string|max:1000',
+            ], [
+                'quantity.max' => 'Quantity cannot exceed 100,000 units in a single transaction.',
+                'expiry_date.after' => 'Expiry date must be in the future.',
+                'manufacture_date.before_or_equal' => 'Manufacture date cannot be in the future.',
             ]);
 
             DB::transaction(function () use ($validated) {
@@ -146,10 +150,13 @@ class StockController extends Controller
         try {
             $validated = $request->validate([
                 'product_id' => 'required|exists:products,id',
-                'quantity' => 'required|integer|min:1',
+                'quantity' => 'required|integer|min:1|max:100000',
                 'location' => 'required|in:shelf,back',
                 'reference_number' => 'nullable|string|max:255',
-                'reason' => 'required|string',
+                'reason' => 'required|string|max:1000',
+            ], [
+                'quantity.max' => 'Quantity cannot exceed 100,000 units in a single transaction.',
+                'reason.required' => 'Reason for stock removal is required.',
             ]);
 
             DB::transaction(function () use ($validated) {
@@ -245,8 +252,10 @@ class StockController extends Controller
             $validated = $request->validate([
                 'product_id' => 'required|exists:products,id',
                 'batch_id' => 'nullable|exists:product_batches,id',
-                'quantity' => 'required|integer|min:1',
-                'remarks' => 'nullable|string',
+                'quantity' => 'required|integer|min:1|max:100000',
+                'remarks' => 'nullable|string|max:1000',
+            ], [
+                'quantity.max' => 'Quantity cannot exceed 100,000 units in a single transaction.',
             ]);
 
             DB::transaction(function () use ($validated) {

@@ -27,10 +27,15 @@ class SupplierController extends Controller
     {
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'nullable|email|unique:suppliers,email',
-                'phone' => 'nullable|string|max:20',
-                'address' => 'nullable|string',
+                'name' => 'required|string|max:255|min:2',
+                'contact_person' => 'nullable|string|max:255',
+                'email' => 'nullable|email:rfc,dns|unique:suppliers,email|max:255',
+                'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'address' => 'nullable|string|max:500',
+            ], [
+                'name.min' => 'Supplier name must be at least 2 characters.',
+                'phone.regex' => 'Phone number format is invalid. Use numbers, spaces, +, -, or parentheses.',
+                'email.email' => 'Please provide a valid email address.',
             ]);
 
             $supplier = Supplier::create($validated);
@@ -67,10 +72,15 @@ class SupplierController extends Controller
             $oldValues = $supplier->toArray();
 
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'nullable|email|unique:suppliers,email,' . $supplier->id,
-                'phone' => 'nullable|string|max:20',
-                'address' => 'nullable|string',
+                'name' => 'required|string|max:255|min:2',
+                'contact_person' => 'nullable|string|max:255',
+                'email' => 'nullable|email:rfc,dns|unique:suppliers,email,' . $supplier->id . '|max:255',
+                'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'address' => 'nullable|string|max:500',
+            ], [
+                'name.min' => 'Supplier name must be at least 2 characters.',
+                'phone.regex' => 'Phone number format is invalid. Use numbers, spaces, +, -, or parentheses.',
+                'email.email' => 'Please provide a valid email address.',
             ]);
 
             $supplier->update($validated);

@@ -26,10 +26,27 @@ class ReportController extends Controller
 
             $paymentMethod = $request->input('payment_method', '');
 
+            // Validate date inputs
+            try {
+                $startDateObj = Carbon::parse($startDate);
+                $endDateObj = Carbon::parse($endDate);
+            } catch (\Exception $e) {
+                return redirect()->back()
+                    ->with('error', 'Invalid date format provided.')
+                    ->withInput();
+            }
+
             // Validate date range
-            if (Carbon::parse($startDate)->gt(Carbon::parse($endDate))) {
+            if ($startDateObj->gt($endDateObj)) {
                 return redirect()->back()
                     ->with('error', 'Start date cannot be after end date.')
+                    ->withInput();
+            }
+
+            // Validate reasonable date range (not more than 5 years)
+            if ($startDateObj->diffInYears($endDateObj) > 5) {
+                return redirect()->back()
+                    ->with('error', 'Date range cannot exceed 5 years.')
                     ->withInput();
             }
 
@@ -128,6 +145,15 @@ class ReportController extends Controller
     public function seniorCitizen(Request $request)
     {
         try {
+            // Validate month format if provided
+            if ($request->filled('month')) {
+                if (!preg_match('/^\d{4}-\d{2}$/', $request->month)) {
+                    return redirect()->back()
+                        ->with('error', 'Invalid month format. Use YYYY-MM.')
+                        ->withInput();
+                }
+            }
+
             // Support month parameter (default to current month)
             if ($request->filled('month')) {
                 $monthDate = Carbon::parse($request->month . '-01');
@@ -170,6 +196,15 @@ class ReportController extends Controller
     public function pwd(Request $request)
     {
         try {
+            // Validate month format if provided
+            if ($request->filled('month')) {
+                if (!preg_match('/^\d{4}-\d{2}$/', $request->month)) {
+                    return redirect()->back()
+                        ->with('error', 'Invalid month format. Use YYYY-MM.')
+                        ->withInput();
+                }
+            }
+
             // Support month parameter (default to current month)
             if ($request->filled('month')) {
                 $monthDate = Carbon::parse($request->month . '-01');

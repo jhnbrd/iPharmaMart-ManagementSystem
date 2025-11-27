@@ -1134,9 +1134,11 @@
             </style>
             <div class="receipt-print">
                 <div class="text-center mb-4 border-b-2 border-gray-300 pb-3">
-                    <h1 class="text-xl font-bold text-gray-800">iPharma Mart</h1>
-                    <h2 class="text-lg font-semibold text-gray-700">Management System</h2>
-                    <p class="text-xs text-gray-600 mt-1">Official Receipt</p>
+                    <h1 class="text-xl font-bold text-gray-800">{{ config('business.name') }}</h1>
+                    <p class="text-xs text-gray-600">{{ config('business.address') }}</p>
+                    <p class="text-xs text-gray-600">Tel: {{ config('business.phone') }} | Email: {{ config('business.email') }}</p>
+                    <p class="text-xs text-gray-600 mt-1 font-semibold">{{ config('business.tagline') }}</p>
+                    <h2 class="text-base font-bold text-gray-700 mt-2">Official Receipt</h2>
                 </div>
 
                 <div class="mb-3 text-sm border-b border-gray-200 pb-3">
@@ -1196,7 +1198,12 @@
                 <div class="text-center text-xs text-gray-600 border-t border-gray-300 pt-3">
                     <p class="font-semibold mb-1">Thank you for your purchase!</p>
                     <p>This serves as your official receipt</p>
-                    <p class="mt-2">VAT Reg. TIN: XXX-XXX-XXX-XXX</p>
+                    <p class="mt-2">VAT Reg. TIN: {{ config('business.tin') }}</p>
+                    <p>Business Permit No.: {{ config('business.permit_number') }}</p>
+                    @if (config('business.fda_license'))
+                        <p>FDA License No.: {{ config('business.fda_license') }}</p>
+                    @endif
+                    <p class="mt-2 text-gray-500">{{ config('business.tagline') }}</p>
                 </div>
             </div>
         `;

@@ -4,7 +4,7 @@
 
 <aside class="sidebar">
     <!-- Scrollable Content -->
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto scrollbar-hide">
         <!-- Logo -->
         <div class="sidebar-logo">
             <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1">

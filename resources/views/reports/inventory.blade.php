@@ -132,20 +132,21 @@
                             </td>
                             <td>{{ $product->supplier->name }}</td>
                             <td class="text-right">₱{{ number_format($product->price, 2) }}</td>
-                            <td class="text-center font-semibold">{{ $product->stock }} {{ $product->unit }}</td>
+                            <td class="text-center font-semibold">{{ $product->total_stock }} {{ $product->unit }}
+                            </td>
                             <td class="text-center">
-                                @if ($product->stock == 0)
+                                @if ($product->total_stock == 0)
                                     <span class="badge-danger">OUT</span>
-                                @elseif ($product->stock <= $product->stock_danger_level)
+                                @elseif ($product->total_stock <= $product->stock_danger_level)
                                     <span class="badge-danger">CRITICAL</span>
-                                @elseif ($product->stock <= $product->low_stock_threshold)
+                                @elseif ($product->total_stock <= $product->low_stock_threshold)
                                     <span class="badge-warning">LOW</span>
                                 @else
                                     <span class="badge-success">OK</span>
                                 @endif
                             </td>
                             <td class="text-right font-semibold text-[var(--color-brand-green)]">
-                                ₱{{ number_format($product->stock * $product->price, 2) }}
+                                ₱{{ number_format($product->total_stock * $product->price, 2) }}
                             </td>
                         </tr>
                     @empty
