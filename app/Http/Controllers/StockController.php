@@ -15,14 +15,20 @@ class StockController extends Controller
 
     public function index(Request $request)
     {
-        $query = StockMovement::with(['product.category', 'user']);
+        $query = StockMovement::with(['product', 'user', 'batch'])
+            ->orderBy('created_at', 'desc');
+
+        // Filter by product
+        if ($request->filled('product_id')) {
+            $query->where('product_id', $request->product_id);
+        }
 
         // Filter by type
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
 
-        // Filter by product name
+        // Filter by product name search
         if ($request->filled('product')) {
             $query->whereHas('product', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->product . '%');
@@ -38,11 +44,41 @@ class StockController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $movements = $query->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->appends($request->except('page'));
+        // Filter by reference number
+        if ($request->filled('reference_number')) {
+            $query->where('reference_number', 'like', '%' . $request->reference_number . '%');
+        }
 
-        return view('stock.index', compact('movements'));
+        $movements = $query->paginate(20)->appends($request->except('page'));
+        $products = Product::orderBy('name')->get();
+
+        // Calculate summary statistics
+        $totalStockIn = StockMovement::whereDate('created_at', today())->sum('stock_in');
+        $totalStockOut = StockMovement::whereDate('created_at', today())->sum('stock_out');
+        $weeklyMovements = StockMovement::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
+
+        return view('stock.index', compact('movements', 'products', 'totalStockIn', 'totalStockOut', 'weeklyMovements'));
+    }
+
+    public function show(StockMovement $stockMovement)
+    {
+        $stockMovement->load(['product', 'user', 'batch']);
+
+        // Get related movements for this product
+        $relatedMovements = StockMovement::with(['user', 'batch'])
+            ->where('product_id', $stockMovement->product_id)
+            ->where('id', '!=', $stockMovement->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Get product's current batches with expiry information
+        $productBatches = $stockMovement->product->batches()
+            ->where('quantity', '>', 0)
+            ->orderBy('expiry_date')
+            ->get();
+
+        return view('stock.show', compact('stockMovement', 'relatedMovements', 'productBatches'));
     }
 
     public function stockIn()

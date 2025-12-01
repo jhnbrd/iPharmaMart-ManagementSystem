@@ -87,7 +87,7 @@
             <tbody>
                 @forelse($transactions as $transaction)
                     <tr>
-                        <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
+                        <td>{{ $transaction->sale->created_at->format('Y-m-d H:i') }}</td>
                         <td>
                             <span class="font-mono text-sm bg-purple-100 px-2 py-1 rounded">
                                 {{ $transaction->sc_id_number }}

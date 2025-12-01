@@ -9,7 +9,7 @@
                 </p>
             </div>
             <div class="flex gap-2">
-                <a href="{{ route('inventory.stock-movements.index') }}" class="btn btn-secondary">
+                <a href="{{ route('stock.index') }}" class="btn btn-secondary">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -372,7 +372,7 @@
                                 </td>
                                 <td>{{ $movement->user->name ?? 'System' }}</td>
                                 <td>
-                                    <a href="{{ route('inventory.stock-movements.show', $movement) }}"
+                                    <a href="{{ route('stock.show', $movement) }}"
                                         class="btn btn-sm btn-secondary">View</a>
                                 </td>
                             </tr>

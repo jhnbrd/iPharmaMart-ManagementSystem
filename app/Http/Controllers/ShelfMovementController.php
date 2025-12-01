@@ -6,6 +6,7 @@ use App\Models\ShelfMovement;
 use App\Models\Product;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class ShelfMovementController extends Controller
@@ -93,7 +94,7 @@ class ShelfMovementController extends Controller
         ShelfMovement::create([
             'product_id' => $validated['product_id'],
             'batch_id' => $validated['batch_id'],
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'quantity' => $validated['quantity'],
             'previous_shelf_stock' => $currentShelfStock,
             'new_shelf_stock' => $newShelfStock,

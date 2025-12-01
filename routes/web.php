@@ -12,7 +12,6 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DiscountTransactionController;
 use App\Http\Controllers\ShelfMovementController;
-use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -48,30 +47,26 @@ Route::middleware('auth')->group(function () {
 
     // Admin & Inventory Manager - Inventory Management
     Route::middleware('role:admin,inventory_manager')->group(function () {
-        Route::resource('inventory', InventoryController::class)->except(['destroy']);
-
-        // Stock In/Out Module
-        Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
-        Route::get('/stock/in', [StockController::class, 'stockIn'])->name('stock.in');
-        Route::post('/stock/in', [StockController::class, 'processStockIn'])->name('stock.in.process');
-        Route::get('/stock/out', [StockController::class, 'stockOut'])->name('stock.out');
-        Route::post('/stock/out', [StockController::class, 'processStockOut'])->name('stock.out.process');
-
-        // Shelf Restocking
-        Route::get('/stock/restock', [StockController::class, 'restock'])->name('stock.restock');
-        Route::post('/stock/restock', [StockController::class, 'processRestock'])->name('stock.restock.process');
-
-        // Shelf Movements
+        // Shelf Movements - MUST be before inventory resource route
         Route::get('/inventory/shelf-movements', [ShelfMovementController::class, 'index'])->name('inventory.shelf-movements.index');
         Route::get('/inventory/shelf-movements/create', [ShelfMovementController::class, 'create'])->name('inventory.shelf-movements.create');
         Route::post('/inventory/shelf-movements', [ShelfMovementController::class, 'store'])->name('inventory.shelf-movements.store');
         Route::get('/inventory/shelf-movements/{shelfMovement}', [ShelfMovementController::class, 'show'])->name('inventory.shelf-movements.show');
 
-        // Stock Movements
-        Route::get('/inventory/stock-movements', [StockMovementController::class, 'index'])->name('inventory.stock-movements.index');
-        Route::get('/inventory/stock-movements/create', [StockMovementController::class, 'create'])->name('inventory.stock-movements.create');
-        Route::post('/inventory/stock-movements', [StockMovementController::class, 'store'])->name('inventory.stock-movements.store');
-        Route::get('/inventory/stock-movements/{stockMovement}', [StockMovementController::class, 'show'])->name('inventory.stock-movements.show');
+        // Inventory Resource - This catches /inventory/{id} so must be after specific routes
+        Route::resource('inventory', InventoryController::class)->except(['destroy']);
+
+        // Stock Movements Module (Unified Stock In/Out)
+        Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
+        Route::get('/stock/{stockMovement}', [StockController::class, 'show'])->name('stock.show');
+        Route::get('/stock/in/create', [StockController::class, 'stockIn'])->name('stock.in');
+        Route::post('/stock/in', [StockController::class, 'processStockIn'])->name('stock.in.process');
+        Route::get('/stock/out/create', [StockController::class, 'stockOut'])->name('stock.out');
+        Route::post('/stock/out', [StockController::class, 'processStockOut'])->name('stock.out.process');
+
+        // Shelf Restocking
+        Route::get('/stock/restock', [StockController::class, 'restock'])->name('stock.restock');
+        Route::post('/stock/restock', [StockController::class, 'processRestock'])->name('stock.restock.process');
     });
 
     // Admin Only - Additional Admin Permissions

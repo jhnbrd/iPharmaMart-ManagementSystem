@@ -41,4 +41,14 @@ class Sale extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+
+    public function seniorCitizenTransaction()
+    {
+        return $this->hasOne(SeniorCitizenTransaction::class);
+    }
+
+    public function pwdTransaction()
+    {
+        return $this->hasOne(PwdTransaction::class);
+    }
 }

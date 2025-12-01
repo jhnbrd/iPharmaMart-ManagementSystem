@@ -15,23 +15,31 @@ class DiscountTransactionController extends Controller
     {
         $query = SeniorCitizenTransaction::with('sale');
 
-        // Filter by month
+        // Filter by month (using sale date)
         if ($request->filled('month')) {
-            $query->whereYear('created_at', substr($request->month, 0, 4))
-                ->whereMonth('created_at', substr($request->month, 5, 2));
+            $query->whereHas('sale', function ($q) use ($request) {
+                $q->whereYear('created_at', substr($request->month, 0, 4))
+                    ->whereMonth('created_at', substr($request->month, 5, 2));
+            });
         } else {
             // Default to current month
-            $query->whereYear('created_at', now()->year)
-                ->whereMonth('created_at', now()->month);
+            $query->whereHas('sale', function ($q) {
+                $q->whereYear('created_at', now()->year)
+                    ->whereMonth('created_at', now()->month);
+            });
         }
 
-        // Filter by date range
+        // Filter by date range (using sale date)
         if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+            $query->whereHas('sale', function ($q) use ($request) {
+                $q->whereDate('created_at', '>=', $request->date_from);
+            });
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+            $query->whereHas('sale', function ($q) use ($request) {
+                $q->whereDate('created_at', '<=', $request->date_to);
+            });
         }
 
         // Filter by name
@@ -39,11 +47,15 @@ class DiscountTransactionController extends Controller
             $query->where('sc_name', 'like', '%' . $request->search . '%');
         }
 
-        $transactions = $query->orderBy('created_at', 'desc')
+        // Get total before pagination
+        $totalDiscounts = $query->sum('discount_amount');
+
+        // Order by sale date (most recent first)
+        $transactions = $query->join('sales', 'senior_citizen_transactions.sale_id', '=', 'sales.id')
+            ->select('senior_citizen_transactions.*')
+            ->orderBy('sales.created_at', 'desc')
             ->paginate(15)
             ->appends($request->except('page'));
-
-        $totalDiscounts = $query->sum('discount_amount');
 
         return view('discounts.senior-citizen', compact('transactions', 'totalDiscounts'));
     }
@@ -52,23 +64,31 @@ class DiscountTransactionController extends Controller
     {
         $query = PwdTransaction::with('sale');
 
-        // Filter by month
+        // Filter by month (using sale date)
         if ($request->filled('month')) {
-            $query->whereYear('created_at', substr($request->month, 0, 4))
-                ->whereMonth('created_at', substr($request->month, 5, 2));
+            $query->whereHas('sale', function ($q) use ($request) {
+                $q->whereYear('created_at', substr($request->month, 0, 4))
+                    ->whereMonth('created_at', substr($request->month, 5, 2));
+            });
         } else {
             // Default to current month
-            $query->whereYear('created_at', now()->year)
-                ->whereMonth('created_at', now()->month);
+            $query->whereHas('sale', function ($q) {
+                $q->whereYear('created_at', now()->year)
+                    ->whereMonth('created_at', now()->month);
+            });
         }
 
-        // Filter by date range
+        // Filter by date range (using sale date)
         if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+            $query->whereHas('sale', function ($q) use ($request) {
+                $q->whereDate('created_at', '>=', $request->date_from);
+            });
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+            $query->whereHas('sale', function ($q) use ($request) {
+                $q->whereDate('created_at', '<=', $request->date_to);
+            });
         }
 
         // Filter by name
@@ -76,11 +96,15 @@ class DiscountTransactionController extends Controller
             $query->where('pwd_name', 'like', '%' . $request->search . '%');
         }
 
-        $transactions = $query->orderBy('created_at', 'desc')
+        // Get total before pagination
+        $totalDiscounts = $query->sum('discount_amount');
+
+        // Order by sale date (most recent first)
+        $transactions = $query->join('sales', 'pwd_transactions.sale_id', '=', 'sales.id')
+            ->select('pwd_transactions.*')
+            ->orderBy('sales.created_at', 'desc')
             ->paginate(15)
             ->appends($request->except('page'));
-
-        $totalDiscounts = $query->sum('discount_amount');
 
         return view('discounts.pwd', compact('transactions', 'totalDiscounts'));
     }
