@@ -1,22 +1,31 @@
 <x-layout title="Inventory Report">
     <div class="page-header mb-6">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between w-full">
             <div>
                 <h1 class="page-title">Inventory Report</h1>
                 <p class="text-[var(--color-text-secondary)] mt-1">Generate and print inventory reports</p>
             </div>
-            <button onclick="window.print()" class="btn btn-primary print-hide">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                Print Report
-            </button>
+            <div class="flex gap-2">
+                <button onclick="toggleFilters()" class="btn btn-secondary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <span id="filter-btn-text">Show Filters</span>
+                </button>
+                <button onclick="window.print()" class="btn btn-primary print-hide">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Print Report
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="bg-white border border-[var(--color-border-light)] mb-6 print-hide">
+    <div id="filters-section" class="bg-white border border-[var(--color-border-light)] mb-6 print-hide hidden">
         <div class="px-6 py-4 border-b border-[var(--color-border-light)]">
             <h2 class="text-lg font-semibold">Filter Options</h2>
         </div>
@@ -69,33 +78,36 @@
     </div>
 
     <!-- Summary Statistics -->
-    <div class="bg-white border border-[var(--color-border-light)] mb-6">
-        <div class="px-6 py-4 border-b border-[var(--color-border-light)]">
-            <h2 class="text-lg font-semibold">Inventory Summary</h2>
+    <div class="bg-gray-50 border border-gray-200 rounded mb-3">
+        <div class="px-3 py-1.5 border-b border-gray-200">
+            <h3 class="text-sm font-medium text-gray-600">Inventory Summary</h3>
         </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-                <div class="text-center">
-                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Total Products
-                    </p>
-                    <p class="text-3xl font-bold">{{ number_format($totalProducts) }}</p>
+        <div class="p-2">
+            <div class="flex justify-between items-center space-x-3">
+                <div class="flex-1 text-center py-1">
+                    <div class="text-xs text-gray-500">Products</div>
+                    <div class="text-base font-semibold">{{ number_format($totalProducts) }}</div>
                 </div>
-                <div class="text-center">
-                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Stock Value</p>
-                    <p class="text-3xl font-bold text-[var(--color-brand-green)]">
-                        ₱{{ number_format($totalStockValue, 2) }}</p>
+                <div class="w-px h-8 bg-gray-300"></div>
+                <div class="flex-1 text-center py-1">
+                    <div class="text-xs text-gray-500">Value</div>
+                    <div class="text-base font-semibold text-[var(--color-brand-green)]">
+                        ₱{{ number_format($totalStockValue, 2) }}</div>
                 </div>
-                <div class="text-center">
-                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Low Stock</p>
-                    <p class="text-3xl font-bold text-[var(--color-accent-orange)]">{{ $lowStockCount }}</p>
+                <div class="w-px h-8 bg-gray-300"></div>
+                <div class="flex-1 text-center py-1">
+                    <div class="text-xs text-gray-500">Low</div>
+                    <div class="text-base font-semibold text-[var(--color-accent-orange)]">{{ $lowStockCount }}</div>
                 </div>
-                <div class="text-center">
-                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Critical</p>
-                    <p class="text-3xl font-bold text-[var(--color-danger)]">{{ $criticalStockCount }}</p>
+                <div class="w-px h-8 bg-gray-300"></div>
+                <div class="flex-1 text-center py-1">
+                    <div class="text-xs text-gray-500">Critical</div>
+                    <div class="text-base font-semibold text-[var(--color-danger)]">{{ $criticalStockCount }}</div>
                 </div>
-                <div class="text-center">
-                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-2">Out of Stock</p>
-                    <p class="text-3xl font-bold text-gray-600">{{ $outOfStockCount }}</p>
+                <div class="w-px h-8 bg-gray-300"></div>
+                <div class="flex-1 text-center py-1">
+                    <div class="text-xs text-gray-500">Out</div>
+                    <div class="text-base font-semibold text-gray-600">{{ $outOfStockCount }}</div>
                 </div>
             </div>
         </div>
@@ -187,4 +199,26 @@
             display: none;
         }
     </style>
+
+    <script>
+        function toggleFilters() {
+            const filtersSection = document.getElementById('filters-section');
+            const filterBtnText = document.getElementById('filter-btn-text');
+
+            if (filtersSection.classList.contains('hidden')) {
+                filtersSection.classList.remove('hidden');
+                filterBtnText.textContent = 'Hide Filters';
+            } else {
+                filtersSection.classList.add('hidden');
+                filterBtnText.textContent = 'Show Filters';
+            }
+        }
+
+        // Show filters if any filter is active
+        @if (request()->hasAny(['category_id', 'product_type', 'stock_status']))
+            document.addEventListener('DOMContentLoaded', function() {
+                toggleFilters();
+            });
+        @endif
+    </script>
 </x-layout>

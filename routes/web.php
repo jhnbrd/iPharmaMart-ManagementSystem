@@ -11,6 +11,8 @@ use App\Http\Controllers\POSController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DiscountTransactionController;
+use App\Http\Controllers\ShelfMovementController;
+use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -58,6 +60,18 @@ Route::middleware('auth')->group(function () {
         // Shelf Restocking
         Route::get('/stock/restock', [StockController::class, 'restock'])->name('stock.restock');
         Route::post('/stock/restock', [StockController::class, 'processRestock'])->name('stock.restock.process');
+
+        // Shelf Movements
+        Route::get('/inventory/shelf-movements', [ShelfMovementController::class, 'index'])->name('inventory.shelf-movements.index');
+        Route::get('/inventory/shelf-movements/create', [ShelfMovementController::class, 'create'])->name('inventory.shelf-movements.create');
+        Route::post('/inventory/shelf-movements', [ShelfMovementController::class, 'store'])->name('inventory.shelf-movements.store');
+        Route::get('/inventory/shelf-movements/{shelfMovement}', [ShelfMovementController::class, 'show'])->name('inventory.shelf-movements.show');
+
+        // Stock Movements
+        Route::get('/inventory/stock-movements', [StockMovementController::class, 'index'])->name('inventory.stock-movements.index');
+        Route::get('/inventory/stock-movements/create', [StockMovementController::class, 'create'])->name('inventory.stock-movements.create');
+        Route::post('/inventory/stock-movements', [StockMovementController::class, 'store'])->name('inventory.stock-movements.store');
+        Route::get('/inventory/stock-movements/{stockMovement}', [StockMovementController::class, 'show'])->name('inventory.stock-movements.show');
     });
 
     // Admin Only - Additional Admin Permissions
@@ -68,13 +82,12 @@ Route::middleware('auth')->group(function () {
 
         // Reports
         Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
-        Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
         Route::get('/reports/senior-citizen', [ReportController::class, 'seniorCitizen'])->name('reports.senior-citizen');
         Route::get('/reports/pwd', [ReportController::class, 'pwd'])->name('reports.pwd');
     });
 
-    // Inventory Manager Only - Reports
-    Route::middleware('role:inventory_manager')->group(function () {
+    // Admin & Inventory Manager - Inventory Reports
+    Route::middleware('role:admin,inventory_manager')->group(function () {
         Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
     });
 

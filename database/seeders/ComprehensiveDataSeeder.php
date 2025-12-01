@@ -147,13 +147,57 @@ class ComprehensiveDataSeeder extends Seeder
             }
         }
 
-        // Create 40 Customers
+        // Create 40 Customers with realistic Filipino names
         $this->command->info('👤 Creating 40 customers...');
-        for ($i = 1; $i <= 40; $i++) {
+        $customerNames = [
+            'Maria Santos',
+            'Jose Reyes',
+            'Ana Cruz',
+            'Juan dela Cruz',
+            'Carmen Garcia',
+            'Pedro Gonzales',
+            'Rosa Martinez',
+            'Antonio Lopez',
+            'Teresa Hernandez',
+            'Roberto Flores',
+            'Luz Perez',
+            'Francisco Ramirez',
+            'Josefa Torres',
+            'Miguel Morales',
+            'Esperanza Ramos',
+            'Carlos Castillo',
+            'Dolores Jimenez',
+            'Manuel Rivera',
+            'Remedios Gutierrez',
+            'Alfredo Mendoza',
+            'Concepcion Vargas',
+            'Eduardo Silva',
+            'Pilar Medina',
+            'Rafael Castro',
+            'Soledad Ortega',
+            'Alejandro Romero',
+            'Gloria Aguilar',
+            'Fernando Navarro',
+            'Amparo Diaz',
+            'Arturo Herrera',
+            'Milagros Ruiz',
+            'Ricardo Moreno',
+            'Cristina Jimenez',
+            'Leonardo Vega',
+            'Rosario Campos',
+            'Enrique Contreras',
+            'Natividad Guerrero',
+            'Teodoro Mejia',
+            'Encarnacion Rojas',
+            'Salvador Sandoval'
+        ];
+
+        foreach ($customerNames as $i => $name) {
+            $firstName = explode(' ', $name)[0];
             Customer::create([
-                'name' => 'Customer ' . $i,
-                'phone' => '09' . str_pad(171234567 + $i, 9, '0', STR_PAD_LEFT),
-                'email' => 'customer' . $i . '@email.com',
+                'name' => $name,
+                'phone' => '09' . str_pad(171234567 + $i + 1, 9, '0', STR_PAD_LEFT),
+                'email' => strtolower(str_replace(' ', '.', $name)) . '@gmail.com',
                 'address' => ['Manila', 'Quezon City', 'Makati', 'Pasig'][rand(0, 3)] . ' City',
             ]);
         }

@@ -109,6 +109,29 @@ class InventoryController extends Controller
         }
     }
 
+    public function show(Product $inventory)
+    {
+        $inventory->load(['category', 'supplier', 'batches' => function ($query) {
+            $query->orderBy('expiry_date');
+        }]);
+
+        // Get recent stock movements for this product
+        $recentMovements = \App\Models\StockMovement::with(['user', 'batch'])
+            ->where('product_id', $inventory->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Get recent shelf movements for this product
+        $recentShelfMovements = \App\Models\ShelfMovement::with(['user', 'batch'])
+            ->where('product_id', $inventory->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('inventory.show', compact('inventory', 'recentMovements', 'recentShelfMovements'));
+    }
+
     public function edit(Product $inventory)
     {
         $categories = Category::all();
