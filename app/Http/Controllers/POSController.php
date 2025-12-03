@@ -12,7 +12,7 @@ class POSController extends Controller
     public function index(Request $request)
     {
         $query = Product::with(['category', 'supplier'])
-            ->where('stock', '>', 0);
+            ->whereRaw('(shelf_stock + back_stock) > 0');
 
         // Apply filters
         if ($request->filled('search')) {
@@ -63,9 +63,13 @@ class POSController extends Controller
             }
 
             // Log the void action
+            $actionDescription = $validated['action'] === 'void_entire_sale'
+                ? "Voided entire sale in POS - Reason: {$validated['reason']} - Authorized by: {$admin->name}"
+                : "Voided item from POS cart - Item ID: {$validated['item_id']} - Reason: {$validated['reason']} - Authorized by: {$admin->name}";
+
             \App\Traits\LogsActivity::logActivity(
-                'void_item_pos',
-                "Voided item from POS cart - Item ID: {$validated['item_id']} - Reason: {$validated['reason']} - Authorized by: {$admin->name}",
+                $validated['action'] === 'void_entire_sale' ? 'void_entire_sale_pos' : 'void_item_pos',
+                $actionDescription,
                 null,
                 null,
                 [

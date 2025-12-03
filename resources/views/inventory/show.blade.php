@@ -36,14 +36,37 @@
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="text-sm font-medium text-gray-600">Product Name</label>
-                            <p class="mt-1 text-lg font-semibold">{{ $inventory->name }}</p>
+                            <label class="text-sm font-medium text-gray-600">Product Type</label>
+                            <p class="mt-1">
+                                @if ($inventory->product_type === 'pharmacy')
+                                    <span class="badge-info">Pharmacy</span>
+                                @else
+                                    <span class="badge-warning">Mini Mart</span>
+                                @endif
+                            </p>
                         </div>
 
                         <div>
                             <label class="text-sm font-medium text-gray-600">Product Code</label>
                             <p class="mt-1 font-mono text-sm bg-gray-100 px-2 py-1 rounded">{{ $inventory->code }}</p>
                         </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Product Name</label>
+                            <p class="mt-1 text-lg font-semibold">{{ $inventory->name }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Brand Name</label>
+                            <p class="mt-1 text-lg font-semibold">{{ $inventory->brand_name ?? 'N/A' }}</p>
+                        </div>
+
+                        @if ($inventory->product_type === 'pharmacy' && $inventory->generic_name)
+                            <div class="md:col-span-2">
+                                <label class="text-sm font-medium text-gray-600">Generic Name</label>
+                                <p class="mt-1 text-lg font-semibold text-blue-600">{{ $inventory->generic_name }}</p>
+                            </div>
+                        @endif
 
                         <div>
                             <label class="text-sm font-medium text-gray-600">Category</label>

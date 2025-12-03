@@ -1,5 +1,105 @@
 <x-pos-layout title="Point of Sale">
     <style>
+        /* Toast Notification Styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .toast {
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+            min-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.hiding {
+            animation: slideOut 0.3s ease-out;
+        }
+
+        .toast-error {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            color: #991b1b;
+        }
+
+        .toast-success {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+
+        .toast-warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .toast-info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+        }
+
+        .toast-content {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .toast-close {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
         .pos-grid {
             display: grid;
             grid-template-columns: 1fr 420px;
@@ -213,11 +313,12 @@
         }
 
         .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
+            display: block;
         }
     </style>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <div class="pos-grid">
         <!-- Left Panel: Products -->
@@ -268,10 +369,10 @@
                         @php
                             $stockStatus = 'stock-good';
                             $stockText = 'In Stock';
-                            if ($product->stock <= 0) {
+                            if ($product->total_stock <= 0) {
                                 $stockStatus = 'stock-out';
                                 $stockText = 'Out of Stock';
-                            } elseif ($product->stock <= 10) {
+                            } elseif ($product->total_stock <= 10) {
                                 $stockStatus = 'stock-low';
                                 $stockText = 'Low Stock';
                             }
@@ -279,10 +380,19 @@
                         <div class="product-item" data-category="{{ $product->category_id }}"
                             data-name="{{ strtolower($product->name) }}" data-id="{{ $product->id }}"
                             data-type="{{ $product->product_type }}"
-                            onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }}, {{ $product->stock }}, '{{ addslashes($product->category->name) }}')">
+                            onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }}, {{ $product->total_stock }}, '{{ addslashes($product->category->name) }}')">
                             <div class="product-info">
-                                <div class="product-name" title="{{ $product->name }}">{{ $product->name }}</div>
+                                <div class="product-name" title="{{ $product->name }}">
+                                    {{ $product->name }}
+                                    @if ($product->brand_name)
+                                        <span class="text-xs text-gray-500">({{ $product->brand_name }})</span>
+                                    @endif
+                                </div>
                                 <div class="product-category">
+                                    @if ($product->product_type === 'pharmacy' && $product->generic_name)
+                                        <span class="text-xs text-blue-600">{{ $product->generic_name }}</span>
+                                        <span class="text-xs text-gray-400">•</span>
+                                    @endif
                                     {{ $product->category->name }}
                                     <span class="text-xs text-gray-400">•
                                         {{ ucfirst(str_replace('_', ' ', $product->product_type)) }}</span>
@@ -290,7 +400,7 @@
                             </div>
                             <div class="product-price">₱{{ number_format($product->price, 2) }}</div>
                             <div class="product-stock {{ $stockStatus }}">
-                                {{ $stockText }}: {{ $product->stock }}
+                                {{ $stockText }}: {{ $product->total_stock }}
                             </div>
                         </div>
                     @endforeach
@@ -307,20 +417,16 @@
 
         <!-- Right Panel: Cart & Customer -->
         <div class="right-panel">
-            <!-- Customer Section -->
+            <!-- Void Sale Button Section -->
             <div class="customer-section">
-                <div class="flex items-center justify-between mb-2">
-                    <label class="text-sm font-semibold text-gray-700">Customer</label>
-                    <button onclick="openCustomerModal()"
-                        class="text-[var(--color-brand-green)] hover:text-[var(--color-brand-green-dark)] text-sm font-semibold flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Add New
-                    </button>
-                </div>
-                <div id="customerDisplay" class="text-sm text-gray-600 italic">Walk-in Customer</div>
-                <input type="hidden" id="customerId" value="">
+                <button onclick="openVoidSaleModal()"
+                    class="btn btn-danger w-full flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Void Entire Sale
+                </button>
             </div>
 
             <!-- Cart Section -->
@@ -368,14 +474,7 @@
                     </div>
 
                     <div class="action-buttons" style="padding: 1rem; margin-top: 0;">
-                        <button onclick="clearCart()" class="btn btn-secondary">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Clear
-                        </button>
-                        <button onclick="processCheckout()" id="checkoutBtn" class="btn btn-primary" disabled>
+                        <button onclick="processCheckout()" id="checkoutBtn" class="btn btn-primary w-full" disabled>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -499,10 +598,38 @@
                         </div>
                     </div>
 
+                    <!-- Discount Section -->
+                    <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <label class="form-label text-xs mb-2">Discount (Optional)</label>
+                        <div class="space-y-2">
+                            <label
+                                class="flex items-center p-2 bg-white rounded border cursor-pointer hover:border-blue-500 transition">
+                                <input type="checkbox" id="seniorDiscount" class="mr-2"
+                                    onchange="handleDiscountChange()">
+                                <div class="flex-1">
+                                    <div class="font-semibold text-sm">Senior Citizen (20%)</div>
+                                    <input type="text" id="seniorIdNumber" class="form-input text-xs mt-1"
+                                        placeholder="ID Number" disabled onclick="event.stopPropagation()">
+                                </div>
+                            </label>
+                            <label
+                                class="flex items-center p-2 bg-white rounded border cursor-pointer hover:border-blue-500 transition">
+                                <input type="checkbox" id="pwdDiscount" class="mr-2"
+                                    onchange="handleDiscountChange()">
+                                <div class="flex-1">
+                                    <div class="font-semibold text-sm">PWD (20%)</div>
+                                    <input type="text" id="pwdIdNumber" class="form-input text-xs mt-1"
+                                        placeholder="ID Number" disabled onclick="event.stopPropagation()">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Payment Method -->
                     <div>
                         <label class="form-label text-xs">Payment Method *</label>
-                        <select id="paymentMethod" class="form-select text-sm" onchange="toggleReferenceNumber()">
+                        <select id="paymentMethod" class="form-select text-sm"
+                            onchange="handlePaymentMethodChange()">
                             <option value="cash">💵 Cash</option>
                             <option value="gcash">📱 GCash</option>
                             <option value="card">💳 Card</option>
@@ -528,6 +655,11 @@
                         <div class="flex justify-between text-xs mb-1.5">
                             <span>VAT (12%):</span>
                             <span id="modalTax" class="font-semibold">₱0.00</span>
+                        </div>
+                        <div id="discountRow" class="flex justify-between text-xs mb-1.5 text-blue-600"
+                            style="display: none;">
+                            <span id="discountLabel">Discount:</span>
+                            <span id="modalDiscount" class="font-semibold">-₱0.00</span>
                         </div>
                         <div class="flex justify-between text-lg font-bold border-t border-gray-300 pt-2 mt-2">
                             <span>TOTAL:</span>
@@ -651,20 +783,114 @@
             </form>
         </div>
     </div>
+
+    <!-- Void Sale Authorization Modal -->
+    <div id="voidSaleModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50"
+        style="display: none;">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 m-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-red-700">⚠️ Void Entire Sale</h3>
+                <button onclick="closeVoidSaleModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-4 bg-red-50 border-l-4 border-red-600 p-3 rounded">
+                <p class="text-sm text-red-800 font-semibold mb-2">
+                    You are about to void the entire sale transaction!
+                </p>
+                <p class="text-xs text-red-700">
+                    This will clear all items from the cart. This action requires admin authorization.
+                </p>
+            </div>
+            <form id="voidSaleForm" onsubmit="processVoidSale(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="form-label">Admin Username *</label>
+                        <input type="text" id="voidSaleAdminUsername" class="form-input" required
+                            autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="form-label">Admin Password *</label>
+                        <input type="password" id="voidSaleAdminPassword" class="form-input" required
+                            autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="form-label">Reason for Voiding Sale *</label>
+                        <textarea id="voidSaleReason" class="form-input" rows="3" required
+                            placeholder="Enter reason for voiding entire sale..."></textarea>
+                    </div>
+                    <div id="voidSaleAuthError"
+                        class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeVoidSaleModal()" class="btn btn-secondary flex-1">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-danger flex-1">
+                        <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Void Sale
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
         let cart = [];
         let currentCustomer = null;
 
+        // Toast Notification System
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+
+            const icons = {
+                error: '<svg class="toast-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>',
+                success: '<svg class="toast-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>',
+                warning: '<svg class="toast-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>',
+                info: '<svg class="toast-icon" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>'
+            };
+
+            toast.innerHTML = `
+                ${icons[type]}
+                <div class="toast-content">${message}</div>
+                <svg class="toast-close" fill="currentColor" viewBox="0 0 20 20" onclick="this.parentElement.remove()">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
         function addToCart(productId, productName, price, stock, category) {
+            // Validate stock availability
+            if (stock <= 0) {
+                showToast(`Cannot add "${productName}" - Out of stock!`, 'error');
+                return;
+            }
+
             const existingItem = cart.find(item => item.id === productId);
 
             if (existingItem) {
                 if (existingItem.quantity < stock) {
                     existingItem.quantity++;
+                    showToast(`Updated quantity for "${productName}" (${existingItem.quantity})`, 'success');
                 } else {
-                    alert('Not enough stock available!');
+                    showToast(`Cannot add more "${productName}" - Only ${stock} available in stock!`, 'error');
                     return;
                 }
             } else {
@@ -676,6 +902,7 @@
                     stock: stock,
                     category: category
                 });
+                showToast(`Added "${productName}" to cart`, 'success');
             }
 
             updateCart();
@@ -685,12 +912,15 @@
             const item = cart.find(item => item.id === productId);
             if (item) {
                 const newQuantity = item.quantity + change;
-                if (newQuantity > 0 && newQuantity <= item.stock) {
-                    item.quantity = newQuantity;
-                } else if (newQuantity > item.stock) {
-                    alert('Not enough stock available!');
+                if (newQuantity <= 0) {
+                    showToast('Quantity cannot be less than 1. Use the remove button to delete items.', 'warning');
                     return;
                 }
+                if (newQuantity > item.stock) {
+                    showToast(`Cannot exceed available stock (${item.stock} units)`, 'error');
+                    return;
+                }
+                item.quantity = newQuantity;
                 updateCart();
             }
         }
@@ -712,6 +942,72 @@
 
         function closeVoidItemModal() {
             document.getElementById('voidItemModal').style.display = 'none';
+        }
+
+        // Void Sale Functions
+        function openVoidSaleModal() {
+            if (cart.length === 0) {
+                showToast('Cart is empty - Nothing to void', 'info');
+                return;
+            }
+            document.getElementById('voidSaleForm').reset();
+            document.getElementById('voidSaleAuthError').classList.add('hidden');
+            document.getElementById('voidSaleModal').style.display = 'flex';
+        }
+
+        function closeVoidSaleModal() {
+            document.getElementById('voidSaleModal').style.display = 'none';
+        }
+
+        function processVoidSale(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('voidSaleAdminUsername').value;
+            const password = document.getElementById('voidSaleAdminPassword').value;
+            const reason = document.getElementById('voidSaleReason').value;
+
+            // Verify admin credentials via AJAX
+            fetch('{{ route('pos.verify-admin') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        action: 'void_entire_sale',
+                        item_id: null,
+                        reason: reason
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Clear the entire cart
+                        const itemCount = cart.length;
+                        cart = [];
+                        updateCart();
+                        closeVoidSaleModal();
+
+                        // Show success message
+                        showToast(`Sale voided successfully by ${data.admin_name} - ${itemCount} item(s) cleared`,
+                            'success');
+                    } else {
+                        // Show error
+                        const errorDiv = document.getElementById('voidSaleAuthError');
+                        errorDiv.textContent = data.message || 'Invalid admin credentials';
+                        errorDiv.classList.remove('hidden');
+                        showToast('Authorization failed - ' + (data.message || 'Invalid credentials'), 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Void verification error:', error);
+                    const errorDiv = document.getElementById('voidSaleAuthError');
+                    errorDiv.textContent = 'Error verifying credentials. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                    showToast('Error verifying admin credentials', 'error');
+                });
         }
 
         function processVoidItem(event) {
@@ -740,17 +1036,22 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // Get item name before removing
+                        const item = cart.find(i => i.id === productId);
+                        const itemName = item ? item.name : 'Item';
+
                         // Remove item from cart
                         removeFromCart(productId);
                         closeVoidItemModal();
 
                         // Show success message
-                        alert(`Item voided successfully by ${data.admin_name}`);
+                        showToast(`"${itemName}" voided by ${data.admin_name}`, 'success');
                     } else {
                         // Show error
                         const errorDiv = document.getElementById('voidAuthError');
                         errorDiv.textContent = data.message || 'Invalid admin credentials';
                         errorDiv.classList.remove('hidden');
+                        showToast('Authorization failed - ' + (data.message || 'Invalid credentials'), 'error');
                     }
                 })
                 .catch(error => {
@@ -758,6 +1059,7 @@
                     const errorDiv = document.getElementById('voidAuthError');
                     errorDiv.textContent = 'Error verifying credentials. Please try again.';
                     errorDiv.classList.remove('hidden');
+                    showToast('Error verifying admin credentials', 'error');
                 });
         }
 
@@ -825,13 +1127,6 @@
 
             // Enable checkout button if cart has items
             document.getElementById('checkoutBtn').disabled = cart.length === 0;
-        }
-
-        function clearCart() {
-            if (cart.length > 0 && confirm('Are you sure you want to clear the cart?')) {
-                cart = [];
-                updateCart();
-            }
         }
 
         function openCustomerModal() {
@@ -915,22 +1210,26 @@
         // Payment Modal Functions
         function openPaymentModal() {
             if (cart.length === 0) {
-                alert('Cart is empty! Please add items before checkout.');
+                showToast('Cannot checkout - Please add items to cart first!', 'error');
                 return;
             }
 
-            // Update modal summary
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const tax = subtotal * 0.12;
-            const total = subtotal + tax;
+            // Reset discount checkboxes and ID fields
+            document.getElementById('seniorDiscount').checked = false;
+            document.getElementById('pwdDiscount').checked = false;
+            document.getElementById('seniorIdNumber').value = '';
+            document.getElementById('pwdIdNumber').value = '';
+            document.getElementById('seniorIdNumber').disabled = true;
+            document.getElementById('pwdIdNumber').disabled = true;
+            document.getElementById('discountRow').style.display = 'none';
 
-            document.getElementById('modalSubtotal').textContent = `₱${subtotal.toFixed(2)}`;
-            document.getElementById('modalTax').textContent = `₱${tax.toFixed(2)}`;
-            document.getElementById('modalTotal').textContent = `₱${total.toFixed(2)}`;
+            // Update modal summary
+            updatePaymentSummary();
 
             // Reset payment inputs
             document.getElementById('paymentMethod').value = 'cash';
             document.getElementById('paidAmount').value = '';
+            document.getElementById('paidAmount').disabled = false;
             document.getElementById('referenceNumber').value = '';
             document.getElementById('changeAmount').textContent = '₱0.00';
             document.getElementById('referenceNumberDiv').style.display = 'none';
@@ -947,10 +1246,95 @@
             document.getElementById('paymentModal').style.display = 'none';
         }
 
-        function toggleReferenceNumber() {
+        function handleDiscountChange() {
+            const seniorChecked = document.getElementById('seniorDiscount').checked;
+            const pwdChecked = document.getElementById('pwdDiscount').checked;
+
+            // Enable/disable senior ID field
+            document.getElementById('seniorIdNumber').disabled = !seniorChecked;
+            if (!seniorChecked) {
+                document.getElementById('seniorIdNumber').value = '';
+            }
+
+            // Enable/disable PWD ID field
+            document.getElementById('pwdIdNumber').disabled = !pwdChecked;
+            if (!pwdChecked) {
+                document.getElementById('pwdIdNumber').value = '';
+            }
+
+            // Only allow one discount at a time
+            if (seniorChecked && pwdChecked) {
+                showToast('Only one discount can be applied per transaction', 'error');
+                document.getElementById('pwdDiscount').checked = false;
+                document.getElementById('pwdIdNumber').disabled = true;
+                document.getElementById('pwdIdNumber').value = '';
+            }
+
+            updatePaymentSummary();
+        }
+
+        function updatePaymentSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.12;
+
+            // Calculate discount
+            let discount = 0;
+            let discountLabel = '';
+            const seniorChecked = document.getElementById('seniorDiscount').checked;
+            const pwdChecked = document.getElementById('pwdDiscount').checked;
+
+            if (seniorChecked) {
+                discount = subtotal * 0.20; // 20% discount on subtotal
+                discountLabel = 'Senior Discount (20%)';
+            } else if (pwdChecked) {
+                discount = subtotal * 0.20; // 20% discount on subtotal
+                discountLabel = 'PWD Discount (20%)';
+            }
+
+            const total = subtotal + tax - discount;
+
+            document.getElementById('modalSubtotal').textContent = `₱${subtotal.toFixed(2)}`;
+            document.getElementById('modalTax').textContent = `₱${tax.toFixed(2)}`;
+            document.getElementById('modalTotal').textContent = `₱${total.toFixed(2)}`;
+
+            // Show/hide discount row
+            if (discount > 0) {
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('discountLabel').textContent = discountLabel + ':';
+                document.getElementById('modalDiscount').textContent = `-₱${discount.toFixed(2)}`;
+            } else {
+                document.getElementById('discountRow').style.display = 'none';
+            }
+
+            // Update paid amount if using GCash/Card
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            if (paymentMethod === 'gcash' || paymentMethod === 'card') {
+                document.getElementById('paidAmount').value = total.toFixed(2);
+            }
+
+            calculateChange();
+        }
+
+        function handlePaymentMethodChange() {
             const method = document.getElementById('paymentMethod').value;
             const refDiv = document.getElementById('referenceNumberDiv');
+            const paidAmountInput = document.getElementById('paidAmount');
+            const total = parseFloat(document.getElementById('modalTotal').textContent.replace('₱', '').replace(',', '')) ||
+                0;
+
+            // Show/hide reference number field
             refDiv.style.display = (method === 'gcash' || method === 'card') ? 'block' : 'none';
+
+            // Auto-fill and disable amount for GCash/Card
+            if (method === 'gcash' || method === 'card') {
+                paidAmountInput.value = total.toFixed(2);
+                paidAmountInput.disabled = true;
+            } else {
+                paidAmountInput.value = '';
+                paidAmountInput.disabled = false;
+            }
+
+            calculateChange();
         }
 
         function calculateChange() {
@@ -974,14 +1358,34 @@
                 const total = parseFloat(document.getElementById('modalTotal').textContent.replace('₱', '').replace(',',
                     ''));
 
-                if (!paidAmount || paidAmount < total) {
-                    alert('Please enter an amount greater than or equal to the total.');
+                if (!paidAmount || isNaN(paidAmount) || paidAmount <= 0) {
+                    showToast('Please enter a valid payment amount', 'error');
+                    return;
+                }
+
+                if (paidAmount < total) {
+                    showToast(`Insufficient payment - Need ₱${total.toFixed(2)}, received ₱${paidAmount.toFixed(2)}`,
+                        'error');
                     return;
                 }
 
                 if ((paymentMethod === 'gcash' || paymentMethod === 'card') && !document.getElementById(
                         'referenceNumber').value.trim()) {
-                    alert('Please enter a reference number for ' + paymentMethod.toUpperCase() + ' payment.');
+                    showToast('Reference number is required for ' + paymentMethod.toUpperCase() + ' payment', 'error');
+                    return;
+                }
+
+                // Validate discount ID numbers
+                const seniorChecked = document.getElementById('seniorDiscount').checked;
+                const pwdChecked = document.getElementById('pwdDiscount').checked;
+
+                if (seniorChecked && !document.getElementById('seniorIdNumber').value.trim()) {
+                    showToast('Senior Citizen ID number is required', 'error');
+                    return;
+                }
+
+                if (pwdChecked && !document.getElementById('pwdIdNumber').value.trim()) {
+                    showToast('PWD ID number is required', 'error');
                     return;
                 }
 
@@ -992,7 +1396,7 @@
                 if (customerOption === 'existing') {
                     const existingSelect = document.getElementById('existingCustomerSelect');
                     if (!existingSelect.value) {
-                        alert('Please select a customer from the list.');
+                        showToast('Please select a customer from the list', 'error');
                         return;
                     }
                     customerData = {
@@ -1005,7 +1409,7 @@
                     const address = document.getElementById('newCustomerAddress').value.trim();
 
                     if (!name || !phone) {
-                        alert('Please fill in customer name and phone number.');
+                        showToast('Customer name and phone number are required', 'error');
                         return;
                     }
 
@@ -1038,6 +1442,17 @@
                     }
                 }
 
+                // Add discount information
+                if (seniorChecked) {
+                    formData.append('discount_type', 'senior_citizen');
+                    formData.append('discount_id_number', document.getElementById('seniorIdNumber').value.trim());
+                    formData.append('discount_percentage', 20);
+                } else if (pwdChecked) {
+                    formData.append('discount_type', 'pwd');
+                    formData.append('discount_id_number', document.getElementById('pwdIdNumber').value.trim());
+                    formData.append('discount_percentage', 20);
+                }
+
                 cart.forEach((item, index) => {
                     formData.append(`items[${index}][product_id]`, item.id);
                     formData.append(`items[${index}][quantity]`, item.quantity);
@@ -1062,13 +1477,14 @@
                 if (data.success) {
                     closePaymentModal();
                     showReceipt(data.receipt);
+                    showToast('Transaction completed successfully!', 'success');
                 } else {
                     throw new Error(data.message || 'Failed to process sale');
                 }
 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error: ' + error.message);
+                showToast('Transaction failed: ' + error.message, 'error');
                 // Re-enable button
                 const confirmBtn = document.getElementById('confirmPaymentBtn');
                 confirmBtn.disabled = false;
@@ -1077,6 +1493,11 @@
         }
 
         function processCheckout() {
+            // Double check cart is not empty
+            if (cart.length === 0) {
+                showToast('Cannot proceed to checkout - Cart is empty!', 'error');
+                return;
+            }
             openPaymentModal();
         }
 
@@ -1085,16 +1506,19 @@
             const receiptContent = document.getElementById('receiptContent');
 
             const customerInfo = receiptData.customer ?
-                `<div class="text-sm mb-3">
+                `<div class="text-sm mb-3 border-b border-gray-200 pb-3">
                     <div><strong>Customer:</strong> ${receiptData.customer.name}</div>
                     <div><strong>Phone:</strong> ${receiptData.customer.phone}</div>
                     ${receiptData.customer.address ? `<div><strong>Address:</strong> ${receiptData.customer.address}</div>` : ''}
                 </div>` :
-                `<div class="text-sm mb-3 text-gray-600 italic">Walk-in Customer</div>`;
+                `<div class="text-sm mb-3 text-gray-600 italic border-b border-gray-200 pb-3">Walk-in Customer</div>`;
 
-            const referenceInfo = receiptData.reference_number ?
-                `<div class="text-sm">
-                    <strong>Reference #:</strong> ${receiptData.reference_number}
+            const discountInfo = receiptData.discount ?
+                `<div class="bg-yellow-50 border border-yellow-200 rounded p-2 mb-3 text-sm">
+                    <div class="font-semibold text-yellow-800 mb-1">🎫 Discount Applied</div>
+                    <div><strong>Type:</strong> ${receiptData.discount.type}</div>
+                    <div><strong>ID Number:</strong> ${receiptData.discount.id_number || 'N/A'}</div>
+                    <div><strong>Discount:</strong> ${receiptData.discount.percentage}% (₱${parseFloat(receiptData.discount.amount).toFixed(2)})</div>
                 </div>` : '';
 
             let itemsHtml = '';
@@ -1150,6 +1574,8 @@
 
                 ${customerInfo}
 
+                ${discountInfo}
+
                 <table class="w-full text-sm mb-3">
                     <thead class="border-y-2 border-gray-300">
                         <tr>
@@ -1164,34 +1590,44 @@
                     </tbody>
                 </table>
 
-                <div class="border-t-2 border-gray-300 pt-2 mb-3">
-                    <div class="flex justify-between text-sm mb-1">
-                        <span>Subtotal:</span>
-                        <span>₱${parseFloat(receiptData.subtotal).toFixed(2)}</span>
+                <div class="border-t-2 border-gray-300 pt-3 mb-3">
+                    <div class="flex justify-between text-sm mb-1.5">
+                        <span class="text-gray-700">Subtotal:</span>
+                        <span class="font-medium">₱${parseFloat(receiptData.subtotal).toFixed(2)}</span>
                     </div>
-                    <div class="flex justify-between text-sm mb-1">
-                        <span>VAT (12%):</span>
-                        <span>₱${parseFloat(receiptData.tax).toFixed(2)}</span>
+                    ${receiptData.discount ? 
+                        `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
+                                                                                    <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                    <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                </div>` : ''}
+                    <div class="flex justify-between text-sm mb-1.5">
+                        <span class="text-gray-700">VAT (12%):</span>
+                        <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
                     </div>
-                    <div class="flex justify-between text-lg font-bold border-t border-gray-300 pt-2 mb-3">
+                    <div class="flex justify-between text-xl font-bold border-t-2 border-gray-400 pt-2 mt-2">
                         <span>TOTAL:</span>
-                        <span>₱${parseFloat(receiptData.total).toFixed(2)}</span>
+                        <span class="text-green-700">₱${parseFloat(receiptData.total).toFixed(2)}</span>
                     </div>
                 </div>
 
-                <div class="border-t-2 border-gray-300 pt-2 mb-3 text-sm">
-                    <div class="flex justify-between mb-1">
-                        <span><strong>Payment Method:</strong></span>
-                        <span class="uppercase">${receiptData.payment_method}</span>
+                <div class="bg-gray-50 border-2 border-gray-300 rounded-lg p-3 mb-3">
+                    <div class="text-center font-bold text-gray-800 mb-2 text-sm uppercase tracking-wide">Payment Details</div>
+                    <div class="flex justify-between text-sm mb-1.5">
+                        <span class="font-semibold text-gray-700">Payment Method:</span>
+                        <span class="uppercase font-medium">${receiptData.payment_method}</span>
                     </div>
-                    ${referenceInfo}
-                    <div class="flex justify-between mb-1">
-                        <span><strong>Amount Paid:</strong></span>
-                        <span>₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
+                    ${receiptData.reference_number ? 
+                        `<div class="flex justify-between text-sm mb-1.5">
+                                                                                    <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                    <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                </div>` : ''}
+                    <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
+                        <span class="font-semibold text-gray-700">Amount Paid:</span>
+                        <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
                     </div>
-                    <div class="flex justify-between font-bold text-base">
-                        <span>Change:</span>
-                        <span>₱${parseFloat(receiptData.change_amount).toFixed(2)}</span>
+                    <div class="flex justify-between text-base font-bold border-t-2 border-gray-400 pt-2">
+                        <span class="text-gray-800">Change:</span>
+                        <span class="text-green-700">₱${parseFloat(receiptData.change_amount).toFixed(2)}</span>
                     </div>
                 </div>
 

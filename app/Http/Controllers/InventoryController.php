@@ -70,6 +70,8 @@ class InventoryController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
+                'brand_name' => 'required|string|max:255',
+                'generic_name' => 'required_if:product_type,pharmacy|nullable|string|max:255',
                 'product_type' => 'required|in:pharmacy,mini_mart',
                 'barcode' => 'nullable|string|unique:products,barcode',
                 'category_id' => 'required|exists:categories,id',
@@ -80,6 +82,8 @@ class InventoryController extends Controller
                 'unit_quantity' => 'required|integer|min:1',
                 'price' => 'required|numeric|min:0',
                 'description' => 'nullable|string',
+            ], [
+                'generic_name.required_if' => 'Generic name is required for pharmacy products.',
             ]);
 
             // Set initial stock to 0 - stock will be added through Stock In module
@@ -147,6 +151,8 @@ class InventoryController extends Controller
 
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
+                'brand_name' => 'required|string|max:255',
+                'generic_name' => 'required_if:product_type,pharmacy|nullable|string|max:255',
                 'product_type' => 'required|in:pharmacy,mini_mart',
                 'barcode' => 'nullable|string|unique:products,barcode,' . $inventory->id,
                 'category_id' => 'required|exists:categories,id',
@@ -158,6 +164,8 @@ class InventoryController extends Controller
                 'unit_quantity' => 'required|integer|min:1',
                 'price' => 'required|numeric|min:0',
                 'description' => 'nullable|string',
+            ], [
+                'generic_name.required_if' => 'Generic name is required for pharmacy products.',
             ]);
 
             $inventory->update($validated);

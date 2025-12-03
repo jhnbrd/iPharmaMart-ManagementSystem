@@ -369,6 +369,22 @@
                 modal.classList.add('hidden');
                 posContent.classList.add('active');
             }
+
+            // Clear flag when leaving POS
+            const dashboardLink = document.querySelector('a[href*="dashboard"]');
+            const logoutForm = document.querySelector('form[action*="logout"]');
+
+            if (dashboardLink) {
+                dashboardLink.addEventListener('click', () => {
+                    localStorage.removeItem('posFullscreen');
+                });
+            }
+
+            if (logoutForm) {
+                logoutForm.addEventListener('submit', () => {
+                    localStorage.removeItem('posFullscreen');
+                });
+            }
         });
 
         // Show a minimal inline prompt to re-enter fullscreen
@@ -429,11 +445,17 @@
             }, 10000);
         }
 
-        // Handle F11 key
+        // Handle F11 key - enhance browser fullscreen
         document.addEventListener('keydown', (e) => {
             if (e.key === 'F11') {
-                e.preventDefault();
-                toggleFullscreen();
+                // Let browser handle F11 naturally
+                // Just ensure our UI state updates
+                setTimeout(() => {
+                    if (document.fullscreenElement) {
+                        modal.classList.add('hidden');
+                        posContent.classList.add('active');
+                    }
+                }, 100);
             }
         });
 
@@ -482,24 +504,7 @@
             localStorage.setItem('posFullscreen', 'true');
         }
 
-        // Clear flag when leaving POS
-        const dashboardLink = document.querySelector('a[href*="dashboard"]');
-        const logoutForm = document.querySelector('form[action*="logout"]');
-
-        if (dashboardLink) {
-            dashboardLink.addEventListener('click', () => {
-                localStorage.removeItem('posFullscreen');
-            });
-        }
-
-        if (logoutForm) {
-            logoutForm.addEventListener('submit', () => {
-                localStorage.removeItem('posFullscreen');
-            });
-        }
-        });
-
-        function confirmPosLogout() {
+        function showPosLogoutModal() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('posFullscreen');
                 document.getElementById('posLogoutForm').submit();

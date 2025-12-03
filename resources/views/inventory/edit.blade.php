@@ -11,17 +11,9 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group md:col-span-2">
-                        <label for="name" class="form-label">Product Name *</label>
-                        <input type="text" id="name" name="name" class="form-input"
-                            value="{{ old('name', $inventory->name) }}" required>
-                        @error('name')
-                            <p class="form-error">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
                         <label for="product_type" class="form-label">Product Type *</label>
-                        <select id="product_type" name="product_type" class="form-select" required>
+                        <select id="product_type" name="product_type" class="form-select" required
+                            onchange="toggleProductFields()">
                             <option value="">Select Product Type</option>
                             <option value="pharmacy"
                                 {{ old('product_type', $inventory->product_type) == 'pharmacy' ? 'selected' : '' }}>
@@ -32,6 +24,35 @@
                                 Mart</option>
                         </select>
                         @error('product_type')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group md:col-span-2">
+                        <label for="name" class="form-label">Product Name *</label>
+                        <input type="text" id="name" name="name" class="form-input"
+                            value="{{ old('name', $inventory->name) }}" required>
+                        @error('name')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group md:col-span-2">
+                        <label for="brand_name" class="form-label">Brand Name *</label>
+                        <input type="text" id="brand_name" name="brand_name" class="form-input"
+                            value="{{ old('brand_name', $inventory->brand_name) }}" required>
+                        @error('brand_name')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="form-group md:col-span-2" id="generic_name_field">
+                        <label for="generic_name" class="form-label">Generic Name <span
+                                id="generic_required">*</span></label>
+                        <input type="text" id="generic_name" name="generic_name" class="form-input"
+                            value="{{ old('generic_name', $inventory->generic_name) }}">
+                        <p class="text-xs text-[var(--color-text-secondary)] mt-1">Required for pharmacy products</p>
+                        @error('generic_name')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>
@@ -198,4 +219,28 @@
             </form>
         </div>
     </div>
+
+    <script>
+        function toggleProductFields() {
+            const productType = document.getElementById('product_type').value;
+            const genericNameField = document.getElementById('generic_name_field');
+            const genericNameInput = document.getElementById('generic_name');
+
+            if (productType === 'pharmacy') {
+                genericNameField.style.display = 'block';
+                genericNameInput.required = true;
+            } else {
+                genericNameField.style.display = 'none';
+                genericNameInput.required = false;
+                if (!genericNameInput.value) {
+                    genericNameInput.value = '';
+                }
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleProductFields();
+        });
+    </script>
 </x-layout>

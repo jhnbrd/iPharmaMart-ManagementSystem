@@ -69,6 +69,17 @@ class SalesController extends Controller
                 'paid_amount' => 'required|numeric|min:0',
                 'change_amount' => 'required|numeric|min:0',
                 'reference_number' => 'nullable|string|max:255',
+            ], [
+                'items.required' => 'Cannot process checkout - No items in cart',
+                'items.min' => 'Cannot process checkout - At least one item is required',
+                'items.*.product_id.required' => 'Product ID is required for all items',
+                'items.*.product_id.exists' => 'One or more products are invalid',
+                'items.*.quantity.required' => 'Quantity is required for all items',
+                'items.*.quantity.min' => 'Quantity must be at least 1',
+                'payment_method.required' => 'Payment method is required',
+                'payment_method.in' => 'Invalid payment method selected',
+                'paid_amount.required' => 'Payment amount is required',
+                'paid_amount.min' => 'Payment amount must be greater than 0',
             ]);
 
             $result = DB::transaction(function () use ($validated, $request) {
@@ -193,6 +204,7 @@ class SalesController extends Controller
                     'paid_amount' => $validated['paid_amount'],
                     'change_amount' => $validated['change_amount'],
                     'reference_number' => $validated['reference_number'] ?? null,
+                    'discount' => null, // Will be populated if discount applied
                 ];
 
                 return [

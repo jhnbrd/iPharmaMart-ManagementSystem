@@ -109,7 +109,15 @@
             <tbody>
                 @forelse($products as $product)
                     <tr>
-                        <td class="font-medium">{{ $product->name }}</td>
+                        <td>
+                            <div class="font-medium">{{ $product->name }}</div>
+                            @if ($product->brand_name)
+                                <div class="text-xs text-gray-600">Brand: {{ $product->brand_name }}</div>
+                            @endif
+                            @if ($product->generic_name && $product->product_type === 'pharmacy')
+                                <div class="text-xs text-gray-500">Generic: {{ $product->generic_name }}</div>
+                            @endif
+                        </td>
                         <td>
                             <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
                                 {{ $product->barcode ?? 'N/A' }}
