@@ -17,6 +17,10 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         if (Auth::check()) {
+            // Redirect cashiers to POS, others to dashboard
+            if (Auth::user()->role === 'cashier') {
+                return redirect()->route('pos.index');
+            }
             return redirect()->route('dashboard');
         }
 

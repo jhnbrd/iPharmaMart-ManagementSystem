@@ -49,7 +49,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('login') }}">
+                    <form method="POST" action="{{ route('login') }}" autocomplete="off">
                         @csrf
 
                         <!-- Username -->
@@ -60,7 +60,7 @@
                             <div class="relative">
                                 <input type="text" id="username" name="username" value="{{ old('username') }}"
                                     class="w-full px-4 py-3.5 bg-[#f8f9fa] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3a7d6f] focus:border-transparent focus:bg-white transition-all"
-                                    placeholder="Enter your username" required autofocus>
+                                    placeholder="Enter your username" required autofocus autocomplete="off">
                                 <svg class="w-5 h-5 text-gray-400 absolute right-4 top-1/2 transform -translate-y-1/2"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -77,7 +77,7 @@
                             <div class="relative">
                                 <input type="password" id="password" name="password"
                                     class="w-full px-4 py-3.5 bg-[#f8f9fa] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3a7d6f] focus:border-transparent focus:bg-white transition-all"
-                                    placeholder="Enter your password" required>
+                                    placeholder="Enter your password" required autocomplete="new-password">
                                 <button type="button" onclick="togglePassword()"
                                     class="absolute right-4 top-1/2 transform -translate-y-1/2">
                                     <svg id="eye-icon" class="w-5 h-5 text-gray-400" fill="none"

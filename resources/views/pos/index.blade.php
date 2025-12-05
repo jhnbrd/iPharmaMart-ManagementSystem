@@ -329,7 +329,7 @@
                     <div class="relative" style="flex: 2;">
                         <input type="text" name="search" id="searchProduct"
                             placeholder="Search products by name or ID..." class="form-input pl-10 w-full text-base"
-                            value="{{ request('search') }}">
+                            value="{{ request('search') }}" autocomplete="off">
                         <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -504,12 +504,12 @@
                 <div class="space-y-4">
                     <div>
                         <label class="form-label">Name *</label>
-                        <input type="text" id="customerName" class="form-input" required>
+                        <input type="text" id="customerName" class="form-input" required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Phone Number *</label>
                         <input type="text" id="customerPhone" class="form-input" placeholder="+63 9XX XXX XXXX"
-                            required>
+                            required autocomplete="off">
                     </div>
                     <div>
                         <label class="form-label">Address (Optional)</label>
@@ -586,12 +586,14 @@
                                     <div class="font-semibold text-sm">New Customer</div>
                                     <div id="newCustomerForm" class="mt-2 space-y-1.5" style="display: none;">
                                         <input type="text" id="newCustomerName" class="form-input text-xs"
-                                            placeholder="Customer Name" disabled onclick="event.stopPropagation()">
+                                            placeholder="Customer Name" disabled onclick="event.stopPropagation()"
+                                            autocomplete="off">
                                         <input type="text" id="newCustomerPhone" class="form-input text-xs"
-                                            placeholder="Phone Number" disabled onclick="event.stopPropagation()">
+                                            placeholder="Phone Number" disabled onclick="event.stopPropagation()"
+                                            autocomplete="off">
                                         <input type="text" id="newCustomerAddress" class="form-input text-xs"
                                             placeholder="Address (optional)" disabled
-                                            onclick="event.stopPropagation()">
+                                            onclick="event.stopPropagation()" autocomplete="off">
                                     </div>
                                 </div>
                             </label>
@@ -609,7 +611,8 @@
                                 <div class="flex-1">
                                     <div class="font-semibold text-sm">Senior Citizen (20%)</div>
                                     <input type="text" id="seniorIdNumber" class="form-input text-xs mt-1"
-                                        placeholder="ID Number" disabled onclick="event.stopPropagation()">
+                                        placeholder="ID Number" disabled onclick="event.stopPropagation()"
+                                        autocomplete="off">
                                 </div>
                             </label>
                             <label
@@ -619,7 +622,8 @@
                                 <div class="flex-1">
                                     <div class="font-semibold text-sm">PWD (20%)</div>
                                     <input type="text" id="pwdIdNumber" class="form-input text-xs mt-1"
-                                        placeholder="ID Number" disabled onclick="event.stopPropagation()">
+                                        placeholder="ID Number" disabled onclick="event.stopPropagation()"
+                                        autocomplete="off">
                                 </div>
                             </label>
                         </div>
@@ -640,7 +644,7 @@
                     <div id="referenceNumberDiv" style="display: none;">
                         <label class="form-label text-xs">Reference Number *</label>
                         <input type="text" id="referenceNumber" class="form-input text-sm"
-                            placeholder="Enter transaction reference">
+                            placeholder="Enter transaction reference" autocomplete="off">
                     </div>
                 </div>
 
@@ -761,7 +765,7 @@
                     <div>
                         <label class="form-label">Admin Password *</label>
                         <input type="password" id="voidAdminPassword" class="form-input" required
-                            autocomplete="off">
+                            autocomplete="new-password">
                     </div>
                     <div>
                         <label class="form-label">Reason for Void *</label>
@@ -815,7 +819,7 @@
                     <div>
                         <label class="form-label">Admin Password *</label>
                         <input type="password" id="voidSaleAdminPassword" class="form-input" required
-                            autocomplete="off">
+                            autocomplete="new-password">
                     </div>
                     <div>
                         <label class="form-label">Reason for Voiding Sale *</label>
@@ -1597,9 +1601,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                    <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                    <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                </div>` : ''}
+                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1618,9 +1622,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                    <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                    <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                </div>` : ''}
+                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>

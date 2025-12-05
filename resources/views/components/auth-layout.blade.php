@@ -22,6 +22,38 @@
 
 <body class="bg-[var(--color-bg-secondary)]">
     {{ $slot }}
+
+    <script>
+        // Global fallback to disable autocomplete/auto-fill for auth pages
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                document.querySelectorAll('form').forEach(function(f) {
+                    f.setAttribute('autocomplete', 'off');
+                    if (!f.querySelector('input[name="__no_autofill"]')) {
+                        var dummy = document.createElement('input');
+                        dummy.type = 'text';
+                        dummy.name = '__no_autofill';
+                        dummy.autocomplete = 'off';
+                        dummy.style.cssText =
+                            'position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;border:0;padding:0;margin:0;pointer-events:none;';
+                        f.prepend(dummy);
+                    }
+                });
+
+                document.querySelectorAll('input,textarea,select').forEach(function(el) {
+                    var type = (el.getAttribute('type') || '').toLowerCase();
+                    if (type === 'password') {
+                        el.setAttribute('autocomplete', 'new-password');
+                    } else if (!el.hasAttribute('autocomplete') || el.getAttribute('autocomplete') ===
+                        'on') {
+                        el.setAttribute('autocomplete', 'off');
+                    }
+                });
+            } catch (e) {
+                console.log('Auth autocomplete script error:', e);
+            }
+        });
+    </script>
 </body>
 
 </html>

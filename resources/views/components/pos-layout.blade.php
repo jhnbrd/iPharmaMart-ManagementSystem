@@ -511,6 +511,47 @@
             }
         }
     </script>
+
+    <script>
+        // Aggressively disable browser autocomplete/auto-fill for security
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Ensure forms declare autocomplete off
+                document.querySelectorAll('form').forEach(function(f) {
+                    f.setAttribute('autocomplete', 'off');
+                });
+
+                // Apply to all inputs, textareas and selects
+                document.querySelectorAll('input,textarea,select').forEach(function(el) {
+                    var tag = el.tagName.toLowerCase();
+                    var type = (el.getAttribute('type') || '').toLowerCase();
+
+                    // Set password fields to new-password to avoid stored password suggestions
+                    if (type === 'password') {
+                        el.setAttribute('autocomplete', 'new-password');
+                    } else if (!el.hasAttribute('autocomplete') || el.getAttribute('autocomplete') ===
+                        'on') {
+                        el.setAttribute('autocomplete', 'off');
+                    }
+                });
+
+                // Add an invisible dummy input at the start of each form to discourage autofill
+                document.querySelectorAll('form').forEach(function(f) {
+                    if (!f.querySelector('input[name="__no_autofill"]')) {
+                        var dummy = document.createElement('input');
+                        dummy.type = 'text';
+                        dummy.name = '__no_autofill';
+                        dummy.autocomplete = 'off';
+                        dummy.style.cssText =
+                            'position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;border:0;padding:0;margin:0;pointer-events:none;';
+                        f.prepend(dummy);
+                    }
+                });
+            } catch (e) {
+                console.log('Auto-complete disable script error:', e);
+            }
+        });
+    </script>
 </body>
 
 </html>
