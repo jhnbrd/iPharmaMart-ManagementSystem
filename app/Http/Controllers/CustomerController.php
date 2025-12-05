@@ -11,9 +11,10 @@ class CustomerController extends Controller
     use LogsActivity;
     public function index()
     {
+        $perPage = request('per_page', 10);
         $customers = Customer::withCount('sales')
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate($perPage);
 
         return view('customers.index', compact('customers'));
     }

@@ -14,7 +14,8 @@ class UserController extends Controller
     use LogsActivity;
     public function index()
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(10);
+        $perPage = request('per_page', 10);
+        $users = User::orderBy('created_at', 'desc')->paginate($perPage);
 
         return view('users.index', compact('users'));
     }

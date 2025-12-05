@@ -16,7 +16,7 @@
                 </div>
 
                 <!-- Date Range Filter -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-3 md:grid-cols-3 gap-4">
                     <div>
                         <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                         <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"

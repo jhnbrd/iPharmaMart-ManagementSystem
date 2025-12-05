@@ -48,8 +48,9 @@ class InventoryController extends Controller
             }
         }
 
+        $perPage = $request->input('per_page', 10);
         $products = $query->orderBy('created_at', 'desc')
-            ->paginate(10)
+            ->paginate($perPage)
             ->appends($request->except('page'));
 
         $categories = Category::all();

@@ -43,10 +43,11 @@ class UnifiedReportController extends Controller
 
     private function getSalesReport($start, $end)
     {
+        $perPage = request('per_page', 15);
         $sales = Sale::with(['customer', 'user', 'items.product'])
             ->whereBetween('created_at', [$start, $end])
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate($perPage);
 
         $totalRevenue = Sale::whereBetween('created_at', [$start, $end])->sum('total');
         $totalTransactions = Sale::whereBetween('created_at', [$start, $end])->count();
@@ -62,13 +63,14 @@ class UnifiedReportController extends Controller
 
     private function getInventoryReport($start, $end)
     {
+        $perPage = request('per_page', 15);
         $products = Product::with(['category', 'supplier'])
             ->withCount(['saleItems as total_sold' => function ($query) use ($start, $end) {
                 $query->select(DB::raw('SUM(quantity)'))
                     ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
                     ->whereBetween('sales.created_at', [$start, $end]);
             }])
-            ->paginate(15);
+            ->paginate($perPage);
 
         $totalProducts = Product::count();
         $lowStockCount = Product::whereRaw('(shelf_stock + back_stock) <= low_stock_threshold')->count();
@@ -86,12 +88,13 @@ class UnifiedReportController extends Controller
 
     private function getSeniorCitizenReport($start, $end)
     {
+        $perPage = request('per_page', 15);
         $transactions = SeniorCitizenTransaction::with(['sale.customer', 'sale.user'])
             ->whereHas('sale', function ($query) use ($start, $end) {
                 $query->whereBetween('created_at', [$start, $end]);
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate($perPage);
 
         $totalDiscount = SeniorCitizenTransaction::whereHas('sale', function ($query) use ($start, $end) {
             $query->whereBetween('created_at', [$start, $end]);
@@ -108,12 +111,13 @@ class UnifiedReportController extends Controller
 
     private function getPwdReport($start, $end)
     {
+        $perPage = request('per_page', 15);
         $transactions = PwdTransaction::with(['sale.customer', 'sale.user'])
             ->whereHas('sale', function ($query) use ($start, $end) {
                 $query->whereBetween('created_at', [$start, $end]);
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate($perPage);
 
         $totalDiscount = PwdTransaction::whereHas('sale', function ($query) use ($start, $end) {
             $query->whereBetween('created_at', [$start, $end]);

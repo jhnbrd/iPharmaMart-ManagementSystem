@@ -39,8 +39,9 @@ class SalesController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
+        $perPage = $request->input('per_page', 10);
         $sales = $query->orderBy('created_at', 'desc')
-            ->paginate(10)
+            ->paginate($perPage)
             ->appends($request->except('page'));
 
         return view('sales.index', compact('sales'));
@@ -161,8 +162,19 @@ class SalesController extends Controller
                         'subtotal' => $item['subtotal'],
                     ]);
 
-                    // Update product stock
-                    $product->decrement('stock', $item['quantity']);
+                    // Update product stock (decrement from shelf first, then back stock if needed)
+                    $quantityToDecrement = $item['quantity'];
+                    if ($product->shelf_stock >= $quantityToDecrement) {
+                        // Sufficient shelf stock
+                        $product->decrement('shelf_stock', $quantityToDecrement);
+                    } else {
+                        // Use all shelf stock and remaining from back stock
+                        $fromShelf = $product->shelf_stock;
+                        $fromBack = $quantityToDecrement - $fromShelf;
+                        $product->shelf_stock = 0;
+                        $product->decrement('back_stock', $fromBack);
+                        $product->save();
+                    }
                 }
 
                 // Log the sale transaction

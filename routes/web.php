@@ -15,6 +15,7 @@ use App\Http\Controllers\DiscountTransactionController;
 use App\Http\Controllers\UnifiedDiscountController;
 use App\Http\Controllers\ShelfMovementController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -41,6 +42,11 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard - All roles
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Profile - All authenticated users
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
 
     // Superadmin Only - Owner access
     Route::middleware('role:superadmin')->group(function () {

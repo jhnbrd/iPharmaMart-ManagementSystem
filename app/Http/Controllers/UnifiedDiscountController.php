@@ -18,13 +18,15 @@ class UnifiedDiscountController extends Controller
         $start = Carbon::parse($startDate)->startOfDay();
         $end = Carbon::parse($endDate)->endOfDay();
 
+        $perPage = $request->input('per_page', 15);
+
         if ($discountType === 'pwd') {
             $transactions = PwdTransaction::with(['sale.customer', 'sale.user'])
                 ->whereHas('sale', function ($query) use ($start, $end) {
                     $query->whereBetween('created_at', [$start, $end]);
                 })
                 ->orderBy('created_at', 'desc')
-                ->paginate(15);
+                ->paginate($perPage);
 
             $totalDiscount = PwdTransaction::whereHas('sale', function ($query) use ($start, $end) {
                 $query->whereBetween('created_at', [$start, $end]);
@@ -35,7 +37,7 @@ class UnifiedDiscountController extends Controller
                     $query->whereBetween('created_at', [$start, $end]);
                 })
                 ->orderBy('created_at', 'desc')
-                ->paginate(15);
+                ->paginate($perPage);
 
             $totalDiscount = SeniorCitizenTransaction::whereHas('sale', function ($query) use ($start, $end) {
                 $query->whereBetween('created_at', [$start, $end]);

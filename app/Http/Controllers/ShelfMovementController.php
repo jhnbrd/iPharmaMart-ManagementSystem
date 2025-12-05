@@ -37,7 +37,8 @@ class ShelfMovementController extends Controller
             }
         }
 
-        $movements = $query->paginate(20);
+        $perPage = $request->input('per_page', 20);
+        $movements = $query->paginate($perPage);
         $products = Product::orderBy('name')->get();
 
         return view('inventory.shelf-movements.index', compact('movements', 'products'));

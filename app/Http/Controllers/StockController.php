@@ -49,7 +49,8 @@ class StockController extends Controller
             $query->where('reference_number', 'like', '%' . $request->reference_number . '%');
         }
 
-        $movements = $query->paginate(20)->appends($request->except('page'));
+        $perPage = $request->input('per_page', 20);
+        $movements = $query->paginate($perPage)->appends($request->except('page'));
         $products = Product::orderBy('name')->get();
 
         // Calculate summary statistics

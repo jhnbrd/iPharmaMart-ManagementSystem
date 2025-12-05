@@ -31,7 +31,8 @@ class POSController extends Controller
             $query->where('product_type', $request->product_type);
         }
 
-        $products = $query->orderBy('name')->paginate(10);
+        $perPage = $request->input('per_page', 10);
+        $products = $query->orderBy('name')->paginate($perPage);
 
         $customers = Customer::orderBy('name')->get();
         $categories = Category::orderBy('name')->get();

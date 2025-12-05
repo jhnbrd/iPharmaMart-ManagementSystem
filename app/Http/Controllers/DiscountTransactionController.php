@@ -51,10 +51,11 @@ class DiscountTransactionController extends Controller
         $totalDiscounts = $query->sum('discount_amount');
 
         // Order by sale date (most recent first)
+        $perPage = $request->input('per_page', 15);
         $transactions = $query->join('sales', 'senior_citizen_transactions.sale_id', '=', 'sales.id')
             ->select('senior_citizen_transactions.*')
             ->orderBy('sales.created_at', 'desc')
-            ->paginate(15)
+            ->paginate($perPage)
             ->appends($request->except('page'));
 
         return view('discounts.senior-citizen', compact('transactions', 'totalDiscounts'));
@@ -100,10 +101,11 @@ class DiscountTransactionController extends Controller
         $totalDiscounts = $query->sum('discount_amount');
 
         // Order by sale date (most recent first)
+        $perPage = $request->input('per_page', 15);
         $transactions = $query->join('sales', 'pwd_transactions.sale_id', '=', 'sales.id')
             ->select('pwd_transactions.*')
             ->orderBy('sales.created_at', 'desc')
-            ->paginate(15)
+            ->paginate($perPage)
             ->appends($request->except('page'));
 
         return view('discounts.pwd', compact('transactions', 'totalDiscounts'));
