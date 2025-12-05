@@ -54,8 +54,8 @@ class StockController extends Controller
         $products = Product::orderBy('name')->get();
 
         // Calculate summary statistics
-        $totalStockIn = StockMovement::whereDate('created_at', today())->sum('stock_in');
-        $totalStockOut = StockMovement::whereDate('created_at', today())->sum('stock_out');
+        $totalStockIn = StockMovement::whereDate('created_at', today())->sum('in');
+        $totalStockOut = StockMovement::whereDate('created_at', today())->sum('out');
         $weeklyMovements = StockMovement::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
 
         return view('stock.index', compact('movements', 'products', 'totalStockIn', 'totalStockOut', 'weeklyMovements'));

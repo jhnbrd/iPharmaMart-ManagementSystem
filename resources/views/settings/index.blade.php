@@ -91,10 +91,10 @@
                                 (Days)</label>
                             <input type="number" id="data_deletion_age_days" name="data_deletion_age_days"
                                 value="{{ old('data_deletion_age_days', $settings['data_deletion_age_days']) }}"
-                                min="30" max="3650"
+                                min="1095" max="3650"
                                 class="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
                             <p class="text-xs text-gray-500 mt-1">Records older than this will be flagged for archival
-                                (30-3650 days)</p>
+                                (3-10 years: 1095-3650 days)</p>
                             @error('data_deletion_age_days')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -194,5 +194,127 @@
                 </div>
             </div>
         </div>
+
+        <!-- Database Backup Management -->
+        <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold">Database Backup</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                    <div>
+                        <h4 class="font-medium text-gray-900">Create Manual Backup</h4>
+                        <p class="text-sm text-gray-600">Create an immediate backup of your database</p>
+                    </div>
+                    <form method="POST" action="{{ route('settings.backup-database') }}">
+                        @csrf
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            Backup Now
+                        </button>
+                    </form>
+                </div>
+
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h4 class="font-medium text-gray-900 mb-3">Backup History</h4>
+                    <div id="backup-list" class="space-y-2">
+                        <p class="text-sm text-gray-500">Loading backups...</p>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-amber-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <div>
+                            <h5 class="font-medium text-amber-900">Automatic Backup Information</h5>
+                            <p class="text-sm text-amber-700 mt-1">
+                                When automatic backups are enabled, the system will create daily backups at 2:00 AM.
+                                Backups older than 30 days are automatically deleted. All backups are stored in
+                                <code class="px-1 py-0.5 bg-amber-100 rounded">storage/app/backups/</code>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        // Load backup list
+        function loadBackups() {
+            fetch('{{ route('settings.list-backups') }}')
+                .then(response => response.json())
+                .then(data => {
+                    const backupList = document.getElementById('backup-list');
+
+                    if (data.length === 0) {
+                        backupList.innerHTML =
+                            '<p class="text-sm text-gray-500">No backups available. Create your first backup above.</p>';
+                        return;
+                    }
+
+                    backupList.innerHTML = data.map(backup => {
+                        const date = new Date(backup.date * 1000);
+                        const size = (backup.size / 1024 / 1024).toFixed(2);
+
+                        return `
+                        <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">${backup.filename}</p>
+                                <p class="text-xs text-gray-500">${date.toLocaleString()} • ${size} MB</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="/settings/download-backup/${encodeURIComponent(backup.filename)}"
+                                    class="px-3 py-1 text-sm font-medium bg-green-500 text-white rounded hover:bg-green-600 transition-colors shadow-sm">
+                                    Download
+                                </a>
+                                <button onclick="deleteBackup('${backup.filename}')"
+                                    class="px-3 py-1 text-sm font-medium bg-red-500 text-white rounded hover:bg-red-600 transition-colors shadow-sm">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    }).join('');
+                })
+                .catch(error => {
+                    console.error('Error loading backups:', error);
+                    document.getElementById('backup-list').innerHTML =
+                        '<p class="text-sm text-red-500">Error loading backups. Please refresh the page.</p>';
+                });
+        }
+
+        function deleteBackup(filename) {
+            if (!confirm('Are you sure you want to delete this backup?')) {
+                return;
+            }
+
+            fetch(`/settings/delete-backup/${encodeURIComponent(filename)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadBackups();
+                    } else {
+                        alert('Error deleting backup: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting backup:', error);
+                    alert('Error deleting backup. Please try again.');
+                });
+        }
+
+        // Load backups on page load
+        document.addEventListener('DOMContentLoaded', loadBackups);
+    </script>
 </x-layout>

@@ -54,8 +54,8 @@
                     <label for="type" class="form-label">Movement Type</label>
                     <select id="type" name="type" class="form-select">
                         <option value="">All Types</option>
-                        <option value="stock_in" {{ request('type') == 'stock_in' ? 'selected' : '' }}>Stock In</option>
-                        <option value="stock_out" {{ request('type') == 'stock_out' ? 'selected' : '' }}>Stock Out
+                        <option value="in" {{ request('type') == 'in' ? 'selected' : '' }}>Stock In</option>
+                        <option value="out" {{ request('type') == 'out' ? 'selected' : '' }}>Stock Out
                         </option>
                         <option value="adjustment" {{ request('type') == 'adjustment' ? 'selected' : '' }}>Adjustment
                         </option>
@@ -156,9 +156,9 @@
                                 <div class="text-xs text-gray-500">{{ $movement->product->code }}</div>
                             </td>
                             <td>
-                                @if ($movement->type === 'stock_in')
+                                @if ($movement->type === 'in')
                                     <span class="badge-success">Stock In</span>
-                                @elseif($movement->type === 'stock_out')
+                                @elseif($movement->type === 'out')
                                     <span class="badge-danger">Stock Out</span>
                                 @else
                                     <span class="badge-warning">Adjustment</span>

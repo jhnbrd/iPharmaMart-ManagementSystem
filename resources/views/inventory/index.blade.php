@@ -1,7 +1,6 @@
 <x-layout title="Inventory">
     <!-- Page Header -->
     <div class="page-header">
-        <h1 class="page-title">Inventory Management</h1>
         <div class="flex gap-3">
             @if (in_array(auth()->user()->role, ['admin', 'inventory_manager']))
                 <a href="{{ route('reports.inventory') }}" class="btn btn-secondary">

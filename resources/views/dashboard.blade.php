@@ -1,13 +1,12 @@
-<x-layout title="Dashboard">
-    <!-- Page Header with Date Filter -->
-    <div class="page-header mb-6">
-        <div>
-            <p class="text-[var(--color-text-secondary)] mt-1">Welcome back, {{ auth()->user()->name }}</p>
-            @if (auth()->user()->role === 'cashier')
+<x-layout title="Dashboard" subtitle="Welcome back, {{ auth()->user()->name }}">
+    @if (auth()->user()->role === 'cashier')
+        <!-- Page Header with Date Filter -->
+        <div class="page-header mb-6">
+            <div>
                 <p class="text-sm text-[var(--color-text-secondary)] mt-1">Showing your sales data only</p>
-            @endif
+            </div>
         </div>
-    </div>
+    @endif
 
     <!-- Date Range Filter -->
     <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">

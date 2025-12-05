@@ -97,6 +97,10 @@ Route::middleware('auth')->group(function () {
         Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::post('/settings/clear-cache', [SettingsController::class, 'clearCache'])->name('settings.clear-cache');
         Route::post('/settings/delete-old-data', [SettingsController::class, 'deleteOldData'])->name('settings.delete-old-data');
+        Route::post('/settings/backup-database', [SettingsController::class, 'backupDatabase'])->name('settings.backup-database');
+        Route::get('/settings/list-backups', [SettingsController::class, 'listBackups'])->name('settings.list-backups');
+        Route::get('/settings/download-backup/{filename}', [SettingsController::class, 'downloadBackup'])->name('settings.download-backup');
+        Route::delete('/settings/delete-backup/{filename}', [SettingsController::class, 'deleteBackup'])->name('settings.delete-backup');
     });    // Admin & Inventory Manager - Inventory Reports
     Route::middleware('role:admin,inventory_manager')->group(function () {
         Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use App\Models\Product;
 use App\Models\ProductBatch;
 use Carbon\Carbon;
@@ -15,7 +17,7 @@ class SettingsController extends Controller
     {
         $settings = [
             'pagination_per_page' => Cache::get('settings.pagination_per_page', 15),
-            'data_deletion_age_days' => Cache::get('settings.data_deletion_age_days', 365),
+            'data_deletion_age_days' => Cache::get('settings.data_deletion_age_days', 1825),
             'expiry_alert_days' => Cache::get('settings.expiry_alert_days', 7),
             'low_stock_alert_enabled' => Cache::get('settings.low_stock_alert_enabled', true),
             'auto_backup_enabled' => Cache::get('settings.auto_backup_enabled', false),
@@ -37,7 +39,7 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'pagination_per_page' => 'required|integer|min:5|max:100',
-            'data_deletion_age_days' => 'required|integer|min:30|max:3650',
+            'data_deletion_age_days' => 'required|integer|min:1095|max:3650',
             'expiry_alert_days' => 'required|integer|min:1|max:90',
             'low_stock_alert_enabled' => 'boolean',
             'auto_backup_enabled' => 'boolean',
@@ -63,7 +65,7 @@ class SettingsController extends Controller
 
     public function deleteOldData()
     {
-        $days = Cache::get('settings.data_deletion_age_days', 365);
+        $days = Cache::get('settings.data_deletion_age_days', 1825);
         $cutoffDate = Carbon::now()->subDays($days);
 
         // This is a placeholder - actual deletion should be done carefully
@@ -76,5 +78,80 @@ class SettingsController extends Controller
 
         return redirect()->route('settings.index')
             ->with('info', "Data retention policy: Records older than {$days} days can be archived. Manual review recommended.");
+    }
+
+    public function backupDatabase()
+    {
+        try {
+            // Run the backup command
+            Artisan::call('backup:database', ['--manual' => true]);
+
+            $output = Artisan::output();
+
+            return redirect()->route('settings.index')
+                ->with('success', 'Database backup created successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('settings.index')
+                ->with('error', 'Backup failed: ' . $e->getMessage());
+        }
+    }
+
+    public function listBackups()
+    {
+        $backupDir = storage_path('app/backups');
+        $backups = [];
+
+        try {
+            if (Storage::disk('local')->exists('backups')) {
+                $files = Storage::disk('local')->files('backups');
+
+                foreach ($files as $file) {
+                    if (pathinfo($file, PATHINFO_EXTENSION) === 'sqlite') {
+                        $backups[] = [
+                            'filename' => basename($file),
+                            'size' => Storage::disk('local')->size($file),
+                            'date' => Storage::disk('local')->lastModified($file),
+                        ];
+                    }
+                }
+
+                // Sort by date descending
+                usort($backups, function ($a, $b) {
+                    return $b['date'] - $a['date'];
+                });
+            }
+        } catch (\Exception $e) {
+            Log::error('Error listing backups: ' . $e->getMessage());
+        }
+
+        return response()->json($backups);
+    }
+
+    public function downloadBackup($filename)
+    {
+        $filePath = 'backups/' . $filename;
+
+        if (!Storage::exists($filePath)) {
+            abort(404, 'Backup file not found');
+        }
+
+        return Storage::download($filePath);
+    }
+
+    public function deleteBackup($filename)
+    {
+        try {
+            $filePath = 'backups/' . $filename;
+
+            if (!Storage::exists($filePath)) {
+                return response()->json(['error' => 'Backup file not found'], 404);
+            }
+
+            Storage::delete($filePath);
+
+            return response()->json(['success' => true, 'message' => 'Backup deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete backup: ' . $e->getMessage()], 500);
+        }
     }
 }
