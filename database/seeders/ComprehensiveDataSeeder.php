@@ -23,19 +23,20 @@ use Carbon\Carbon;
 class ComprehensiveDataSeeder extends Seeder
 {
     /**
-     * Run the database seeds aligned with new ERD structure
+     * Run the database seeds with data from January 2025 to December 2025
+     * Comprehensive test data for scalability and QA testing
      */
     public function run(): void
     {
-        $this->command->info('🌱 Seeding database with comprehensive test data...');
+        $this->command->info('🌱 Seeding database with comprehensive test data (Jan 2025 - Dec 2025)...');
 
         // Create 5 Users
         $this->command->info('👥 Creating users...');
-        User::create(['name' => 'Super Admin', 'username' => 'superadmin', 'email' => 'superadmin@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'superadmin']);
-        User::create(['name' => 'Admin User', 'username' => 'admin', 'email' => 'admin@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'admin']);
-        User::create(['name' => 'John Cashier', 'username' => 'cashier1', 'email' => 'cashier1@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'cashier']);
-        User::create(['name' => 'Maria Cashier', 'username' => 'cashier2', 'email' => 'cashier2@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'cashier']);
-        User::create(['name' => 'Pedro Inventory', 'username' => 'inventory1', 'email' => 'inventory@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'inventory_manager']);
+        User::create(['name' => 'Super Admin', 'username' => 'superadmin', 'email' => 'superadmin@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'superadmin', 'created_at' => Carbon::create(2025, 1, 1)]);
+        User::create(['name' => 'Admin User', 'username' => 'admin', 'email' => 'admin@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'admin', 'created_at' => Carbon::create(2025, 1, 1)]);
+        User::create(['name' => 'John Cashier', 'username' => 'cashier1', 'email' => 'cashier1@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'cashier', 'created_at' => Carbon::create(2025, 1, 2)]);
+        User::create(['name' => 'Maria Cashier', 'username' => 'cashier2', 'email' => 'cashier2@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'cashier', 'created_at' => Carbon::create(2025, 1, 2)]);
+        User::create(['name' => 'Pedro Inventory', 'username' => 'inventory1', 'email' => 'inventory@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'inventory_manager', 'created_at' => Carbon::create(2025, 1, 2)]);
 
         // Create 12 Categories
         $this->command->info('📁 Creating categories...');
@@ -147,8 +148,8 @@ class ComprehensiveDataSeeder extends Seeder
             }
         }
 
-        // Create 40 Customers with realistic Filipino names
-        $this->command->info('👤 Creating 40 customers...');
+        // Create 40 Customers with realistic Filipino names + Senior Citizen & PWD fields
+        $this->command->info('👤 Creating 40 customers (with SC/PWD data)...');
         $customerNames = [
             'Maria Santos',
             'Jose Reyes',
@@ -193,34 +194,51 @@ class ComprehensiveDataSeeder extends Seeder
         ];
 
         foreach ($customerNames as $i => $name) {
-            $firstName = explode(' ', $name)[0];
+            // 30% are senior citizens, 20% are PWD, 50% are regular
+            $isSenior = $i < 12; // First 12 are senior citizens
+            $isPwd = $i >= 12 && $i < 20; // Next 8 are PWD
+
             Customer::create([
                 'name' => $name,
                 'phone' => '09' . str_pad(171234567 + $i + 1, 9, '0', STR_PAD_LEFT),
                 'email' => strtolower(str_replace(' ', '.', $name)) . '@gmail.com',
                 'address' => ['Manila', 'Quezon City', 'Makati', 'Pasig'][rand(0, 3)] . ' City',
+                'is_senior_citizen' => $isSenior,
+                'senior_citizen_id' => $isSenior ? 'SC-2025-' . str_pad($i + 1, 4, '0', STR_PAD_LEFT) : null,
+                'is_pwd' => $isPwd,
+                'pwd_id' => $isPwd ? 'PWD-2025-' . str_pad($i + 1, 6, '0', STR_PAD_LEFT) : null,
+                'created_at' => Carbon::create(2025, 1, rand(3, 31)),
             ]);
         }
 
-        // Create 55+ Sales with items and SC/PWD transactions
-        $this->command->info('💰 Creating 55+ sales...');
-        $startDate = Carbon::now()->subMonths(3);
-        for ($i = 0; $i < 55; $i++) {
+        // Create 250+ Sales from January 2025 to December 2025 with SC/PWD transactions
+        $this->command->info('💰 Creating 250+ sales (Jan-Dec 2025)...');
+        $startDate = Carbon::create(2025, 1, 1);
+        $endDate = Carbon::create(2025, 12, 5); // Today
+        $totalDays = $startDate->diffInDays($endDate);
+
+        // Create varied sales throughout the year (1-3 sales per day on average)
+        for ($i = 0; $i < 280; $i++) {
+            $randomDate = $startDate->copy()->addDays(rand(0, $totalDays));
+            $customerId = rand(1, 40);
+            $customer = Customer::find($customerId);
+
             $sale = Sale::create([
                 'user_id' => rand(3, 4),  // Cashiers
-                'customer_id' => rand(1, 40),
+                'customer_id' => $customerId,
                 'total' => 0,
                 'payment_method' => ['cash', 'gcash', 'card'][rand(0, 2)],
                 'paid_amount' => 0,
                 'change_amount' => 0,
-                'created_at' => $startDate->copy()->addDays(rand(0, 90)),
+                'created_at' => $randomDate,
+                'updated_at' => $randomDate,
             ]);
 
             $saleTotal = 0;
-            $itemCount = rand(2, 5);
+            $itemCount = rand(2, 6);
             for ($j = 0; $j < $itemCount; $j++) {
                 $product = Product::find(rand(1, 50));
-                $quantity = rand(1, 3);
+                $quantity = rand(1, 4);
                 $subtotal = $product->price * $quantity;
                 $saleTotal += $subtotal;
 
@@ -230,32 +248,35 @@ class ComprehensiveDataSeeder extends Seeder
                     'quantity' => $quantity,
                     'price' => $product->price,
                     'subtotal' => $subtotal,
+                    'created_at' => $randomDate,
                 ]);
             }
 
-            // 20% get SC/PWD discount
-            if (rand(1, 100) <= 20) {
-                $isSC = rand(0, 1) === 0;
+            // Apply SC/PWD discount if customer has discount eligibility
+            $hasDiscount = $customer->is_senior_citizen || $customer->is_pwd;
+
+            if ($hasDiscount) {
                 $discountAmount = $saleTotal * 0.20;
                 $finalAmount = $saleTotal - $discountAmount;
 
-                if ($isSC) {
+                if ($customer->is_senior_citizen) {
                     SeniorCitizenTransaction::create([
                         'sale_id' => $sale->id,
-                        'sc_id_number' => 'SC-2024-' . str_pad($i, 3, '0', STR_PAD_LEFT),
-                        'sc_name' => 'Senior Citizen ' . $i,
+                        'sc_id_number' => $customer->senior_citizen_id,
+                        'sc_name' => $customer->name,
                         'sc_birthdate' => Carbon::create(rand(1940, 1965), rand(1, 12), rand(1, 28)),
                         'original_amount' => $saleTotal,
                         'discount_amount' => $discountAmount,
                         'final_amount' => $finalAmount,
                         'discount_percentage' => 20,
                         'items_purchased' => $itemCount,
+                        'created_at' => $randomDate,
                     ]);
-                } else {
+                } else if ($customer->is_pwd) {
                     PwdTransaction::create([
                         'sale_id' => $sale->id,
-                        'pwd_id_number' => 'PWD-' . str_pad($i, 6, '0', STR_PAD_LEFT),
-                        'pwd_name' => 'PWD Person ' . $i,
+                        'pwd_id_number' => $customer->pwd_id,
+                        'pwd_name' => $customer->name,
                         'pwd_birthdate' => Carbon::create(rand(1960, 2005), rand(1, 12), rand(1, 28)),
                         'disability_type' => ['Visual', 'Hearing', 'Physical', 'Mental'][rand(0, 3)] . ' Impairment',
                         'original_amount' => $saleTotal,
@@ -263,6 +284,7 @@ class ComprehensiveDataSeeder extends Seeder
                         'final_amount' => $finalAmount,
                         'discount_percentage' => 20,
                         'items_purchased' => $itemCount,
+                        'created_at' => $randomDate,
                     ]);
                 }
                 $saleTotal = $finalAmount;
@@ -272,15 +294,17 @@ class ComprehensiveDataSeeder extends Seeder
             $sale->update(['total' => $saleTotal, 'paid_amount' => $paidAmount, 'change_amount' => $paidAmount - $saleTotal]);
         }
 
-        // Create 45+ Stock Movements (with stock_in and stock_out)
-        $this->command->info('📊 Creating 45+ stock movements...');
-        $stockDate = Carbon::now()->subMonths(3);
-        for ($i = 0; $i < 45; $i++) {
+        // Create 150+ Stock Movements (with stock_in and stock_out) from Jan-Dec 2025
+        $this->command->info('📊 Creating 150+ stock movements (Jan-Dec 2025)...');
+        $stockDate = Carbon::create(2025, 1, 5);
+
+        for ($i = 0; $i < 160; $i++) {
             $product = Product::with('batches')->find(rand(1, 50));
             $batch = $product->batches->first();
-            $type = $i < 35 ? 'in' : 'out';
-            $quantity = rand(20, 100);
+            $type = $i < 120 ? 'in' : 'out'; // More stock-in than stock-out
+            $quantity = rand(20, 150);
             $prev = $product->shelf_stock + $product->back_stock;
+            $randomDate = $stockDate->copy()->addDays(rand(0, 335));
 
             if ($type === 'in') {
                 $product->increment(rand(0, 1) === 0 ? 'shelf_stock' : 'back_stock', $quantity);
@@ -293,9 +317,10 @@ class ComprehensiveDataSeeder extends Seeder
                     'stock_out' => 0,
                     'previous_stock' => $prev,
                     'new_stock' => $prev + $quantity,
-                    'reference_number' => 'PO-' . str_pad($i + 1, 5, '0', STR_PAD_LEFT),
+                    'reference_number' => 'PO-2025-' . str_pad($i + 1, 5, '0', STR_PAD_LEFT),
                     'reason' => 'Stock replenishment',
-                    'created_at' => $stockDate->copy()->addDays(rand(0, 90)),
+                    'created_at' => $randomDate,
+                    'updated_at' => $randomDate,
                 ]);
             } else {
                 $qty = min($quantity, $prev);
@@ -313,23 +338,26 @@ class ComprehensiveDataSeeder extends Seeder
                     'stock_out' => $qty,
                     'previous_stock' => $prev,
                     'new_stock' => $prev - $qty,
-                    'reference_number' => 'OUT-' . str_pad($i + 1, 5, '0', STR_PAD_LEFT),
+                    'reference_number' => 'OUT-2025-' . str_pad($i + 1, 5, '0', STR_PAD_LEFT),
                     'reason' => 'Stock adjustment',
-                    'created_at' => $stockDate->copy()->addDays(rand(0, 90)),
+                    'created_at' => $randomDate,
+                    'updated_at' => $randomDate,
                 ]);
             }
         }
 
-        // Create 38+ Shelf Movements
-        $this->command->info('🔄 Creating 38+ shelf movements...');
-        $shelfDate = Carbon::now()->subMonths(2);
-        for ($i = 0; $i < 38; $i++) {
+        // Create 80+ Shelf Movements from Jan-Dec 2025
+        $this->command->info('🔄 Creating 80+ shelf movements (Jan-Dec 2025)...');
+        $shelfDate = Carbon::create(2025, 1, 10);
+
+        for ($i = 0; $i < 85; $i++) {
             $product = Product::with('batches')->find(rand(1, 50));
             if ($product->back_stock > 10) {
-                $quantity = rand(10, min(50, $product->back_stock));
+                $quantity = rand(10, min(60, $product->back_stock));
                 $batch = $product->batches->first();
                 $prevShelf = $product->shelf_stock;
                 $prevBack = $product->back_stock;
+                $randomDate = $shelfDate->copy()->addDays(rand(0, 330));
 
                 $product->increment('shelf_stock', $quantity);
                 $product->decrement('back_stock', $quantity);
@@ -344,7 +372,8 @@ class ComprehensiveDataSeeder extends Seeder
                     'previous_back_stock' => $prevBack,
                     'new_back_stock' => $prevBack - $quantity,
                     'remarks' => 'Restocking display shelf',
-                    'created_at' => $shelfDate->copy()->addDays(rand(0, 60)),
+                    'created_at' => $randomDate,
+                    'updated_at' => $randomDate,
                 ]);
             }
         }

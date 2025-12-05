@@ -10,7 +10,21 @@ class Customer extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'email', 'phone', 'address'];
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'address',
+        'is_senior_citizen',
+        'senior_citizen_id',
+        'is_pwd',
+        'pwd_id'
+    ];
+
+    protected $casts = [
+        'is_senior_citizen' => 'boolean',
+        'is_pwd' => 'boolean',
+    ];
 
     public function sales(): HasMany
     {

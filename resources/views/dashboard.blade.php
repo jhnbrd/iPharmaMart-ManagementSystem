@@ -1,7 +1,40 @@
 <x-layout title="Dashboard">
-    <!-- Page Header -->
+    <!-- Page Header with Date Filter -->
     <div class="page-header mb-6">
-        <p class="text-[var(--color-text-secondary)] mt-1">Welcome back, {{ auth()->user()->name }}</p>
+        <div>
+            <p class="text-[var(--color-text-secondary)] mt-1">Welcome back, {{ auth()->user()->name }}</p>
+            @if (auth()->user()->role === 'cashier')
+                <p class="text-sm text-[var(--color-text-secondary)] mt-1">Showing your sales data only</p>
+            @endif
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+        <form method="GET" action="{{ route('dashboard') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
+            </div>
+            <div>
+                <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <input type="date" id="end_date" name="end_date" value="{{ $endDate }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
+            </div>
+            <div>
+                <button type="submit"
+                    class="w-full px-4 py-2 bg-[var(--color-brand-green)] text-white rounded-lg hover:bg-green-700 transition-colors">
+                    Apply Filter
+                </button>
+            </div>
+            <div>
+                <a href="{{ route('dashboard') }}"
+                    class="block w-full px-4 py-2 bg-gray-200 text-gray-700 text-center rounded-lg hover:bg-gray-300 transition-colors">
+                    Reset
+                </a>
+            </div>
+        </form>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

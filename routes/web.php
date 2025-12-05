@@ -10,8 +10,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UnifiedReportController;
 use App\Http\Controllers\DiscountTransactionController;
+use App\Http\Controllers\UnifiedDiscountController;
 use App\Http\Controllers\ShelfMovementController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -75,13 +78,20 @@ Route::middleware('auth')->group(function () {
         Route::delete('/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
         Route::resource('suppliers', SupplierController::class)->except(['show']);
 
-        // Reports
+        // Unified Reports
+        Route::get('/reports', [UnifiedReportController::class, 'index'])->name('reports.index');
+
+        // Legacy report routes (for backward compatibility)
         Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('/reports/senior-citizen', [ReportController::class, 'seniorCitizen'])->name('reports.senior-citizen');
         Route::get('/reports/pwd', [ReportController::class, 'pwd'])->name('reports.pwd');
-    });
 
-    // Admin & Inventory Manager - Inventory Reports
+        // General Settings
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('/settings/clear-cache', [SettingsController::class, 'clearCache'])->name('settings.clear-cache');
+        Route::post('/settings/delete-old-data', [SettingsController::class, 'deleteOldData'])->name('settings.delete-old-data');
+    });    // Admin & Inventory Manager - Inventory Reports
     Route::middleware('role:admin,inventory_manager')->group(function () {
         Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
     });
@@ -91,7 +101,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('sales', SalesController::class)->only(['index', 'show']);
         Route::resource('customers', CustomerController::class)->except(['show']);
 
-        // Senior Citizen & PWD Discount Transactions
+        // Unified Discount Transactions
+        Route::get('/discounts', [UnifiedDiscountController::class, 'index'])->name('discounts.index');
+
+        // Legacy discount routes (for backward compatibility)
         Route::get('/discounts/senior-citizen', [DiscountTransactionController::class, 'seniorCitizenIndex'])->name('discounts.senior-citizen');
         Route::get('/discounts/pwd', [DiscountTransactionController::class, 'pwdIndex'])->name('discounts.pwd');
     });

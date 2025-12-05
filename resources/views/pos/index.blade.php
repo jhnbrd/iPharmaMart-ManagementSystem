@@ -293,6 +293,22 @@
             gap: 0.25rem;
         }
 
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #cbd5e0;
+            border-radius: 0.25rem;
+            padding: 0.25rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .qty-input:focus {
+            outline: none;
+            border-color: var(--color-brand-green);
+            box-shadow: 0 0 0 2px rgba(44, 99, 86, 0.1);
+        }
+
         .qty-btn {
             width: 24px;
             height: 24px;
@@ -564,16 +580,36 @@
                                     onchange="selectCustomerOption('existing')">
                                 <div class="flex-1 min-w-0">
                                     <div class="font-semibold text-sm">Existing Customer</div>
-                                    <select id="existingCustomerSelect" class="form-select mt-1 text-xs" disabled
-                                        onchange="updateSelectedCustomer()" onclick="event.stopPropagation()">
-                                        <option value="">Choose a customer...</option>
-                                        @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}" data-name="{{ $customer->name }}"
-                                                data-phone="{{ $customer->phone }}">
-                                                {{ $customer->name }} - {{ $customer->phone }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="mt-1 relative">
+                                        <input type="text" id="customerSearchInput" class="form-input text-xs"
+                                            placeholder="Search customer by name..." disabled
+                                            oninput="filterCustomers()" onclick="event.stopPropagation()"
+                                            autocomplete="off">
+                                        <div id="customerDropdown"
+                                            class="hidden absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-48 overflow-y-auto shadow-lg">
+                                            @foreach ($customers as $customer)
+                                                <div class="customer-item px-3 py-2 hover:bg-green-50 cursor-pointer text-xs border-b"
+                                                    data-id="{{ $customer->id }}" data-name="{{ $customer->name }}"
+                                                    data-phone="{{ $customer->phone }}"
+                                                    data-is-senior="{{ $customer->is_senior_citizen ? '1' : '0' }}"
+                                                    data-is-pwd="{{ $customer->is_pwd ? '1' : '0' }}"
+                                                    data-senior-id="{{ $customer->senior_citizen_id ?? '' }}"
+                                                    data-pwd-id="{{ $customer->pwd_id ?? '' }}"
+                                                    onclick="selectExistingCustomer(this)">
+                                                    <div class="font-semibold">{{ $customer->name }}</div>
+                                                    <div class="text-gray-500">{{ $customer->phone }}</div>
+                                                    @if ($customer->is_senior_citizen)
+                                                        <div class="text-blue-600 text-xs">Senior Citizen:
+                                                            {{ $customer->senior_citizen_id }}</div>
+                                                    @endif
+                                                    @if ($customer->is_pwd)
+                                                        <div class="text-blue-600 text-xs">PWD:
+                                                            {{ $customer->pwd_id }}</div>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
                             </label>
 
@@ -929,6 +965,26 @@
             }
         }
 
+        function setQuantity(productId, value, maxStock) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                let newQuantity = parseInt(value) || 1;
+
+                if (newQuantity < 1) {
+                    newQuantity = 1;
+                    showToast('Quantity cannot be less than 1', 'warning');
+                }
+
+                if (newQuantity > maxStock) {
+                    newQuantity = maxStock;
+                    showToast(`Cannot exceed available stock (${maxStock} units)`, 'error');
+                }
+
+                item.quantity = newQuantity;
+                updateCart();
+            }
+        }
+
         function removeFromCart(productId) {
             cart = cart.filter(item => item.id !== productId);
             updateCart();
@@ -1093,7 +1149,10 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                                     </svg>
                                 </button>
-                                <span class="font-medium px-2">${item.quantity}</span>
+                                <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.stock}" 
+                                    onchange="setQuantity(${item.id}, this.value, ${item.stock})" 
+                                    onblur="if(!this.value || this.value < 1) this.value = 1; setQuantity(${item.id}, this.value, ${item.stock})"
+                                    autocomplete="off">
                                 <button onclick="updateQuantity(${item.id}, 1)" class="qty-btn">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/>
@@ -1168,14 +1227,20 @@
 
         // Customer Selection Functions
         function selectCustomerOption(option) {
-            const existingSelect = document.getElementById('existingCustomerSelect');
+            const customerSearchInput = document.getElementById('customerSearchInput');
+            const customerDropdown = document.getElementById('customerDropdown');
             const newCustomerForm = document.getElementById('newCustomerForm');
             const newCustomerInputs = newCustomerForm.querySelectorAll('input');
 
             // Reset all options to default state
-            existingSelect.disabled = true;
-            existingSelect.value = '';
-            existingSelect.style.pointerEvents = 'none';
+            if (customerSearchInput) {
+                customerSearchInput.disabled = true;
+                customerSearchInput.value = '';
+                customerSearchInput.style.pointerEvents = 'none';
+            }
+            if (customerDropdown) {
+                customerDropdown.classList.add('hidden');
+            }
             newCustomerForm.style.display = 'none';
             newCustomerInputs.forEach(input => {
                 input.disabled = true;
@@ -1185,8 +1250,11 @@
 
             // Enable based on selection
             if (option === 'existing') {
-                existingSelect.disabled = false;
-                existingSelect.style.pointerEvents = 'auto';
+                if (customerSearchInput) {
+                    customerSearchInput.disabled = false;
+                    customerSearchInput.style.pointerEvents = 'auto';
+                    customerSearchInput.focus();
+                }
             } else if (option === 'new') {
                 newCustomerForm.style.display = 'block';
                 newCustomerInputs.forEach(input => {
@@ -1199,17 +1267,79 @@
             currentCustomer = null;
         }
 
-        function updateSelectedCustomer() {
-            const select = document.getElementById('existingCustomerSelect');
-            if (select.value) {
-                const option = select.options[select.selectedIndex];
-                currentCustomer = {
-                    id: select.value,
-                    name: option.getAttribute('data-name'),
-                    phone: option.getAttribute('data-phone')
-                };
+        function filterCustomers() {
+            const searchInput = document.getElementById('customerSearchInput');
+            const dropdown = document.getElementById('customerDropdown');
+            const searchTerm = searchInput.value.toLowerCase();
+            const seniorChecked = document.getElementById('seniorDiscount').checked;
+            const pwdChecked = document.getElementById('pwdDiscount').checked;
+
+            const items = dropdown.querySelectorAll('.customer-item');
+            let hasVisible = false;
+
+            items.forEach(item => {
+                const name = item.getAttribute('data-name').toLowerCase();
+                const phone = item.getAttribute('data-phone').toLowerCase();
+                const isSenior = item.getAttribute('data-is-senior') === '1';
+                const isPwd = item.getAttribute('data-is-pwd') === '1';
+
+                // Check search match
+                const matchesSearch = name.includes(searchTerm) || phone.includes(searchTerm);
+
+                // Check discount filter
+                let matchesDiscount = true;
+                if (seniorChecked && !isSenior) matchesDiscount = false;
+                if (pwdChecked && !isPwd) matchesDiscount = false;
+
+                if (matchesSearch && matchesDiscount) {
+                    item.style.display = 'block';
+                    hasVisible = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            dropdown.classList.toggle('hidden', !hasVisible || searchTerm.length === 0);
+        }
+
+        function selectExistingCustomer(element) {
+            const searchInput = document.getElementById('customerSearchInput');
+            const dropdown = document.getElementById('customerDropdown');
+
+            currentCustomer = {
+                id: element.getAttribute('data-id'),
+                name: element.getAttribute('data-name'),
+                phone: element.getAttribute('data-phone'),
+                is_senior: element.getAttribute('data-is-senior') === '1',
+                is_pwd: element.getAttribute('data-is-pwd') === '1',
+                senior_id: element.getAttribute('data-senior-id'),
+                pwd_id: element.getAttribute('data-pwd-id')
+            };
+
+            searchInput.value = currentCustomer.name;
+            dropdown.classList.add('hidden');
+
+            // Auto-fill discount ID if applicable
+            const seniorChecked = document.getElementById('seniorDiscount').checked;
+            const pwdChecked = document.getElementById('pwdDiscount').checked;
+
+            if (seniorChecked && currentCustomer.is_senior && currentCustomer.senior_id) {
+                document.getElementById('seniorIdNumber').value = currentCustomer.senior_id;
+            }
+
+            if (pwdChecked && currentCustomer.is_pwd && currentCustomer.pwd_id) {
+                document.getElementById('pwdIdNumber').value = currentCustomer.pwd_id;
             }
         }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('customerDropdown');
+            const searchInput = document.getElementById('customerSearchInput');
+            if (dropdown && searchInput && !searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
 
         // Payment Modal Functions
         function openPaymentModal() {
@@ -1272,6 +1402,23 @@
                 document.getElementById('pwdDiscount').checked = false;
                 document.getElementById('pwdIdNumber').disabled = true;
                 document.getElementById('pwdIdNumber').value = '';
+            }
+
+            // Filter customers in dropdown if discount is selected
+            const searchInput = document.getElementById('customerSearchInput');
+            if (searchInput && !searchInput.disabled) {
+                filterCustomers();
+            }
+
+            // Auto-fill discount ID if customer is already selected
+            if (currentCustomer) {
+                if (seniorChecked && currentCustomer.is_senior && currentCustomer.senior_id) {
+                    document.getElementById('seniorIdNumber').value = currentCustomer.senior_id;
+                }
+
+                if (pwdChecked && currentCustomer.is_pwd && currentCustomer.pwd_id) {
+                    document.getElementById('pwdIdNumber').value = currentCustomer.pwd_id;
+                }
             }
 
             updatePaymentSummary();
@@ -1398,14 +1545,13 @@
                 let customerData = null;
 
                 if (customerOption === 'existing') {
-                    const existingSelect = document.getElementById('existingCustomerSelect');
-                    if (!existingSelect.value) {
+                    if (!currentCustomer || !currentCustomer.id) {
                         showToast('Please select a customer from the list', 'error');
                         return;
                     }
                     customerData = {
                         type: 'existing',
-                        id: existingSelect.value
+                        id: currentCustomer.id
                     };
                 } else if (customerOption === 'new') {
                     const name = document.getElementById('newCustomerName').value.trim();
@@ -1421,7 +1567,12 @@
                         type: 'new',
                         name: name,
                         phone: phone,
-                        address: address
+                        address: address,
+                        is_senior_citizen: seniorChecked ? 1 : 0,
+                        senior_citizen_id: seniorChecked ? document.getElementById('seniorIdNumber').value.trim() :
+                            null,
+                        is_pwd: pwdChecked ? 1 : 0,
+                        pwd_id: pwdChecked ? document.getElementById('pwdIdNumber').value.trim() : null
                     };
                 }
 
@@ -1601,9 +1752,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                    </div>` : ''}
+                                                                                                <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                            </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1622,9 +1773,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                    </div>` : ''}
+                                                                                                <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                            </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>

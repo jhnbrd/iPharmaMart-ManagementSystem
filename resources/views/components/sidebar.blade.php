@@ -3,19 +3,19 @@
 @endphp
 
 <aside class="sidebar">
+    <!-- Sticky Logo -->
+    <div class="sidebar-logo sticky top-0 bg-[var(--color-brand-green)] z-10">
+        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1">
+            <img src="{{ asset('images/logo/ipharma-logo.png') }}" alt="iPharma Mart" class="w-full h-full object-contain">
+        </div>
+        <div>
+            <h1 class="text-lg font-bold">iPharma Mart</h1>
+            <p class="text-xs text-white/60">Management System</p>
+        </div>
+    </div>
+
     <!-- Scrollable Content -->
     <div class="flex-1 overflow-y-auto scrollbar-hide">
-        <!-- Logo -->
-        <div class="sidebar-logo">
-            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1">
-                <img src="{{ asset('images/logo/ipharma-logo.png') }}" alt="iPharma Mart"
-                    class="w-full h-full object-contain">
-            </div>
-            <div>
-                <h1 class="text-lg font-bold">iPharma Mart</h1>
-                <p class="text-xs text-white/60">Management System</p>
-            </div>
-        </div>
 
         <!-- Navigation -->
         <nav class="sidebar-nav">
@@ -69,22 +69,13 @@
                     <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Discounts</h3>
                 </div>
 
-                <a href="{{ route('discounts.senior-citizen') }}"
-                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'discounts.senior-citizen') ? 'active' : '' }}">
+                <a href="{{ route('discounts.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'discounts.') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
-                    <span>Senior Citizen</span>
-                </a>
-
-                <a href="{{ route('discounts.pwd') }}"
-                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'discounts.pwd') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                    </svg>
-                    <span>PWD Records</span>
+                    <span>Discount Transactions</span>
                 </a>
             @endif
 
@@ -139,40 +130,29 @@
                     <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Reports</h3>
                 </div>
 
-                <a href="{{ route('reports.sales') }}"
-                    class="sidebar-nav-item {{ $currentRoute === 'reports.sales' ? 'active' : '' }}">
+                <a href="{{ route('reports.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'reports.') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <span>Sales Report</span>
+                    <span>Reports</span>
                 </a>
 
-                <a href="{{ route('reports.inventory') }}"
-                    class="sidebar-nav-item {{ $currentRoute === 'reports.inventory' ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>Inventory Report</span>
-                </a>
+                <!-- SETTINGS SECTION -->
+                <div class="px-4 pt-4 pb-2">
+                    <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">System</h3>
+                </div>
 
-                <a href="{{ route('reports.senior-citizen') }}"
-                    class="sidebar-nav-item {{ $currentRoute === 'reports.senior-citizen' ? 'active' : '' }}">
+                <a href="{{ route('settings.index') }}"
+                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'settings.') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>SC Report</span>
-                </a>
-
-                <a href="{{ route('reports.pwd') }}"
-                    class="sidebar-nav-item {{ $currentRoute === 'reports.pwd' ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span>PWD Report</span>
+                    <span>General Settings</span>
                 </a>
             @endif
 

@@ -8,14 +8,32 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
+            $user = Auth::user();
+
+            // Date filtering - default to month-to-date
+            $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
+            $endDate = $request->input('end_date', Carbon::now()->format('Y-m-d'));
+
+            $start = Carbon::parse($startDate)->startOfDay();
+            $end = Carbon::parse($endDate)->endOfDay();
+
+            // Role-based data filtering
+            $salesQuery = Sale::whereBetween('created_at', [$start, $end]);
+
+            if ($user->role === 'cashier') {
+                // Cashiers see only their own sales
+                $salesQuery->where('user_id', $user->id);
+            }
+
             // Get total revenue
-            $totalRevenue = Sale::sum('total') ?? 0;
+            $totalRevenue = (clone $salesQuery)->sum('total') ?? 0;
 
             // Get total products count
             $totalProducts = Product::count();
@@ -26,15 +44,11 @@ class DashboardController extends Controller
             // Low stock items count (using new shelf + back stock)
             $lowStockItems = Product::whereRaw('(shelf_stock + back_stock) <= low_stock_threshold')->count();
 
-            // Get monthly sales (current month)
-            $monthlySales = Sale::whereMonth('created_at', Carbon::now()->month)
-                ->whereYear('created_at', Carbon::now()->year)
-                ->sum('total') ?? 0;
+            // Get sales within date range
+            $monthlySales = (clone $salesQuery)->sum('total') ?? 0;
 
-            // Get monthly sales count
-            $monthlySalesCount = Sale::whereMonth('created_at', Carbon::now()->month)
-                ->whereYear('created_at', Carbon::now()->year)
-                ->count();
+            // Get sales count within date range
+            $monthlySalesCount = (clone $salesQuery)->count();
 
             // Stock reports (using new structure)
             $totalStock = Product::sum(DB::raw('shelf_stock + back_stock')) ?? 0;
@@ -98,7 +112,9 @@ class DashboardController extends Controller
                 'topProducts',
                 'lowStockProducts',
                 'expiringBatches',
-                'expiredBatches'
+                'expiredBatches',
+                'startDate',
+                'endDate'
             ));
         } catch (\Exception $e) {
             return view('dashboard')->with('error', 'Failed to load dashboard data: ' . $e->getMessage());

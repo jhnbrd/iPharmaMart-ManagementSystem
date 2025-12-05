@@ -111,9 +111,10 @@ class SalesController extends Controller
                 foreach ($validated['items'] as $item) {
                     $product = Product::lockForUpdate()->find($item['product_id']);
 
-                    // Check stock availability
-                    if ($product->stock < $item['quantity']) {
-                        throw new \Exception("Insufficient stock for product: {$product->name}. Available: {$product->stock}, Requested: {$item['quantity']}");
+                    // Check stock availability using total_stock accessor
+                    $availableStock = $product->total_stock;
+                    if ($availableStock < $item['quantity']) {
+                        throw new \Exception("Insufficient stock for product: {$product->name}. Available: {$availableStock}, Requested: {$item['quantity']}");
                     }
 
                     $itemSubtotal = $product->price * $item['quantity'];
