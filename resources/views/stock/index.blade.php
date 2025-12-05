@@ -1,12 +1,7 @@
-<x-layout title="Stock Movements">
+<x-layout title="Stock Movements" subtitle="Manage all stock in, stock out, and inventory transactions">
     <!-- Page Header -->
     <div class="page-header">
         <div class="flex items-center justify-between w-full">
-            <div>
-                <h1 class="page-title">Stock Movements</h1>
-                <p class="text-[var(--color-text-secondary)] mt-1">Manage all stock in, stock out, and inventory
-                    transactions</p>
-            </div>
             <div class="flex gap-2">
                 <button onclick="toggleFilters()" class="btn btn-secondary">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
