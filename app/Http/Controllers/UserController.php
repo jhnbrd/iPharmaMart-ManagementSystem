@@ -32,7 +32,7 @@ class UserController extends Controller
                 'username' => 'required|string|max:255|unique:users,username|alpha_dash',
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',
-                'role' => 'required|in:superadmin,admin,cashier,inventory_manager',
+                'role' => 'required|in:admin,cashier,inventory_manager',
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ]);
 
@@ -64,13 +64,18 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         try {
+            if ($user->role === 'superadmin') {
+                return redirect()->back()
+                    ->with('error', 'Super Admin accounts cannot be modified.');
+            }
+
             $oldValues = $user->only(['username', 'name', 'email', 'role']);
 
             $validated = $request->validate([
                 'username' => 'required|string|max:255|unique:users,username,' . $user->id . '|alpha_dash',
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
-                'role' => 'required|in:superadmin,admin,cashier,inventory_manager',
+                'role' => 'required|in:admin,cashier,inventory_manager',
                 'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             ]);
 
@@ -100,6 +105,11 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         try {
+            if ($user->role === 'superadmin') {
+                return redirect()->back()
+                    ->with('error', 'Super Admin accounts cannot be deleted.');
+            }
+
             // Prevent deleting the currently logged-in user
             if ($user->id === Auth::id()) {
                 return redirect()->back()

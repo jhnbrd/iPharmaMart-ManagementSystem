@@ -50,20 +50,24 @@
                         </td>
                         <td>{{ $user->created_at->format('Y-m-d') }}</td>
                         <td>
-                            <div class="flex gap-2">
-                                <a href="{{ route('users.edit', $user) }}"
-                                    class="text-[var(--color-brand-green)] hover:underline">
-                                    Edit
-                                </a>
-                                <form action="{{ route('users.destroy', $user) }}" method="POST"
-                                    onsubmit="return confirm('Are you sure?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-[var(--color-danger)] hover:underline">
-                                        Delete
-                                    </button>
-                                </form>
-                            </div>
+                            @if ($user->role === 'superadmin')
+                                <span class="text-gray-400 text-sm italic">Protected</span>
+                            @else
+                                <div class="flex gap-2">
+                                    <a href="{{ route('users.edit', $user) }}"
+                                        class="text-[var(--color-brand-green)] hover:underline">
+                                        Edit
+                                    </a>
+                                    <form action="{{ route('users.destroy', $user) }}" method="POST"
+                                        onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-[var(--color-danger)] hover:underline">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </td>
                     </tr>
                 @empty
