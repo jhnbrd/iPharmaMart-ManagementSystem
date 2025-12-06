@@ -21,7 +21,6 @@ return new class extends Migration
             $table->decimal('discount_amount', 10, 2);
             $table->decimal('final_amount', 10, 2);
             $table->decimal('discount_percentage', 5, 2)->default(20.00);
-            $table->text('items_purchased');
             $table->timestamps();
 
             $table->index('created_at');

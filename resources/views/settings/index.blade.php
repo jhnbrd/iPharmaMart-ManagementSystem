@@ -166,7 +166,7 @@
                     </div>
                     <div class="p-6 space-y-4">
                         <div class="flex items-center justify-between p-4 rounded-lg"
-                            style="background-color: #f9fafb;">
+                            style="background-color: #f9fafb !important;">
                             <div>
                                 <h4 class="font-medium text-gray-900">Clear System Cache</h4>
                                 <p class="text-sm text-gray-600">Clear all cached data to refresh system settings</p>
@@ -174,14 +174,14 @@
                             <form method="POST" action="{{ route('settings.clear-cache') }}">
                                 @csrf
                                 <button type="submit"
-                                    class="px-6 py-2.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-semibold shadow-md hover:shadow-lg">
+                                    class="px-6 py-2.5 bg-yellow-500 text-yellow-700 rounded-lg hover:bg-yellow-600 transition-colors font-semibold shadow-md hover:shadow-lg">
                                     Clear Cache
                                 </button>
                             </form>
                         </div>
 
                         <div class="flex items-center justify-between p-4 rounded-lg"
-                            style="background-color: #fef2f2;">
+                            style="background-color: #fef2f2 !important;">
                             <div>
                                 <h4 class="font-medium text-gray-900">Archive Old Data</h4>
                                 <p class="text-sm text-gray-600">Review and archive records older than retention period
@@ -191,7 +191,7 @@
                                 onsubmit="return confirm('This will flag old records for archival. Continue?');">
                                 @csrf
                                 <button type="submit"
-                                    class="px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold shadow-md hover:shadow-lg">
+                                    class="px-6 py-2.5 bg-red-500 text-red-700 rounded-lg hover:bg-red-600 transition-colors font-semibold shadow-md hover:shadow-lg">
                                     Review Old Data
                                 </button>
                             </form>
@@ -206,7 +206,7 @@
                     </div>
                     <div class="p-6 space-y-4">
                         <div class="flex items-center justify-between p-4 rounded-lg"
-                            style="background-color: #eff6ff;">
+                            style="background-color: #eff6ff !important;">
                             <div>
                                 <h4 class="font-medium text-gray-900">Create Manual Backup</h4>
                                 <p class="text-sm text-gray-600">Create an immediate backup of your database</p>
@@ -214,20 +214,21 @@
                             <form method="POST" action="{{ route('settings.backup-database') }}">
                                 @csrf
                                 <button type="submit"
-                                    class="px-6 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold shadow-md hover:shadow-lg">
+                                    class="px-6 py-2.5 bg-blue-500 text-black rounded-lg hover:bg-blue-600 transition-colors font-semibold shadow-md hover:shadow-lg">
                                     Backup Now
                                 </button>
                             </form>
                         </div>
 
-                        <div class="p-4 rounded-lg" style="background-color: #f9fafb;">
+                        <div class="p-4 rounded-lg" style="background-color: #f9fafb !important;">
                             <h4 class="font-medium text-gray-900 mb-3 text-sm">Backup History</h4>
                             <div id="backup-list" class="space-y-2 max-h-64 overflow-y-auto">
                                 <p class="text-sm text-gray-500">Loading backups...</p>
                             </div>
                         </div>
 
-                        <div class="p-3 rounded-lg border border-amber-200" style="background-color: #fffbeb;">
+                        <div class="p-3 rounded-lg border border-amber-200"
+                            style="background-color: #fffbeb !important;">
                             <div class="flex items-start gap-2">
                                 <svg class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="currentColor"
                                     viewBox="0 0 20 20">
@@ -241,7 +242,7 @@
                                         Daily backups at 2:00 AM when enabled. Backups older than 30 days are
                                         auto-deleted.
                                         Stored in <code class="px-1 py-0.5 rounded text-xs"
-                                            style="background-color: #fef3c7;">storage/app/backups/</code>
+                                            style="background-color: #fef3c7 !important;">storage/app/backups/</code>
                                     </p>
                                 </div>
                             </div>
@@ -278,11 +279,11 @@
                             </div>
                             <div class="flex gap-2">
                                 <a href="/settings/download-backup/${encodeURIComponent(backup.filename)}"
-                                    class="px-4 py-2 text-sm font-semibold bg-[var(--color-brand-green)] text-white rounded-lg hover:bg-green-700 transition-colors shadow-md hover:shadow-lg">
+                                    class="px-4 py-2 text-sm font-semibold bg-[var(--color-brand-green)] text-black rounded-lg hover:bg-green-700 transition-colors shadow-md hover:shadow-lg">
                                     Download
                                 </a>
                                 <button onclick="deleteBackup('${backup.filename}')"
-                                    class="px-3 py-1 text-sm font-medium bg-red-500 text-white rounded hover:bg-red-600 transition-colors shadow-sm">
+                                    class="px-3 py-1 text-sm font-medium bg-red-500 text-red-700 rounded hover:bg-red-600 transition-colors shadow-sm">
                                     Delete
                                 </button>
                             </div>
