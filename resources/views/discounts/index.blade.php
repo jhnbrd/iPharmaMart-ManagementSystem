@@ -62,27 +62,31 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                {{ $discountType === 'pwd' ? 'PWD ID' : 'SC ID' }}</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                {{ $discountType === 'pwd' ? 'PWD ID Number' : 'SC ID Number' }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cashier</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Original Amount
                             </th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Discount</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Final Amount
                             </th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse ($transactions as $transaction)
                             <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $transaction->created_at->format('M d, Y H:i') }}
+                                    {{ $transaction->sale->created_at->format('M d, Y H:i') }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $discountType === 'pwd' ? $transaction->pwd_id : $transaction->senior_citizen_id }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span
+                                        class="font-mono text-sm {{ $discountType === 'pwd' ? 'bg-blue-100' : 'bg-purple-100' }} px-2 py-1 rounded">
+                                        {{ $discountType === 'pwd' ? $transaction->pwd_id_number : $transaction->sc_id_number }}
+                                    </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $transaction->sale->customer->name ?? 'Walk-in' }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {{ $discountType === 'pwd' ? $transaction->pwd_name : $transaction->sc_name }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $transaction->sale->user->name ?? 'N/A' }}
@@ -91,16 +95,30 @@
                                     ₱{{ number_format($transaction->original_amount, 2) }}
                                 </td>
                                 <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-right text-[var(--color-accent-orange)]">
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-right text-[var(--color-danger)] font-medium">
                                     -₱{{ number_format($transaction->discount_amount, 2) }}
+                                    ({{ $transaction->discount_percentage }}%)
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-gray-900">
-                                    ₱{{ number_format($transaction->discounted_amount, 2) }}
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-[var(--color-success)]">
+                                    ₱{{ number_format($transaction->final_amount, 2) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                    <a href="{{ route('sales.show', $transaction->sale_id) }}"
+                                        class="btn btn-sm btn-primary">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        View Details
+                                    </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                                     No transactions found for the selected period.
                                 </td>
                             </tr>
