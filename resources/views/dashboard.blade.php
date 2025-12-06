@@ -1,15 +1,24 @@
 <x-layout title="Dashboard" subtitle="Welcome back, {{ auth()->user()->name }}">
-    @if (auth()->user()->role === 'cashier')
-        <!-- Page Header with Date Filter -->
-        <div class="page-header mb-6">
+    <!-- Page Header -->
+    <div class="page-header">
+        @if (auth()->user()->role === 'cashier')
             <div>
                 <p class="text-sm text-[var(--color-text-secondary)] mt-1">Showing your sales data only</p>
             </div>
+        @endif
+        <div class="flex gap-3">
+            <button onclick="toggleFilters()" class="btn btn-secondary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span id="filter-btn-text">Show Filters</span>
+            </button>
         </div>
-    @endif
+    </div>
 
     <!-- Date Range Filter -->
-    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+    <div id="filters-section" class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 hidden">
         <form method="GET" action="{{ route('dashboard') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
                 <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
@@ -316,4 +325,26 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleFilters() {
+            const filtersSection = document.getElementById('filters-section');
+            const filterBtnText = document.getElementById('filter-btn-text');
+
+            if (filtersSection.classList.contains('hidden')) {
+                filtersSection.classList.remove('hidden');
+                filterBtnText.textContent = 'Hide Filters';
+            } else {
+                filtersSection.classList.add('hidden');
+                filterBtnText.textContent = 'Show Filters';
+            }
+        }
+
+        // Show filters if any filter is active
+        @if (request()->hasAny(['start_date', 'end_date']))
+            document.addEventListener('DOMContentLoaded', function() {
+                toggleFilters();
+            });
+        @endif
+    </script>
 </x-layout>

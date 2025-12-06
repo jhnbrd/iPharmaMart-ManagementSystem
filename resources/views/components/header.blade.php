@@ -10,8 +10,12 @@
             </svg>
         </button>
 
-        <h1 class="text-2xl font-bold">{{ $title }}</h1>
-        <p class="text-[var(--color-text-secondary)] mt-1">{{ $subtitle }}</p>
+        <div>
+            <h1 class="text-2xl font-bold">{{ $title }}</h1>
+            @if ($subtitle)
+                <p class="text-sm text-[var(--color-text-secondary)] mt-0.5">{{ $subtitle }}</p>
+            @endif
+        </div>
     </div>
 
     <div class="flex items-center gap-4">

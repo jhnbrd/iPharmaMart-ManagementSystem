@@ -1,6 +1,5 @@
-<x-layout title="Audit Logs">
+<x-layout title="Audit Logs" subtitle="System activity and user action logs">
     <div class="page-header">
-        <h1 class="page-title">Audit Logs</h1>
         <button onclick="toggleFilters()" class="btn btn-secondary">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

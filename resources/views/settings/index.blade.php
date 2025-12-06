@@ -1,4 +1,4 @@
-<x-layout title="General Settings">
+<x-layout title="General Settings" subtitle="Configure system preferences and options">
     <div class="mb-6">
         @if (session('success'))
             <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-4">

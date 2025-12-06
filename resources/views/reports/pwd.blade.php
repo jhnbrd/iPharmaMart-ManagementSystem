@@ -1,10 +1,8 @@
-<x-layout title="PWD Report">
+<x-layout title="PWD Report" subtitle="Monthly report of PWD discount transactions">
     <!-- Page Header -->
     <div class="page-header">
         <div class="flex items-center justify-between w-full">
             <div>
-                <h1 class="page-title">PWD Discount Report</h1>
-                <p class="text-[var(--color-text-secondary)] mt-1">Monthly report of PWD discount transactions</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="toggleFilters()" class="btn btn-secondary">

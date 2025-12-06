@@ -1,7 +1,6 @@
-<x-layout title="New Sale">
+<x-layout title="New Sale" subtitle="Process a new sales transaction">
     <div class="max-w-4xl">
         <div class="page-header">
-            <h1 class="page-title">Create New Sale</h1>
         </div>
 
         <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">

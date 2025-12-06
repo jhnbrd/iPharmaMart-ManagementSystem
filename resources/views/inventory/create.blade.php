@@ -1,7 +1,6 @@
-<x-layout title="Add New Product">
-    <div class="max-w-3xl">
+<x-layout title="Add Product" subtitle="Register a new product in the inventory">
+    <div class="max-w-4xl">
         <div class="page-header">
-            <h1 class="page-title">Add New Product</h1>
         </div>
 
         <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">

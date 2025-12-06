@@ -1,7 +1,6 @@
-<x-layout title="Edit Supplier">
-    <div class="max-w-2xl">
+<x-layout title="Edit Supplier" subtitle="Update supplier information">
+    <div class="max-w-4xl">
         <div class="page-header">
-            <h1 class="page-title">Edit Supplier</h1>
         </div>
 
         <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">

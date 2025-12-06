@@ -1,9 +1,7 @@
-<x-layout title="Sales Report">
+<x-layout title="Sales Report" subtitle="Generate and print sales reports">
     <div class="page-header mb-6">
         <div class="flex items-center justify-between w-full">
             <div>
-                <h1 class="page-title">Sales Report</h1>
-                <p class="text-[var(--color-text-secondary)] mt-1">Generate and print sales reports</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="toggleFilters()" class="btn btn-secondary">

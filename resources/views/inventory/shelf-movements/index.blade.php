@@ -1,11 +1,7 @@
-<x-layout title="Shelf Movements">
+<x-layout title="Shelf Movements" subtitle="Track products moving between shelf and back stock">
     <!-- Page Header -->
     <div class="page-header">
         <div class="flex items-center justify-between w-full">
-            <div>
-                <h1 class="page-title">Shelf Movements</h1>
-                <p class="text-[var(--color-text-secondary)] mt-1">Track products moving between shelf and back stock</p>
-            </div>
             <div class="flex gap-2">
                 <button onclick="toggleFilters()" class="btn btn-secondary">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

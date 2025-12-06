@@ -6,6 +6,8 @@ use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\SeniorCitizenTransaction;
+use App\Models\PwdTransaction;
 use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,6 +72,9 @@ class SalesController extends Controller
                 'paid_amount' => 'required|numeric|min:0',
                 'change_amount' => 'required|numeric|min:0',
                 'reference_number' => 'nullable|string|max:255',
+                'discount_type' => 'nullable|in:senior_citizen,pwd',
+                'discount_id_number' => 'nullable|string|max:255',
+                'discount_percentage' => 'nullable|numeric|min:0|max:100',
             ], [
                 'items.required' => 'Cannot process checkout - No items in cart',
                 'items.min' => 'Cannot process checkout - At least one item is required',
@@ -132,7 +137,26 @@ class SalesController extends Controller
 
                 // Calculate tax and total
                 $tax = $subtotal * 0.12; // 12% VAT
-                $total = $subtotal + $tax;
+                $originalTotal = $subtotal + $tax;
+                $total = $originalTotal;
+
+                // Apply discount if applicable
+                $discountAmount = 0;
+                $discountPercentage = 0;
+                $discountInfo = null;
+
+                if (!empty($validated['discount_type']) && !empty($validated['discount_id_number'])) {
+                    $discountPercentage = $validated['discount_percentage'] ?? 20;
+                    $discountAmount = $originalTotal * ($discountPercentage / 100);
+                    $total = $originalTotal - $discountAmount;
+
+                    $discountInfo = [
+                        'type' => $validated['discount_type'],
+                        'id_number' => $validated['discount_id_number'],
+                        'percentage' => $discountPercentage,
+                        'amount' => $discountAmount,
+                    ];
+                }
 
                 // Validate paid amount
                 if ($validated['paid_amount'] < $total) {
@@ -177,6 +201,36 @@ class SalesController extends Controller
                     }
                 }
 
+                // Create discount transaction record if discount was applied
+                if ($discountInfo) {
+                    $customer = Customer::find($customerId);
+
+                    if ($discountInfo['type'] === 'senior_citizen') {
+                        SeniorCitizenTransaction::create([
+                            'sale_id' => $sale->id,
+                            'sc_id_number' => $discountInfo['id_number'],
+                            'sc_name' => $customer->name,
+                            'sc_birthdate' => $customer->birthdate ?? now()->subYears(65),
+                            'original_amount' => $originalTotal,
+                            'discount_percentage' => $discountInfo['percentage'],
+                            'discount_amount' => $discountInfo['amount'],
+                            'final_amount' => $total,
+                        ]);
+                    } elseif ($discountInfo['type'] === 'pwd') {
+                        PwdTransaction::create([
+                            'sale_id' => $sale->id,
+                            'pwd_id_number' => $discountInfo['id_number'],
+                            'pwd_name' => $customer->name,
+                            'pwd_birthdate' => $customer->birthdate ?? now()->subYears(30),
+                            'disability_type' => $customer->disability_type ?? 'Not specified',
+                            'original_amount' => $originalTotal,
+                            'discount_percentage' => $discountInfo['percentage'],
+                            'discount_amount' => $discountInfo['amount'],
+                            'final_amount' => $total,
+                        ]);
+                    }
+                }
+
                 // Log the sale transaction
                 $customer = Customer::find($customerId);
                 self::logActivity(
@@ -212,12 +266,13 @@ class SalesController extends Controller
                     'items' => $itemsDetails,
                     'subtotal' => $subtotal,
                     'tax' => $tax,
+                    'original_total' => $originalTotal,
                     'total' => $total,
                     'payment_method' => $validated['payment_method'],
                     'paid_amount' => $validated['paid_amount'],
                     'change_amount' => $validated['change_amount'],
                     'reference_number' => $validated['reference_number'] ?? null,
-                    'discount' => null, // Will be populated if discount applied
+                    'discount' => $discountInfo,
                 ];
 
                 return [
@@ -265,6 +320,31 @@ class SalesController extends Controller
     {
         $sale->load(['customer', 'items.product', 'user']);
 
-        return view('sales.show', compact('sale'));
+        // Load discount transactions if they exist
+        $seniorTransaction = SeniorCitizenTransaction::where('sale_id', $sale->id)->first();
+        $pwdTransaction = PwdTransaction::where('sale_id', $sale->id)->first();
+
+        $discountInfo = null;
+        if ($seniorTransaction) {
+            $discountInfo = [
+                'type' => 'Senior Citizen (20%)',
+                'id_number' => $seniorTransaction->sc_id_number,
+                'name' => $seniorTransaction->sc_name,
+                'percentage' => $seniorTransaction->discount_percentage,
+                'amount' => $seniorTransaction->discount_amount,
+                'original_amount' => $seniorTransaction->original_amount,
+            ];
+        } elseif ($pwdTransaction) {
+            $discountInfo = [
+                'type' => 'PWD (20%)',
+                'id_number' => $pwdTransaction->pwd_id_number,
+                'name' => $pwdTransaction->pwd_name,
+                'percentage' => $pwdTransaction->discount_percentage,
+                'amount' => $pwdTransaction->discount_amount,
+                'original_amount' => $pwdTransaction->original_amount,
+            ];
+        }
+
+        return view('sales.show', compact('sale', 'discountInfo'));
     }
 }

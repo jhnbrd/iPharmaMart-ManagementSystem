@@ -1,9 +1,7 @@
-<x-layout title="Inventory Report">
+<x-layout title="Inventory Report" subtitle="Generate and print inventory reports">
     <div class="page-header mb-6">
         <div class="flex items-center justify-between w-full">
             <div>
-                <h1 class="page-title">Inventory Report</h1>
-                <p class="text-[var(--color-text-secondary)] mt-1">Generate and print inventory reports</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="toggleFilters()" class="btn btn-secondary">

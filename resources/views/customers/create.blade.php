@@ -1,7 +1,6 @@
-<x-layout title="Add Customer">
-    <div class="max-w-2xl">
+<x-layout title="Add Customer" subtitle="Register a new customer in the system">
+    <div class="max-w-4xl">
         <div class="page-header">
-            <h1 class="page-title">Add New Customer</h1>
         </div>
 
         <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">

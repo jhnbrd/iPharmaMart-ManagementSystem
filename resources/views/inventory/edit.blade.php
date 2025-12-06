@@ -1,7 +1,6 @@
-<x-layout title="Edit Product">
-    <div class="max-w-3xl">
+<x-layout title="Edit Product" subtitle="Update product information">
+    <div class="max-w-4xl">
         <div class="page-header">
-            <h1 class="page-title">Edit Product</h1>
         </div>
 
         <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">

@@ -1,4 +1,4 @@
-<x-layout title="Reports">
+<x-layout title="Reports" subtitle="Generate and view system reports">
     <div class="mb-6">
         <!-- Report Type Filter -->
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">

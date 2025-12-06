@@ -1,10 +1,8 @@
-<x-layout title="New Shelf Movement">
+<x-layout title="New Shelf Movement" subtitle="Move products between shelf and back stock">
     <!-- Page Header -->
     <div class="page-header">
         <div class="flex items-center justify-between w-full">
             <div>
-                <h1 class="page-title">New Shelf Movement</h1>
-                <p class="text-[var(--color-text-secondary)] mt-1">Move products between shelf and back stock</p>
             </div>
             <a href="{{ route('inventory.shelf-movements.index') }}" class="btn btn-secondary">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

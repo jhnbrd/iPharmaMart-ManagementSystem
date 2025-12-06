@@ -1,7 +1,6 @@
-<x-layout title="PWD Discounts">
+<x-layout title="PWD Discounts" subtitle="View PWD discount transactions">
     <!-- Page Header -->
     <div class="page-header">
-        <h1 class="page-title">PWD Discount Transactions</h1>
         <div class="flex gap-2">
             <button onclick="toggleFilters()" class="btn btn-secondary">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,6 +82,7 @@
                     <th>Discount Amount</th>
                     <th>Final Amount</th>
                     <th>Sale ID</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -119,10 +119,21 @@
                                 #{{ $transaction->sale_id }}
                             </a>
                         </td>
+                        <td>
+                            <a href="{{ route('sales.show', $transaction->sale_id) }}" class="btn btn-sm btn-primary">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                View Details
+                            </a>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10" class="text-center py-8 text-[var(--color-text-secondary)]">
+                        <td colspan="11" class="text-center py-8 text-[var(--color-text-secondary)]">
                             No PWD discount transactions found for the selected period.
                         </td>
                     </tr>

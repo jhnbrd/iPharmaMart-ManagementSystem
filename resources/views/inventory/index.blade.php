@@ -1,4 +1,4 @@
-<x-layout title="Inventory">
+<x-layout title="Inventory" subtitle="Manage products, stock levels, and batches">
     <!-- Page Header -->
     <div class="page-header">
         <div class="flex gap-3">

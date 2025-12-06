@@ -1,12 +1,9 @@
-<x-layout title="Shelf Movement Details">
+<x-layout title="Shelf Movement Details"
+    subtitle="Movement #{{ $shelfMovement->id }} - {{ $shelfMovement->created_at->format('M d, Y h:i A') }}">
     <!-- Page Header -->
     <div class="page-header">
         <div class="flex items-center justify-between w-full">
             <div>
-                <h1 class="page-title">Shelf Movement Details</h1>
-                <p class="text-[var(--color-text-secondary)] mt-1">
-                    Movement #{{ $shelfMovement->id }} - {{ $shelfMovement->created_at->format('M d, Y h:i A') }}
-                </p>
             </div>
             <div class="flex gap-2">
                 <a href="{{ route('inventory.shelf-movements.index') }}" class="btn btn-secondary">

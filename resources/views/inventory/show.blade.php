@@ -1,10 +1,8 @@
-<x-layout title="{{ $inventory->name }} - Product Details">
+<x-layout title="{{ $inventory->name }}" subtitle="Product Code: {{ $inventory->code }}">
     <!-- Page Header -->
     <div class="page-header">
         <div class="flex items-center justify-between w-full">
             <div>
-                <h1 class="page-title">{{ $inventory->name }}</h1>
-                <p class="text-[var(--color-text-secondary)] mt-1">Product Code: {{ $inventory->code }}</p>
             </div>
             <div class="flex gap-2">
                 <a href="{{ route('inventory.index') }}" class="btn btn-secondary">

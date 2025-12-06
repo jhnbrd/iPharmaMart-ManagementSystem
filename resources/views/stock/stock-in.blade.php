@@ -1,7 +1,6 @@
-<x-layout title="Stock In">
-    <div class="max-w-2xl">
+<x-layout title="Stock In" subtitle="Record incoming stock from suppliers">
+    <div class="max-w-4xl">
         <div class="page-header">
-            <h1 class="page-title">Stock In</h1>
         </div>
 
         <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">

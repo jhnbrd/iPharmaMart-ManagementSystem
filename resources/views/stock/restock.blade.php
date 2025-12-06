@@ -1,7 +1,6 @@
-<x-layout title="Restock Shelf">
-    <div class="max-w-2xl">
+<x-layout title="Restock Shelf" subtitle="Move products from back storage to shelf">
+    <div class="max-w-4xl">
         <div class="page-header">
-            <h1 class="page-title">Restock Shelf</h1>
         </div>
 
         <div class="bg-white p-8 shadow-sm border border-[var(--color-border-light)]">

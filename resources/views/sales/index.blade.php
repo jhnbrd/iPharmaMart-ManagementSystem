@@ -1,7 +1,6 @@
-<x-layout title="Sales">
+<x-layout title="Sales" subtitle="View and manage all sales transactions">
     <!-- Page Header -->
     <div class="page-header">
-        <h1 class="page-title">Sales History</h1>
         <div class="flex gap-3">
             @if (auth()->user()->role === 'admin')
                 <a href="{{ route('reports.sales') }}" class="btn btn-secondary">

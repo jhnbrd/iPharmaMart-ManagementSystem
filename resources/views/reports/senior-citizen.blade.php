@@ -1,11 +1,8 @@
-<x-layout title="Senior Citizen Report">
+<x-layout title="Senior Citizen Report" subtitle="Monthly report of senior citizen discount transactions">
     <!-- Page Header -->
     <div class="page-header">
         <div class="flex items-center justify-between w-full">
             <div>
-                <h1 class="page-title">Senior Citizen Discount Report</h1>
-                <p class="text-[var(--color-text-secondary)] mt-1">Monthly report of senior citizen discount transactions
-                </p>
             </div>
             <div class="flex gap-2">
                 <button onclick="toggleFilters()" class="btn btn-secondary">
