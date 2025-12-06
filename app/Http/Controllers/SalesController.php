@@ -128,7 +128,7 @@ class SalesController extends Controller
 
                     $itemsDetails[] = [
                         'product_id' => $product->id,
-                        'product' => $product->name,
+                        'name' => $product->name,
                         'quantity' => $item['quantity'],
                         'price' => $product->price,
                         'subtotal' => $itemSubtotal,

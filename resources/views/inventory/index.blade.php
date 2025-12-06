@@ -18,168 +18,196 @@
                 </svg>
                 Add New Item
             </a>
-            <button onclick="toggleFilters()" class="btn btn-secondary">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                </svg>
-                <span id="filter-btn-text">Show Filters</span>
-            </button>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div id="filters-section" class="bg-white p-4 shadow-sm border border-[var(--color-border-light)] mb-6 hidden">
-        <form method="GET" action="{{ route('inventory.index') }}" class="flex flex-wrap gap-3 items-end">
-            <div class="form-group mb-0" style="min-width: 180px; flex: 1;">
-                <label for="search" class="form-label text-xs mb-1">Product Name</label>
-                <input type="text" id="search" name="search" class="form-input text-sm py-1.5"
-                    value="{{ request('search') }}" placeholder="Search product...">
+    <div class="mb-6">
+        <!-- Product Type Filter -->
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
+            <form method="GET" action="{{ route('inventory.index') }}" class="space-y-4">
+                <!-- Product Type Tabs -->
+                <div class="flex flex-wrap gap-2 border-b border-gray-200 pb-4">
+                    <button type="submit" name="product_type" value="pharmacy"
+                        class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('product_type') === 'pharmacy' || !request('product_type') ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                        Pharmacy Products
+                    </button>
+                    <button type="submit" name="product_type" value="mini_mart"
+                        class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('product_type') === 'mini_mart' ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                        Mini Mart Products
+                    </button>
+                </div>
+
+                <!-- Filter Options -->
+                <div class="grid grid-cols-4 gap-4">
+                    <div>
+                        <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search
+                            Product</label>
+                        <input type="text" id="search" name="search" value="{{ request('search') }}"
+                            placeholder="Product name..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <select id="category_id" name="category_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
+                            <option value="">All Categories</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="stock_status" class="block text-sm font-medium text-gray-700 mb-1">Stock
+                            Status</label>
+                        <select id="stock_status" name="stock_status"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
+                            <option value="">All Status</option>
+                            <option value="ok" {{ request('stock_status') === 'ok' ? 'selected' : '' }}>OK</option>
+                            <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>Low
+                            </option>
+                            <option value="critical" {{ request('stock_status') === 'critical' ? 'selected' : '' }}>
+                                Critical</option>
+                            <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>Out of
+                                Stock</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit"
+                            class="w-full px-4 py-2 bg-[var(--color-brand-green)] text-white rounded-lg hover:bg-green-700 transition-colors">
+                            Apply Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Products Table -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold">
+                    {{ request('product_type') === 'mini_mart' ? 'Mini Mart' : 'Pharmacy' }} Products
+                </h2>
             </div>
-
-            <div class="form-group mb-0" style="min-width: 150px; flex: 1;">
-                <label for="product_type" class="form-label text-xs mb-1">Product Type</label>
-                <select id="product_type" name="product_type" class="form-select text-sm py-1.5">
-                    <option value="">All Types</option>
-                    <option value="pharmacy" {{ request('product_type') === 'pharmacy' ? 'selected' : '' }}>Pharmacy
-                    </option>
-                    <option value="mini_mart" {{ request('product_type') === 'mini_mart' ? 'selected' : '' }}>Mini Mart
-                    </option>
-                </select>
+            <div class="overflow-x-auto">
+                <table class="w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">
+                                Product Details</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                                Barcode</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                                Category</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                                Unit</th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">
+                                Shelf</th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">
+                                Back</th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">
+                                Total</th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                                Price</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                                Supplier</th>
+                            <th
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                                Status</th>
+                            <th
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[5%]">
+                                Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse($products as $product)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if ($product->brand_name)
+                                        <div class="text-sm font-bold text-gray-900">{{ $product->brand_name }}</div>
+                                    @endif
+                                    <div
+                                        class="text-sm {{ $product->brand_name ? 'text-gray-700' : 'font-bold text-gray-900' }}">
+                                        {{ $product->name }}
+                                    </div>
+                                    @if ($product->generic_name && $product->product_type === 'pharmacy')
+                                        <div class="text-xs text-gray-500 italic">Generic: {{ $product->generic_name }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <span class="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
+                                        {{ $product->barcode ?? 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $product->category->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $product->unit }}
+                                    ({{ $product->unit_quantity }})</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                    <span class="font-medium text-blue-600">{{ $product->shelf_stock }}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                    <span class="font-medium text-green-600">{{ $product->back_stock }}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                    <span class="font-bold text-gray-900">{{ $product->total_stock }}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
+                                    ₱{{ number_format($product->price, 2) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $product->supplier->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                    @if ($product->isDangerStock())
+                                        <span class="badge-danger">Critical</span>
+                                    @elseif ($product->isLowStock())
+                                        <span class="badge-warning">Low</span>
+                                    @else
+                                        <span class="badge-success">OK</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                    <div class="flex gap-2 justify-center">
+                                        <a href="{{ route('inventory.edit', $product->id) }}"
+                                            class="text-[var(--color-brand-green)] hover:underline text-xs">
+                                            Edit
+                                        </a>
+                                        <button type="button"
+                                            onclick="openVoidModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                            class="text-[var(--color-danger)] hover:underline text-xs">
+                                            Void
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="11" class="px-6 py-8 text-center text-gray-500">
+                                    No products found. <a href="{{ route('inventory.create') }}"
+                                        class="text-[var(--color-brand-green)] hover:underline">Add your first
+                                        product</a>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-
-            <div class="form-group mb-0" style="min-width: 150px; flex: 1;">
-                <label for="category_id" class="form-label text-xs mb-1">Category</label>
-                <select id="category_id" name="category_id" class="form-select text-sm py-1.5">
-                    <option value="">All Categories</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}"
-                            {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                            {{ $category->name }}
-                        </option>
-                    @endforeach
-                </select>
+            <div class="px-6 py-4 border-t border-gray-200">
+                {{ $products->appends(request()->query())->links() }}
             </div>
-
-            <div class="form-group mb-0" style="min-width: 150px; flex: 1;">
-                <label for="stock_status" class="form-label text-xs mb-1">Stock Status</label>
-                <select id="stock_status" name="stock_status" class="form-select text-sm py-1.5">
-                    <option value="">All Status</option>
-                    <option value="ok" {{ request('stock_status') === 'ok' ? 'selected' : '' }}>OK</option>
-                    <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>Low</option>
-                    <option value="critical" {{ request('stock_status') === 'critical' ? 'selected' : '' }}>Critical
-                    </option>
-                    <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>Out of Stock
-                    </option>
-                </select>
-            </div>
-
-            <div class="form-group mb-0">
-                <button type="submit" class="btn btn-primary text-sm py-1.5 px-4">
-                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
-                    Filter
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Products Table -->
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Barcode</th>
-                    <th>Type</th>
-                    <th>Category</th>
-                    <th>Unit</th>
-                    <th>Shelf Stock</th>
-                    <th>Back Stock</th>
-                    <th>Total</th>
-                    <th>Price</th>
-                    <th>Supplier</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($products as $product)
-                    <tr>
-                        <td>
-                            <div class="font-medium">{{ $product->name }}</div>
-                            @if ($product->brand_name)
-                                <div class="text-xs text-gray-600">Brand: {{ $product->brand_name }}</div>
-                            @endif
-                            @if ($product->generic_name && $product->product_type === 'pharmacy')
-                                <div class="text-xs text-gray-500">Generic: {{ $product->generic_name }}</div>
-                            @endif
-                        </td>
-                        <td>
-                            <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
-                                {{ $product->barcode ?? 'N/A' }}
-                            </span>
-                        </td>
-                        <td>
-                            @if ($product->product_type === 'pharmacy')
-                                <span class="badge-info">Pharmacy</span>
-                            @else
-                                <span class="badge-warning">Mini Mart</span>
-                            @endif
-                        </td>
-                        <td>{{ $product->category->name }}</td>
-                        <td>{{ $product->unit }} ({{ $product->unit_quantity }})</td>
-                        <td>
-                            <span class="font-medium text-blue-600">{{ $product->shelf_stock }}</span>
-                        </td>
-                        <td>
-                            <span class="font-medium text-green-600">{{ $product->back_stock }}</span>
-                        </td>
-                        <td>
-                            <span class="font-bold">{{ $product->total_stock }}</span>
-                            <span class="text-xs text-[var(--color-text-secondary)]">{{ $product->unit }}</span>
-                        </td>
-                        <td>₱{{ number_format($product->price, 2) }}</td>
-                        <td>{{ $product->supplier->name }}</td>
-                        <td>
-                            @if ($product->isDangerStock())
-                                <span class="badge-danger">Critical</span>
-                            @elseif ($product->isLowStock())
-                                <span class="badge-warning">Low Stock</span>
-                            @else
-                                <span class="badge-success">In Stock</span>
-                            @endif
-                        </td>
-                        <td>
-                            <div class="flex gap-2">
-                                <a href="{{ route('inventory.edit', $product->id) }}"
-                                    class="text-[var(--color-brand-green)] hover:underline">
-                                    Edit
-                                </a>
-                                <button type="button"
-                                    onclick="openVoidModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                    class="text-[var(--color-danger)] hover:underline">
-                                    Void
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="12" class="text-center py-8 text-[var(--color-text-secondary)]">
-                            No products found. <a href="{{ route('inventory.create') }}"
-                                class="text-[var(--color-brand-green)] hover:underline">Add your first product</a>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    <div class="mt-6">
-        {{ $products->links() }}
+        </div>
     </div>
 
     <!-- Admin Authorization Modal for Void -->
@@ -278,25 +306,5 @@
                 closeVoidModal();
             }
         });
-
-        function toggleFilters() {
-            const filtersSection = document.getElementById('filters-section');
-            const filterBtnText = document.getElementById('filter-btn-text');
-
-            if (filtersSection.classList.contains('hidden')) {
-                filtersSection.classList.remove('hidden');
-                filterBtnText.textContent = 'Hide Filters';
-            } else {
-                filtersSection.classList.add('hidden');
-                filterBtnText.textContent = 'Show Filters';
-            }
-        }
-
-        // Show filters if any filter is active
-        @if (request()->hasAny(['search', 'product_type', 'category_id', 'stock_status']))
-            document.addEventListener('DOMContentLoaded', function() {
-                toggleFilters();
-            });
-        @endif
     </script>
 </x-layout>

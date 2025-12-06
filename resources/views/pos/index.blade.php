@@ -394,19 +394,20 @@
                             }
                         @endphp
                         <div class="product-item" data-category="{{ $product->category_id }}"
-                            data-name="{{ strtolower($product->name) }}" data-id="{{ $product->id }}"
-                            data-type="{{ $product->product_type }}"
-                            onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }}, {{ $product->total_stock }}, '{{ addslashes($product->category->name) }}')">
+                            data-name="{{ strtolower(($product->brand_name ? $product->brand_name . ' ' : '') . $product->name) }}"
+                            data-id="{{ $product->id }}" data-type="{{ $product->product_type }}"
+                            onclick="addToCart({{ $product->id }}, '{{ addslashes(($product->brand_name ? $product->brand_name . ' ' : '') . $product->name) }}', {{ $product->price }}, {{ $product->total_stock }}, '{{ addslashes($product->category->name) }}')">
                             <div class="product-info">
-                                <div class="product-name" title="{{ $product->name }}">
-                                    {{ $product->name }}
+                                <div class="product-name"
+                                    title="{{ ($product->brand_name ? $product->brand_name . ' ' : '') . $product->name }}">
                                     @if ($product->brand_name)
-                                        <span class="text-xs text-gray-500">({{ $product->brand_name }})</span>
+                                        <span class="font-bold">{{ $product->brand_name }}</span>
                                     @endif
+                                    {{ $product->name }}
                                 </div>
                                 <div class="product-category">
                                     @if ($product->product_type === 'pharmacy' && $product->generic_name)
-                                        <span class="text-xs text-blue-600">{{ $product->generic_name }}</span>
+                                        <span class="text-xs text-blue-600 italic">{{ $product->generic_name }}</span>
                                         <span class="text-xs text-gray-400">•</span>
                                     @endif
                                     {{ $product->category->name }}
@@ -1752,9 +1753,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                            </div>` : ''}
+                                                                                                    <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                    <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1773,9 +1774,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                            </div>` : ''}
+                                                                                                    <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                    <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
