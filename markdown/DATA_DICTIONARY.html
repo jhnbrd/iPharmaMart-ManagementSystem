@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Data Dictionary - iPharma Mart Management System</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                font-size: 11pt;
+            }
+            h1 {
+                text-align: center;
+                font-size: 24pt;
+                margin-bottom: 40px;
+            }
+            h2 {
+                font-size: 14pt;
+                margin-top: 30px;
+                margin-bottom: 10px;
+                text-align: center;
+                border: 2px solid #000;
+                padding: 10px;
+                background-color: #f0f0f0;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 30px;
+                page-break-inside: auto;
+            }
+            th,
+            td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+                vertical-align: top;
+            }
+            th {
+                background-color: #e0e0e0;
+                font-weight: bold;
+                text-align: center;
+            }
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+            .field-name {
+                font-weight: bold;
+            }
+            @media print {
+                body {
+                    margin: 15px;
+                }
+                h2 {
+                    page-break-after: avoid;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Data Dictionary</h1>
+
+        <h2>USERS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Primary key. Unique identifier for each user.</td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">username</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>The username chosen by the user for login.</td>
+                    <td>admin123</td>
+                </tr>
+                <tr>
+                    <td class="field-name">name</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Full name of the user.</td>
+                    <td>John Doe</td>
+                </tr>
+                <tr>
+                    <td class="field-name">email</td>
+                    <td>VARCHAR</td>
+                    <td>Email</td>
+                    <td>255</td>
+                    <td>User's email address (must be unique).</td>
+                    <td>user@example.com</td>
+                </tr>
+                <tr>
+                    <td class="field-name">password</td>
+                    <td>VARCHAR</td>
+                    <td>Hashed string</td>
+                    <td>255</td>
+                    <td>Hashed password stored securely.</td>
+                    <td>$2y$10$afK9...</td>
+                </tr>
+                <tr>
+                    <td class="field-name">role</td>
+                    <td>ENUM</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>
+                        User role: superadmin, admin, cashier, or
+                        inventory_manager.
+                    </td>
+                    <td>admin</td>
+                </tr>
+                <tr>
+                    <td class="field-name">is_active</td>
+                    <td>BOOLEAN</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Indicates if user account is active (1) or inactive (0).
+                    </td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the user record was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the user record was last updated.</td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>CUSTOMERS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Primary key. Unique identifier for each customer.</td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">name</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Full name of the customer.</td>
+                    <td>Maria Santos</td>
+                </tr>
+                <tr>
+                    <td class="field-name">email</td>
+                    <td>VARCHAR</td>
+                    <td>Email</td>
+                    <td>255</td>
+                    <td>Customer's email address. Can be NULL.</td>
+                    <td>maria@email.com</td>
+                </tr>
+                <tr>
+                    <td class="field-name">phone</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>20</td>
+                    <td>Customer's phone number. Can be NULL.</td>
+                    <td>09123456789</td>
+                </tr>
+                <tr>
+                    <td class="field-name">address</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Customer's full address. Can be NULL.</td>
+                    <td>123 Main St, Manila</td>
+                </tr>
+                <tr>
+                    <td class="field-name">birthdate</td>
+                    <td>DATE</td>
+                    <td>YYYY-MM-DD</td>
+                    <td></td>
+                    <td>Customer's date of birth. Can be NULL.</td>
+                    <td>1960-05-15</td>
+                </tr>
+                <tr>
+                    <td class="field-name">disability_type</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Type of disability for PWD customers. Can be NULL.</td>
+                    <td>Visual Impairment</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the customer record was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>
+                        Timestamp when the customer record was last updated.
+                    </td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>SUPPLIERS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Primary key. Unique identifier for each supplier.</td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">name</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Name of the supplier company.</td>
+                    <td>PharmaCorp Inc.</td>
+                </tr>
+                <tr>
+                    <td class="field-name">contact_person</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Name of contact person at supplier. Can be NULL.</td>
+                    <td>Juan Cruz</td>
+                </tr>
+                <tr>
+                    <td class="field-name">email</td>
+                    <td>VARCHAR</td>
+                    <td>Email</td>
+                    <td>255</td>
+                    <td>Supplier's email address. Can be NULL.</td>
+                    <td>contact@pharmacorp.com</td>
+                </tr>
+                <tr>
+                    <td class="field-name">phone</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>20</td>
+                    <td>Supplier's phone number. Can be NULL.</td>
+                    <td>028765432</td>
+                </tr>
+                <tr>
+                    <td class="field-name">address</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Supplier's full address. Can be NULL.</td>
+                    <td>456 Business Ave, Makati</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the supplier record was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>
+                        Timestamp when the supplier record was last updated.
+                    </td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>CATEGORIES</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Primary key. Unique identifier for each category.</td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">name</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Name of the product category (must be unique).</td>
+                    <td>Antibiotics</td>
+                </tr>
+                <tr>
+                    <td class="field-name">description</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Description of the category. Can be NULL.</td>
+                    <td>Medications for bacterial infections</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the category record was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>
+                        Timestamp when the category record was last updated.
+                    </td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>PRODUCTS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Primary key. Unique identifier for each product.</td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">sku</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Stock Keeping Unit (must be unique).</td>
+                    <td>MED-001</td>
+                </tr>
+                <tr>
+                    <td class="field-name">name</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Product name.</td>
+                    <td>Amoxicillin 500mg</td>
+                </tr>
+                <tr>
+                    <td class="field-name">generic_name</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Generic name of the medicine. Can be NULL.</td>
+                    <td>Amoxicillin</td>
+                </tr>
+                <tr>
+                    <td class="field-name">brand_name</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Brand name of the medicine. Can be NULL.</td>
+                    <td>Amoxil</td>
+                </tr>
+                <tr>
+                    <td class="field-name">description</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Product description. Can be NULL.</td>
+                    <td>Antibiotic capsule 500mg</td>
+                </tr>
+                <tr>
+                    <td class="field-name">category_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the product's category in the
+                        categories table.
+                    </td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="field-name">price</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Selling price of the product.</td>
+                    <td>50.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">cost</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Cost price of the product.</td>
+                    <td>30.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">shelf_stock</td>
+                    <td>INTEGER</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Quantity available on shelf for immediate sale.</td>
+                    <td>50</td>
+                </tr>
+                <tr>
+                    <td class="field-name">back_stock</td>
+                    <td>INTEGER</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Quantity in back storage.</td>
+                    <td>100</td>
+                </tr>
+                <tr>
+                    <td class="field-name">stock_danger_level</td>
+                    <td>INTEGER</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Minimum stock level before reorder alert.</td>
+                    <td>10</td>
+                </tr>
+                <tr>
+                    <td class="field-name">supplier_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the product's supplier in the
+                        suppliers table.
+                    </td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="field-name">expiry_date</td>
+                    <td>DATE</td>
+                    <td>YYYY-MM-DD</td>
+                    <td></td>
+                    <td>Product expiration date. Can be NULL.</td>
+                    <td>2026-12-31</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the product record was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the product record was last updated.</td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>SALES</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Primary key. Unique identifier for each sale
+                        transaction.
+                    </td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">customer_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the customer in the customers
+                        table.
+                    </td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td class="field-name">user_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the cashier/user in the users
+                        table.
+                    </td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td class="field-name">total</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Total amount of the sale after discounts and taxes.</td>
+                    <td>560.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">payment_method</td>
+                    <td>ENUM</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Payment method used: cash, gcash, or card.</td>
+                    <td>cash</td>
+                </tr>
+                <tr>
+                    <td class="field-name">paid_amount</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Amount paid by the customer.</td>
+                    <td>600.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">change_amount</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Change given back to customer.</td>
+                    <td>40.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">reference_number</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>
+                        Payment reference number for gcash/card transactions.
+                        Can be NULL.
+                    </td>
+                    <td>REF123456789</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the sale transaction was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>
+                        Timestamp when the sale transaction was last updated.
+                    </td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>SALE_ITEMS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Primary key. Unique identifier for each sale item.</td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">sale_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the sale transaction in the
+                        sales table.
+                    </td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="field-name">product_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the product in the products
+                        table.
+                    </td>
+                    <td>10</td>
+                </tr>
+                <tr>
+                    <td class="field-name">quantity</td>
+                    <td>INTEGER</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Quantity of the product sold.</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td class="field-name">price</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Price per unit at time of sale.</td>
+                    <td>50.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">subtotal</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Total amount for this item (quantity × price).</td>
+                    <td>100.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the sale item record was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>
+                        Timestamp when the sale item record was last updated.
+                    </td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>SENIOR_CITIZEN_TRANSACTIONS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Primary key. Unique identifier for each senior citizen
+                        transaction.
+                    </td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">sale_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the sale in the sales table.
+                    </td>
+                    <td>15</td>
+                </tr>
+                <tr>
+                    <td class="field-name">sc_id_number</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Senior citizen ID number.</td>
+                    <td>SC-2025-0001</td>
+                </tr>
+                <tr>
+                    <td class="field-name">sc_name</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Name of the senior citizen.</td>
+                    <td>Maria Reyes</td>
+                </tr>
+                <tr>
+                    <td class="field-name">sc_birthdate</td>
+                    <td>DATE</td>
+                    <td>YYYY-MM-DD</td>
+                    <td></td>
+                    <td>Birthdate of the senior citizen.</td>
+                    <td>1955-03-15</td>
+                </tr>
+                <tr>
+                    <td class="field-name">original_amount</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Total amount before discount.</td>
+                    <td>500.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">discount_amount</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Discount amount given.</td>
+                    <td>100.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">final_amount</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Final amount after discount.</td>
+                    <td>400.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">discount_percentage</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(5,2)</td>
+                    <td></td>
+                    <td>Discount percentage applied (default 20%).</td>
+                    <td>20.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">items_purchased</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>List of items purchased in this transaction.</td>
+                    <td>Amoxicillin 500mg (2), Paracetamol (1)</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the transaction record was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>
+                        Timestamp when the transaction record was last updated.
+                    </td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>PWD_TRANSACTIONS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Primary key. Unique identifier for each PWD transaction.
+                    </td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">sale_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the sale in the sales table.
+                    </td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td class="field-name">pwd_id_number</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Person with Disability ID number.</td>
+                    <td>PWD-2025-0001</td>
+                </tr>
+                <tr>
+                    <td class="field-name">pwd_name</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Name of the PWD.</td>
+                    <td>Juan dela Cruz</td>
+                </tr>
+                <tr>
+                    <td class="field-name">pwd_birthdate</td>
+                    <td>DATE</td>
+                    <td>YYYY-MM-DD</td>
+                    <td></td>
+                    <td>Birthdate of the PWD.</td>
+                    <td>1985-08-20</td>
+                </tr>
+                <tr>
+                    <td class="field-name">disability_type</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Type of disability. Can be NULL.</td>
+                    <td>Visual Impairment</td>
+                </tr>
+                <tr>
+                    <td class="field-name">original_amount</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Total amount before discount.</td>
+                    <td>600.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">discount_amount</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Discount amount given.</td>
+                    <td>120.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">final_amount</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(10,2)</td>
+                    <td></td>
+                    <td>Final amount after discount.</td>
+                    <td>480.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">discount_percentage</td>
+                    <td>DECIMAL</td>
+                    <td>Decimal(5,2)</td>
+                    <td></td>
+                    <td>Discount percentage applied (default 20%).</td>
+                    <td>20.00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">items_purchased</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>List of items purchased in this transaction.</td>
+                    <td>Biogesic (3), Vitamins (2)</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the transaction record was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>
+                        Timestamp when the transaction record was last updated.
+                    </td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>STOCK_MOVEMENTS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Primary key. Unique identifier for each stock movement.
+                    </td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">product_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the product in the products
+                        table.
+                    </td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td class="field-name">type</td>
+                    <td>ENUM</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Movement type: in, out, restock, or adjustment.</td>
+                    <td>in</td>
+                </tr>
+                <tr>
+                    <td class="field-name">quantity</td>
+                    <td>INTEGER</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Quantity moved (positive or negative).</td>
+                    <td>50</td>
+                </tr>
+                <tr>
+                    <td class="field-name">stock_in_quantity</td>
+                    <td>INTEGER</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Quantity added to stock.</td>
+                    <td>50</td>
+                </tr>
+                <tr>
+                    <td class="field-name">stock_out_quantity</td>
+                    <td>INTEGER</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Quantity removed from stock.</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td class="field-name">batch_id</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Batch identifier for tracking. Can be NULL.</td>
+                    <td>BATCH-2025-001</td>
+                </tr>
+                <tr>
+                    <td class="field-name">remaining_stock</td>
+                    <td>INTEGER</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Stock level after this movement.</td>
+                    <td>150</td>
+                </tr>
+                <tr>
+                    <td class="field-name">reference</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Reference number for the movement. Can be NULL.</td>
+                    <td>PO-2025-0001</td>
+                </tr>
+                <tr>
+                    <td class="field-name">notes</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Additional notes about the movement. Can be NULL.</td>
+                    <td>New delivery from supplier</td>
+                </tr>
+                <tr>
+                    <td class="field-name">user_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the user who performed the
+                        movement.
+                    </td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the stock movement was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the stock movement was last updated.</td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>SHELF_MOVEMENTS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Primary key. Unique identifier for each shelf movement.
+                    </td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">product_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the product in the products
+                        table.
+                    </td>
+                    <td>8</td>
+                </tr>
+                <tr>
+                    <td class="field-name">quantity</td>
+                    <td>INTEGER</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>Quantity moved between shelf and back storage.</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td class="field-name">movement_type</td>
+                    <td>ENUM</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Direction of movement: to_shelf or to_back.</td>
+                    <td>to_shelf</td>
+                </tr>
+                <tr>
+                    <td class="field-name">user_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the user who performed the
+                        movement.
+                    </td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">notes</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Additional notes about the movement. Can be NULL.</td>
+                    <td>Restocking for weekend sale</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the shelf movement was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the shelf movement was last updated.</td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>AUDIT_LOGS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data Type</th>
+                    <th>Data Format</th>
+                    <th>Field Size</th>
+                    <th>Description</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-name">id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Primary key. Unique identifier for each audit log entry.
+                    </td>
+                    <td>1, 2, 3</td>
+                </tr>
+                <tr>
+                    <td class="field-name">user_id</td>
+                    <td>BIGINT (FK)</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Foreign key referencing the user who performed the
+                        action.
+                    </td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="field-name">action</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>
+                        Type of action performed (create, update, delete, etc.).
+                    </td>
+                    <td>create</td>
+                </tr>
+                <tr>
+                    <td class="field-name">description</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Detailed description of the action performed.</td>
+                    <td>Created new product: Amoxicillin 500mg</td>
+                </tr>
+                <tr>
+                    <td class="field-name">auditable_type</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Model type that was affected. Can be NULL.</td>
+                    <td>App\Models\Product</td>
+                </tr>
+                <tr>
+                    <td class="field-name">auditable_id</td>
+                    <td>BIGINT</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>ID of the affected record. Can be NULL.</td>
+                    <td>15</td>
+                </tr>
+                <tr>
+                    <td class="field-name">old_values</td>
+                    <td>JSON</td>
+                    <td>JSON</td>
+                    <td></td>
+                    <td>Previous values before the change. Can be NULL.</td>
+                    <td>{"name":"Old Name","price":45.00}</td>
+                </tr>
+                <tr>
+                    <td class="field-name">new_values</td>
+                    <td>JSON</td>
+                    <td>JSON</td>
+                    <td></td>
+                    <td>New values after the change. Can be NULL.</td>
+                    <td>{"name":"New Name","price":50.00}</td>
+                </tr>
+                <tr>
+                    <td class="field-name">ip_address</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>45</td>
+                    <td>IP address of the user. Can be NULL.</td>
+                    <td>192.168.1.100</td>
+                </tr>
+                <tr>
+                    <td class="field-name">user_agent</td>
+                    <td>TEXT</td>
+                    <td>Text</td>
+                    <td></td>
+                    <td>Browser/device information. Can be NULL.</td>
+                    <td>Mozilla/5.0 (Windows NT 10.0; Win64)</td>
+                </tr>
+                <tr>
+                    <td class="field-name">created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>Timestamp when the audit log entry was created.</td>
+                    <td>2025-12-06 10:30:00</td>
+                </tr>
+                <tr>
+                    <td class="field-name">updated_at</td>
+                    <td>TIMESTAMP</td>
+                    <td>YYYY-MM-DD HH:MM:SS</td>
+                    <td></td>
+                    <td>
+                        Timestamp when the audit log entry was last updated.
+                    </td>
+                    <td>2025-12-06 15:45:00</td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+</html>
