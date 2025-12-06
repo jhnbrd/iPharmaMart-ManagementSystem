@@ -172,7 +172,7 @@
                     <form method="POST" action="{{ route('settings.clear-cache') }}">
                         @csrf
                         <button type="submit"
-                            class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                            class="px-6 py-2.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors shadow-md hover:shadow-lg">
                             Clear Cache
                         </button>
                     </form>
@@ -187,7 +187,7 @@
                         onsubmit="return confirm('This will flag old records for archival. Continue?');">
                         @csrf
                         <button type="submit"
-                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                            class="px-6 py-2.5 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors shadow-md hover:shadow-lg">
                             Review Old Data
                         </button>
                     </form>
@@ -209,7 +209,7 @@
                     <form method="POST" action="{{ route('settings.backup-database') }}">
                         @csrf
                         <button type="submit"
-                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg">
                             Backup Now
                         </button>
                     </form>
@@ -269,11 +269,11 @@
                             </div>
                             <div class="flex gap-2">
                                 <a href="/settings/download-backup/${encodeURIComponent(backup.filename)}"
-                                    class="px-3 py-1 text-sm font-medium bg-green-500 text-white rounded hover:bg-green-600 transition-colors shadow-sm">
+                                    class="px-4 py-2 text-sm font-semibold bg-[var(--color-brand-green)] text-white rounded-lg hover:bg-green-700 transition-colors shadow-md hover:shadow-lg">
                                     Download
                                 </a>
                                 <button onclick="deleteBackup('${backup.filename}')"
-                                    class="px-3 py-1 text-sm font-medium bg-red-500 text-white rounded hover:bg-red-600 transition-colors shadow-sm">
+                                    class="px-4 py-2 text-sm font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md hover:shadow-lg">
                                     Delete
                                 </button>
                             </div>

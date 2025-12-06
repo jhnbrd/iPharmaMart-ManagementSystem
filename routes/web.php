@@ -91,8 +91,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('/reports/senior-citizen', [ReportController::class, 'seniorCitizen'])->name('reports.senior-citizen');
         Route::get('/reports/pwd', [ReportController::class, 'pwd'])->name('reports.pwd');
+    });
 
-        // General Settings
+    // Admin & SuperAdmin - General Settings
+    Route::middleware('role:admin,superadmin')->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::post('/settings/clear-cache', [SettingsController::class, 'clearCache'])->name('settings.clear-cache');
