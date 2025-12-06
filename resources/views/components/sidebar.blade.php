@@ -64,18 +64,13 @@
                     <span>Customers</span>
                 </a>
 
-                <!-- DISCOUNTS SECTION -->
-                <div class="px-4 pt-4 pb-2">
-                    <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Discounts</h3>
-                </div>
-
                 <a href="{{ route('discounts.index') }}"
                     class="sidebar-nav-item {{ str_starts_with($currentRoute, 'discounts.') ? 'active' : '' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
-                    <span>Discount Transactions</span>
+                    <span>Discounts</span>
                 </a>
             @endif
 
@@ -138,7 +133,9 @@
                     </svg>
                     <span>Reports</span>
                 </a>
+            @endif
 
+            @if (in_array(auth()->user()->role, ['admin', 'superadmin']))
                 <!-- SETTINGS SECTION -->
                 <div class="px-4 pt-4 pb-2">
                     <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">System</h3>
@@ -181,43 +178,6 @@
                 </a>
             @endif
         </nav>
-    </div>
-
-    <!-- Fixed Footer: User Profile & Logout -->
-    <div class="px-4 py-4 border-t border-white/10 bg-[var(--color-primary)]">
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-[var(--color-accent-orange)] rounded-full flex items-center justify-center">
-                    <span class="text-white font-semibold text-sm">{{ substr(auth()->user()->name, 0, 2) }}</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-white text-sm font-semibold truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-white/60 text-xs truncate">{{ '@' . auth()->user()->username }}</p>
-                    <p class="text-white/50 text-xs truncate">
-                        @if (auth()->user()->role === 'superadmin')
-                            ⚡ Super Admin
-                        @elseif(auth()->user()->role === 'admin')
-                            👑 Admin
-                        @elseif(auth()->user()->role === 'cashier')
-                            💰 Cashier
-                        @else
-                            📦 Inventory Manager
-                        @endif
-                    </p>
-                </div>
-            </div>
-        </div>
-        <form method="POST" action="{{ route('logout') }}" id="logoutForm">
-            @csrf
-            <button type="button" onclick="showLogoutModal()"
-                class="w-full btn btn-secondary flex items-center justify-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                <span>Logout</span>
-            </button>
-        </form>
     </div>
 </aside>
 

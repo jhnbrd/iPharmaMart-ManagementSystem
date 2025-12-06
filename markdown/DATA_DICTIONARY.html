@@ -209,20 +209,42 @@
                     <td>123 Main St, Manila</td>
                 </tr>
                 <tr>
-                    <td class="field-name">birthdate</td>
-                    <td>DATE</td>
-                    <td>YYYY-MM-DD</td>
+                    <td class="field-name">is_senior_citizen</td>
+                    <td>BOOLEAN</td>
+                    <td>Integer</td>
                     <td></td>
-                    <td>Customer's date of birth. Can be NULL.</td>
-                    <td>1960-05-15</td>
+                    <td>
+                        Indicates if customer is a senior citizen (1) or not
+                        (0). Default is 0.
+                    </td>
+                    <td>1</td>
                 </tr>
                 <tr>
-                    <td class="field-name">disability_type</td>
+                    <td class="field-name">senior_citizen_id</td>
                     <td>VARCHAR</td>
                     <td>Text</td>
                     <td>255</td>
-                    <td>Type of disability for PWD customers. Can be NULL.</td>
-                    <td>Visual Impairment</td>
+                    <td>Senior citizen ID number. Can be NULL.</td>
+                    <td>SC-2025-0001</td>
+                </tr>
+                <tr>
+                    <td class="field-name">is_pwd</td>
+                    <td>BOOLEAN</td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                        Indicates if customer is a Person with Disability (1) or
+                        not (0). Default is 0.
+                    </td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="field-name">pwd_id</td>
+                    <td>VARCHAR</td>
+                    <td>Text</td>
+                    <td>255</td>
+                    <td>Person with Disability ID number. Can be NULL.</td>
+                    <td>PWD-2025-0001</td>
                 </tr>
                 <tr>
                     <td class="field-name">created_at</td>
