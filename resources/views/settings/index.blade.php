@@ -157,66 +157,62 @@
                 </form>
             </div>
 
-            <!-- Right Column: System Actions & Backup -->
-            <div class="space-y-6">
-                <!-- System Actions -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold">System Actions</h2>
+        <!-- System Actions -->
+        <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold">System Actions</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <h4 class="font-medium text-gray-900">Clear System Cache</h4>
+                        <p class="text-sm text-gray-600">Clear all cached data to refresh system settings</p>
                     </div>
-                    <div class="p-6 space-y-3">
-                        <div
-                            class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <div class="flex-1">
-                                <h4 class="font-medium text-gray-900">Clear System Cache</h4>
-                                <p class="text-xs text-gray-600">Refresh system settings</p>
-                            </div>
-                            <form method="POST" action="{{ route('settings.clear-cache') }}">
-                                @csrf
-                                <button type="submit"
-                                    class="px-5 py-2 bg-red-500 text-black font-semibold rounded-lg hover:bg-yellow-600 transition-colors shadow-md hover:shadow-lg whitespace-nowrap">
-                                    Clear Cache
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
-                            <div class="flex-1">
-                                <h4 class="font-medium text-gray-900">Archive Old Data</h4>
-                                <p class="text-xs text-gray-600">Review and archive old records</p>
-                            </div>
-                            <form method="POST" action="{{ route('settings.delete-old-data') }}"
-                                onsubmit="return confirm('This will flag old records for archival. Continue?');">
-                                @csrf
-                                <button type="submit"
-                                    class="px-5 py-2 bg-red-500 text-red-700 font-semibold rounded-lg hover:bg-red-600 transition-colors shadow-md hover:shadow-lg whitespace-nowrap">
-                                    Review Data
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                    <form method="POST" action="{{ route('settings.clear-cache') }}">
+                        @csrf
+                        <button type="submit"
+                            class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                            Clear Cache
+                        </button>
+                    </form>
                 </div>
 
-                <!-- Database Backup -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold">Database Backup</h2>
+                <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+                    <div>
+                        <h4 class="font-medium text-gray-900">Archive Old Data</h4>
+                        <p class="text-sm text-gray-600">Review and archive records older than retention period</p>
                     </div>
-                    <div class="p-6 space-y-4">
-                        <div
-                            class="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <div class="flex-1">
-                                <h4 class="font-medium text-gray-900">Create Manual Backup</h4>
-                                <p class="text-xs text-gray-600">Immediate database backup</p>
-                            </div>
-                            <form method="POST" action="{{ route('settings.backup-database') }}">
-                                @csrf
-                                <button type="submit"
-                                    class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg whitespace-nowrap">
-                                    Backup Now
-                                </button>
-                            </form>
-                        </div>
+                    <form method="POST" action="{{ route('settings.delete-old-data') }}"
+                        onsubmit="return confirm('This will flag old records for archival. Continue?');">
+                        @csrf
+                        <button type="submit"
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                            Review Old Data
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Backup Management -->
+        <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold">Database Backup</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                    <div>
+                        <h4 class="font-medium text-gray-900">Create Manual Backup</h4>
+                        <p class="text-sm text-gray-600">Create an immediate backup of your database</p>
+                    </div>
+                    <form method="POST" action="{{ route('settings.backup-database') }}">
+                        @csrf
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            Backup Now
+                        </button>
+                    </form>
+                </div>
 
                         <div class="p-4 bg-gray-50 rounded-lg">
                             <h4 class="font-medium text-gray-900 mb-3 text-sm">Backup History</h4>
@@ -280,7 +276,7 @@
                                     Download
                                 </a>
                                 <button onclick="deleteBackup('${backup.filename}')"
-                                    class="px-4 py-2 text-sm font-semibold bg-red-600 text-red-700 rounded-lg hover:bg-red-700 transition-colors shadow-md hover:shadow-lg">
+                                    class="px-3 py-1 text-sm font-medium bg-red-500 text-white rounded hover:bg-red-600 transition-colors shadow-sm">
                                     Delete
                                 </button>
                             </div>
