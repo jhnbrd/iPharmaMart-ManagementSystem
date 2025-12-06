@@ -269,7 +269,6 @@ class ComprehensiveDataSeeder extends Seeder
                         'discount_amount' => $discountAmount,
                         'final_amount' => $finalAmount,
                         'discount_percentage' => 20,
-                        'items_purchased' => $itemCount,
                         'created_at' => $randomDate,
                     ]);
                 } else if ($customer->is_pwd) {
@@ -283,7 +282,6 @@ class ComprehensiveDataSeeder extends Seeder
                         'discount_amount' => $discountAmount,
                         'final_amount' => $finalAmount,
                         'discount_percentage' => 20,
-                        'items_purchased' => $itemCount,
                         'created_at' => $randomDate,
                     ]);
                 }
