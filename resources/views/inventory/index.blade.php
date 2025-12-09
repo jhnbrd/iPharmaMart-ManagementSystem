@@ -1,88 +1,104 @@
 <x-layout title="Inventory" subtitle="Manage products, stock levels, and batches">
     <!-- Page Header -->
     <div class="page-header">
-        <div class="flex gap-3">
-            @if (in_array(auth()->user()->role, ['admin', 'inventory_manager']))
-                <a href="{{ route('reports.inventory') }}" class="btn btn-secondary">
+        <div class="flex items-center justify-between w-full">
+            <div class="flex gap-2">
+                <button onclick="toggleFilters()" class="btn btn-secondary">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
-                    Generate Report
-                </a>
-            @endif
-            <a href="{{ route('inventory.create') }}" class="btn btn-primary">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Add New Item
-            </a>
+                    <span id="filter-btn-text">Show Filters</span>
+                </button>
+                <div class="flex gap-2">
+                    @if (in_array(auth()->user()->role, ['admin', 'inventory_manager']))
+                        <a href="{{ route('reports.inventory') }}" class="btn btn-secondary">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Generate Report
+                        </a>
+                    @endif
+                    <a href="{{ route('inventory.create') }}" class="btn btn-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Add New Item
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Type Tabs -->
+    <div class="bg-white border border-[var(--color-border-light)] mb-4">
+        <div class="p-4">
+            <form method="GET" action="{{ route('inventory.index') }}" class="flex flex-wrap gap-2">
+                <button type="submit" name="product_type" value="pharmacy"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('product_type') === 'pharmacy' || !request('product_type') ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Pharmacy Products
+                </button>
+                <button type="submit" name="product_type" value="mini_mart"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('product_type') === 'mini_mart' ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    Mini Mart Products
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div id="filters-section" class="bg-white border border-[var(--color-border-light)] mb-6 hidden">
+        <div class="px-6 py-4 border-b border-[var(--color-border-light)]">
+            <h2 class="text-lg font-semibold">Filter Options</h2>
+        </div>
+        <div class="p-6">
+            <form method="GET" action="{{ route('inventory.index') }}" class="flex flex-wrap gap-4 items-end">
+                <input type="hidden" name="product_type" value="{{ request('product_type') }}">
+
+                <div class="form-group mb-0" style="min-width: 200px;">
+                    <label for="search" class="form-label">Search Product</label>
+                    <input type="text" id="search" name="search" value="{{ request('search') }}"
+                        placeholder="Product name..." class="form-input">
+                </div>
+
+                <div class="form-group mb-0" style="min-width: 150px;">
+                    <label for="category_id" class="form-label">Category</label>
+                    <select id="category_id" name="category_id" class="form-select">
+                        <option value="">All Categories</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}"
+                                {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group mb-0" style="min-width: 150px;">
+                    <label for="stock_status" class="form-label">Stock Status</label>
+                    <select id="stock_status" name="stock_status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="ok" {{ request('stock_status') === 'ok' ? 'selected' : '' }}>OK</option>
+                        <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>Low</option>
+                        <option value="critical" {{ request('stock_status') === 'critical' ? 'selected' : '' }}>
+                            Critical</option>
+                        <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>Out of Stock
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-0">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="{{ route('inventory.index', ['product_type' => request('product_type')]) }}"
+                        class="btn btn-secondary">Clear</a>
+                </div>
+            </form>
         </div>
     </div>
 
     <div class="mb-6">
-        <!-- Product Type Filter -->
-        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
-            <form method="GET" action="{{ route('inventory.index') }}" class="space-y-4">
-                <!-- Product Type Tabs -->
-                <div class="flex flex-wrap gap-2 border-b border-gray-200 pb-4">
-                    <button type="submit" name="product_type" value="pharmacy"
-                        class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('product_type') === 'pharmacy' || !request('product_type') ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                        Pharmacy Products
-                    </button>
-                    <button type="submit" name="product_type" value="mini_mart"
-                        class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('product_type') === 'mini_mart' ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                        Mini Mart Products
-                    </button>
-                </div>
-
-                <!-- Filter Options -->
-                <div class="grid grid-cols-4 gap-4">
-                    <div>
-                        <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search
-                            Product</label>
-                        <input type="text" id="search" name="search" value="{{ request('search') }}"
-                            placeholder="Product name..."
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
-                    </div>
-                    <div>
-                        <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                        <select id="category_id" name="category_id"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
-                            <option value="">All Categories</option>
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}"
-                                    {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label for="stock_status" class="block text-sm font-medium text-gray-700 mb-1">Stock
-                            Status</label>
-                        <select id="stock_status" name="stock_status"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
-                            <option value="">All Status</option>
-                            <option value="ok" {{ request('stock_status') === 'ok' ? 'selected' : '' }}>OK</option>
-                            <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>Low
-                            </option>
-                            <option value="critical" {{ request('stock_status') === 'critical' ? 'selected' : '' }}>
-                                Critical</option>
-                            <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>Out of
-                                Stock</option>
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit"
-                            class="w-full px-4 py-2 bg-[var(--color-brand-green)] text-white rounded-lg hover:bg-green-700 transition-colors">
-                            Apply Filter
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
 
         <!-- Products Table -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -142,7 +158,8 @@
                                         {{ $product->name }}
                                     </div>
                                     @if ($product->generic_name && $product->product_type === 'pharmacy')
-                                        <div class="text-xs text-gray-500 italic">Generic: {{ $product->generic_name }}
+                                        <div class="text-xs text-gray-500 italic">Generic:
+                                            {{ $product->generic_name }}
                                         </div>
                                     @endif
                                 </td>
@@ -154,7 +171,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $product->category->name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $product->unit }}
-                                    ({{ $product->unit_quantity }})</td>
+                                    ({{ $product->unit_quantity }})
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
                                     <span class="font-medium text-blue-600">{{ $product->shelf_stock }}</span>
                                 </td>
@@ -304,6 +322,32 @@
         document.getElementById('voidModal').addEventListener('click', function(event) {
             if (event.target === this) {
                 closeVoidModal();
+            }
+        });
+
+        // Filter toggle functionality
+        function toggleFilters() {
+            const filtersSection = document.getElementById('filters-section');
+            const filterBtnText = document.getElementById('filter-btn-text');
+
+            if (filtersSection.classList.contains('hidden')) {
+                filtersSection.classList.remove('hidden');
+                filterBtnText.textContent = 'Hide Filters';
+            } else {
+                filtersSection.classList.add('hidden');
+                filterBtnText.textContent = 'Show Filters';
+            }
+        }
+
+        // Show filters if any filter is active
+        document.addEventListener('DOMContentLoaded', function() {
+            const hasActiveFilters =
+                {{ request('search') || request('category_id') || request('stock_status') ? 'true' : 'false' }};
+            if (hasActiveFilters) {
+                const filtersSection = document.getElementById('filters-section');
+                const filterBtnText = document.getElementById('filter-btn-text');
+                filtersSection.classList.remove('hidden');
+                filterBtnText.textContent = 'Hide Filters';
             }
         });
     </script>

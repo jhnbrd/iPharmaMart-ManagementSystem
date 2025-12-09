@@ -453,30 +453,6 @@
             </div>
             <div class="p-4">
                 <div class="space-y-3">
-                    @if (isset($mlInsights['sales_trend']))
-                        <div
-                            class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
-                            <div class="flex-1">
-                                <div class="text-sm font-medium">Sales Trend</div>
-                                <div class="text-xs text-[var(--color-text-secondary)]">
-                                    7-day moving average
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div
-                                    class="text-xl font-bold {{ $mlInsights['sales_trend']['trend'] == 'increasing' ? 'text-green-600' : 'text-orange-600' }}">
-                                    @if ($mlInsights['sales_trend']['trend'] == 'increasing')
-                                        ↑ {{ abs($mlInsights['sales_trend']['change_percent']) }}%
-                                    @else
-                                        ↓ {{ abs($mlInsights['sales_trend']['change_percent']) }}%
-                                    @endif
-                                </div>
-                                <div class="text-xs text-[var(--color-text-secondary)]">
-                                    {{ $mlInsights['sales_trend']['trend'] }}
-                                </div>
-                            </div>
-                        </div>
-                    @endif
                     @if (isset($mlInsights['peak_hour']))
                         <div
                             class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
@@ -496,31 +472,43 @@
                             </div>
                         </div>
                     @endif
-                    @if (isset($mlInsights['depletion_warnings']) && $mlInsights['depletion_warnings']->isNotEmpty())
-                        @foreach ($mlInsights['depletion_warnings']->take(1) as $warning)
-                            <div class="flex items-center justify-between py-2">
-                                <div class="flex-1">
-                                    <div class="text-sm font-medium">{{ Str::limit($warning['product'], 30) }}</div>
-                                    <div class="text-xs text-[var(--color-text-secondary)]">
-                                        Stock depletion alert
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    @if ($warning['days_remaining'] < 999)
-                                        <div class="text-xl font-bold text-orange-600">
-                                            {{ $warning['days_remaining'] }}
-                                        </div>
-                                        <div class="text-xs text-[var(--color-text-secondary)]">
-                                            days left
-                                        </div>
-                                    @else
-                                        <div class="text-sm font-bold text-gray-500">
-                                            Low demand
-                                        </div>
-                                    @endif
+                    @if (isset($mlInsights['peak_day']))
+                        <div
+                            class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium">Peak Day</div>
+                                <div class="text-xs text-[var(--color-text-secondary)]">
+                                    Busiest day of week
                                 </div>
                             </div>
-                        @endforeach
+                            <div class="text-right">
+                                <div class="text-xl font-bold text-indigo-600">
+                                    {{ $mlInsights['peak_day']['day'] }}
+                                </div>
+                                <div class="text-xs text-[var(--color-text-secondary)]">
+                                    {{ $mlInsights['peak_day']['transactions'] }} sales
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    @if (isset($mlInsights['customer_loyalty']))
+                        <div class="flex items-center justify-between py-2">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium">Customer Loyalty</div>
+                                <div class="text-xs text-[var(--color-text-secondary)]">
+                                    Repeat customer rate
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-bold text-green-600">
+                                    {{ $mlInsights['customer_loyalty']['repeat_rate'] }}%
+                                </div>
+                                <div class="text-xs text-[var(--color-text-secondary)]">
+                                    {{ $mlInsights['customer_loyalty']['repeat_count'] }}/{{ $mlInsights['customer_loyalty']['total_customers'] }}
+                                    customers
+                                </div>
+                            </div>
+                        </div>
                     @endif
                 </div>
             </div>

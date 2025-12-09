@@ -38,10 +38,35 @@ class ComprehensiveDataSeeder extends Seeder
         User::create(['name' => 'Maria Cashier', 'username' => 'cashier2', 'email' => 'cashier2@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'cashier', 'created_at' => Carbon::create(2025, 1, 2)]);
         User::create(['name' => 'Pedro Inventory', 'username' => 'inventory1', 'email' => 'inventory@ipharmamart.com', 'password' => Hash::make('password'), 'role' => 'inventory_manager', 'created_at' => Carbon::create(2025, 1, 2)]);
 
-        // Create 12 Categories
+        // Create Categories (separated by product type)
         $this->command->info('📁 Creating categories...');
-        $categories = ['Pain Relief', 'Antibiotics', 'Vitamins', 'Cold & Flu', 'Digestive Health', 'Skin Care', 'First Aid', 'Personal Care', 'Beverages', 'Snacks', 'Household', 'Baby Care'];
-        foreach ($categories as $name) {
+
+        // Pharmacy Categories (8)
+        $pharmacyCategories = [
+            'Pain Relief',
+            'Antibiotics',
+            'Vitamins & Supplements',
+            'Cold & Flu',
+            'Digestive Health',
+            'Skin Care',
+            'First Aid',
+            'Personal Health'
+        ];
+
+        // Mini Mart Categories (8)
+        $miniMartCategories = [
+            'Beverages',
+            'Snacks & Chips',
+            'Instant Noodles',
+            'Canned Goods',
+            'Personal Care & Toiletries',
+            'Household Cleaning',
+            'Baby Products',
+            'Dairy & Condiments'
+        ];
+
+        $allCategories = array_merge($pharmacyCategories, $miniMartCategories);
+        foreach ($allCategories as $name) {
             Category::create(['name' => $name, 'description' => $name . ' products']);
         }
 
@@ -117,13 +142,19 @@ class ComprehensiveDataSeeder extends Seeder
         ];
 
         foreach ($products as $i => $productData) {
+            // Assign category based on product type
+            // Pharmacy categories: 1-8, Mini Mart categories: 9-16
+            $categoryId = $productData['type'] === 'pharmacy'
+                ? rand(1, 8)  // Pharmacy categories
+                : rand(9, 16); // Mini Mart categories
+
             Product::create([
                 'brand_name' => $productData['brand'],
                 'name' => $productData['name'],
                 'generic_name' => $productData['generic'],
                 'product_type' => $productData['type'],
                 'barcode' => 'BAR' . str_pad($i + 1, 5, '0', STR_PAD_LEFT),
-                'category_id' => rand(1, 12),
+                'category_id' => $categoryId,
                 'supplier_id' => rand(1, 10),
                 'shelf_stock' => rand(50, 150),
                 'back_stock' => rand(75, 200),
