@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductBatch;
 use App\Models\StockMovement;
 use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
@@ -173,13 +174,29 @@ class StockController extends Controller
         }
     }
 
-    public function stockOut()
+    public function stockOut(Request $request)
     {
         $products = Product::with('category')
             ->whereRaw('(shelf_stock + back_stock) > 0')
             ->orderBy('name')
             ->get();
-        return view('stock.stock-out', compact('products'));
+
+        // Pre-fill data if batch_id is provided (from expiring products alert)
+        $selectedBatch = null;
+        $prefilledData = null;
+        if ($request->has('batch_id')) {
+            $selectedBatch = ProductBatch::with('product')->find($request->batch_id);
+            if ($selectedBatch) {
+                $prefilledData = [
+                    'product_id' => $selectedBatch->product_id,
+                    'batch_number' => $selectedBatch->batch_number,
+                    'quantity' => $selectedBatch->shelf_quantity + $selectedBatch->back_quantity,
+                    'reason' => 'Expiring product removal (Expires: ' . $selectedBatch->expiry_date->format('M d, Y') . ')'
+                ];
+            }
+        }
+
+        return view('stock.stock-out', compact('products', 'prefilledData', 'selectedBatch'));
     }
 
     public function processStockOut(Request $request)

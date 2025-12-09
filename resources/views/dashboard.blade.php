@@ -87,11 +87,15 @@
         <div class="bg-white p-6 border-l-4 border-[var(--color-accent-orange)] shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">Total Products
+                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">Total
+                        Transactions
                     </p>
+                    <p class="text-xs text-[var(--color-text-secondary)] mt-1">{{ $startDate }} to
+                        {{ $endDate }}</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-3xl font-bold text-[var(--color-accent-orange)]">{{ $totalProducts }}</p>
+                    <p class="text-3xl font-bold text-[var(--color-accent-orange)]">
+                        {{ number_format($totalTransactions) }}</p>
                 </div>
             </div>
         </div>
@@ -99,11 +103,13 @@
         <div class="bg-white p-6 border-l-4 border-[var(--color-accent-blue)] shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">Total Customers
+                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">Expiring Soon
                     </p>
+                    <p class="text-xs text-[var(--color-text-secondary)] mt-1">Within {{ $expiryAlertDays }} days</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-3xl font-bold text-[var(--color-accent-blue)]">{{ $totalCustomers }}</p>
+                    <p class="text-3xl font-bold text-[var(--color-accent-blue)]">
+                        {{ number_format($expiringProductsCount) }}</p>
                 </div>
             </div>
         </div>
@@ -121,11 +127,18 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="grid grid-cols-3 gap-6 mb-6">
         <!-- Monthly Sales Overview -->
         <div class="bg-white border border-[var(--color-border-light)]">
             <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
-                <h2 class="text-base font-semibold">Monthly Sales - {{ now()->format('F Y') }}</h2>
+                <h2 class="text-base font-semibold">
+                    @if ($isFiltered)
+                        Sales Overview - {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to
+                        {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                    @else
+                        Monthly Sales - {{ now()->format('F Y') }}
+                    @endif
+                </h2>
             </div>
             <div class="p-4">
                 <div class="space-y-3">
@@ -149,36 +162,139 @@
             </div>
         </div>
 
-        <!-- Stock Summary -->
+        <!-- Expiring Products -->
         <div class="bg-white border border-[var(--color-border-light)]">
             <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
-                <h2 class="text-base font-semibold">Stock Summary</h2>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-semibold">Expiring Products</h2>
+                    <span class="text-xs text-[var(--color-text-secondary)] bg-gray-100 px-2 py-1 rounded">
+                        Alert: {{ $expiryAlertDays }} days
+                    </span>
+                </div>
             </div>
             <div class="p-4">
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
-                        <span class="text-sm text-[var(--color-text-secondary)]">Total Units</span>
-                        <span
-                            class="text-xl font-bold text-[var(--color-text-primary)]">{{ number_format($totalStock) }}</span>
+                @if ($expiringBatches->isEmpty())
+                    <p class="text-[var(--color-text-secondary)] text-center py-8 text-sm">No products expiring soon
+                    </p>
+                @else
+                    <div class="space-y-3">
+                        @foreach ($expiringBatches->take(3) as $batch)
+                            <div class="py-3 border-b border-[var(--color-border-light)] last:border-b-0">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-[var(--color-text-primary)]">
+                                            {{ $batch->product->name }}</div>
+                                        <div class="text-xs text-[var(--color-text-secondary)] mt-1">
+                                            Batch: {{ $batch->batch_number }}
+                                        </div>
+                                        <div class="text-xs text-[var(--color-text-secondary)]">
+                                            Qty: {{ number_format($batch->shelf_quantity + $batch->back_quantity) }}
+                                            units
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        @php
+                                            $daysUntilExpiry = now()->diffInDays($batch->expiry_date, false);
+                                            $colorClass =
+                                                $daysUntilExpiry <= 3
+                                                    ? 'text-[var(--color-danger)]'
+                                                    : 'text-[var(--color-accent-orange)]';
+                                        @endphp
+                                        <div class="text-xs font-medium {{ $colorClass }}">
+                                            {{ $batch->expiry_date->format('M d, Y') }}
+                                        </div>
+                                        <div class="text-xs {{ $colorClass }}">
+                                            {{ abs($daysUntilExpiry) }}
+                                            {{ abs($daysUntilExpiry) == 1 ? 'day' : 'days' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 mt-2">
+                                    <a href="{{ route('stock.out') }}?batch_id={{ $batch->id }}"
+                                        class="text-xs px-3 py-1.5 bg-[var(--color-danger)] text-white rounded hover:bg-red-700 transition-colors">
+                                        Stock Out
+                                    </a>
+                                    <a href="{{ route('inventory.show', $batch->product_id) }}"
+                                        class="text-xs px-3 py-1.5 bg-[var(--color-accent-blue)] text-white rounded hover:bg-blue-700 transition-colors">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
-                    <div class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
-                        <span class="text-sm text-[var(--color-text-secondary)]">Low Stock</span>
-                        <span class="text-xl font-bold text-[var(--color-accent-orange)]">{{ $lowStockItems }}</span>
-                    </div>
-                    <div class="flex items-center justify-between py-2">
-                        <span class="text-sm text-[var(--color-text-secondary)]">Out of Stock</span>
-                        <span class="text-xl font-bold text-[var(--color-danger)]">{{ $outOfStockItems }}</span>
-                    </div>
+                    @if ($expiringBatches->count() > 3)
+                        <div class="mt-3 pt-3 border-t border-[var(--color-border-light)]">
+                            <a href="{{ route('settings.index') }}#expiry-alerts"
+                                class="text-xs text-[var(--color-brand-green)] hover:underline">
+                                +{{ $expiringBatches->count() - 3 }} more expiring products
+                            </a>
+                        </div>
+                    @endif
+                @endif
+            </div>
+        </div>
+
+        <!-- Association Rules - Frequently Bought Together -->
+        <div class="bg-white border border-[var(--color-border-light)]">
+            <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-semibold">Product Associations</h2>
+                    <span class="text-xs text-[var(--color-text-secondary)] bg-purple-100 px-2 py-1 rounded">
+                        Bought Together
+                    </span>
                 </div>
+            </div>
+            <div class="p-4">
+                @if (empty($productAssociations) || count($productAssociations) == 0)
+                    <p class="text-[var(--color-text-secondary)] text-center py-8 text-sm">No patterns found yet</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach ($productAssociations as $index => $assoc)
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)] last:border-b-0">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-bold text-purple-600">{{ $index + 1 }}.</span>
+                                        <div>
+                                            <div class="text-sm font-medium">
+                                                {{ $assoc->product1_name }}
+                                                <span class="text-purple-500 mx-1">+</span>
+                                                {{ $assoc->product2_name }}
+                                            </div>
+                                            <div class="text-xs text-[var(--color-text-secondary)]">
+                                                {{ round($assoc->confidence, 1) }}% confidence
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold text-purple-600">
+                                        {{ $assoc->frequency }}x
+                                    </div>
+                                    <div class="text-xs text-[var(--color-text-secondary)]">
+                                        frequency
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-3 gap-6">
         <!-- Top Products -->
         <div class="bg-white border border-[var(--color-border-light)]">
             <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
-                <h2 class="text-base font-semibold">Top Products - {{ now()->format('F Y') }}</h2>
+                <h2 class="text-base font-semibold">
+                    @if ($isFiltered)
+                        Top Products - {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to
+                        {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                    @else
+                        Top Products - {{ now()->format('F Y') }}
+                    @endif
+                </h2>
             </div>
             <div class="p-4">
                 @if ($topProducts->isEmpty())
@@ -324,27 +440,111 @@
                 @endif
             </div>
         </div>
-    </div>
 
-    <script>
-        function toggleFilters() {
-            const filtersSection = document.getElementById('filters-section');
-            const filterBtnText = document.getElementById('filter-btn-text');
+        <!-- ML Insights -->
+        <div class="bg-white border border-[var(--color-border-light)]">
+            <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-semibold">ML Insights</h2>
+                    <span class="text-xs text-[var(--color-text-secondary)] bg-indigo-100 px-2 py-1 rounded">
+                        Predictive Analytics
+                    </span>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="space-y-3">
+                    @if (isset($mlInsights['sales_trend']))
+                        <div
+                            class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium">Sales Trend</div>
+                                <div class="text-xs text-[var(--color-text-secondary)]">
+                                    7-day moving average
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div
+                                    class="text-xl font-bold {{ $mlInsights['sales_trend']['trend'] == 'increasing' ? 'text-green-600' : 'text-orange-600' }}">
+                                    @if ($mlInsights['sales_trend']['trend'] == 'increasing')
+                                        ↑ {{ abs($mlInsights['sales_trend']['change_percent']) }}%
+                                    @else
+                                        ↓ {{ abs($mlInsights['sales_trend']['change_percent']) }}%
+                                    @endif
+                                </div>
+                                <div class="text-xs text-[var(--color-text-secondary)]">
+                                    {{ $mlInsights['sales_trend']['trend'] }}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    @if (isset($mlInsights['peak_hour']))
+                        <div
+                            class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
+                            <div class="flex-1">
+                                <div class="text-sm font-medium">Peak Hour</div>
+                                <div class="text-xs text-[var(--color-text-secondary)]">
+                                    Busiest time period
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-bold text-indigo-600">
+                                    {{ $mlInsights['peak_hour']['hour'] }}:00
+                                </div>
+                                <div class="text-xs text-[var(--color-text-secondary)]">
+                                    {{ $mlInsights['peak_hour']['transactions'] }} sales
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    @if (isset($mlInsights['depletion_warnings']) && $mlInsights['depletion_warnings']->isNotEmpty())
+                        @foreach ($mlInsights['depletion_warnings']->take(1) as $warning)
+                            <div class="flex items-center justify-between py-2">
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium">{{ Str::limit($warning['product'], 30) }}</div>
+                                    <div class="text-xs text-[var(--color-text-secondary)]">
+                                        Stock depletion alert
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    @if ($warning['days_remaining'] < 999)
+                                        <div class="text-xl font-bold text-orange-600">
+                                            {{ $warning['days_remaining'] }}
+                                        </div>
+                                        <div class="text-xs text-[var(--color-text-secondary)]">
+                                            days left
+                                        </div>
+                                    @else
+                                        <div class="text-sm font-bold text-gray-500">
+                                            Low demand
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
 
-            if (filtersSection.classList.contains('hidden')) {
-                filtersSection.classList.remove('hidden');
-                filterBtnText.textContent = 'Hide Filters';
-            } else {
-                filtersSection.classList.add('hidden');
-                filterBtnText.textContent = 'Show Filters';
+        <script>
+            function toggleFilters() {
+                const filtersSection = document.getElementById('filters-section');
+                const filterBtnText = document.getElementById('filter-btn-text');
+
+                if (filtersSection.classList.contains('hidden')) {
+                    filtersSection.classList.remove('hidden');
+                    filterBtnText.textContent = 'Hide Filters';
+                } else {
+                    filtersSection.classList.add('hidden');
+                    filterBtnText.textContent = 'Show Filters';
+                }
             }
-        }
 
-        // Show filters if any filter is active
-        @if (request()->hasAny(['start_date', 'end_date']))
-            document.addEventListener('DOMContentLoaded', function() {
-                toggleFilters();
-            });
-        @endif
-    </script>
+            // Show filters if any filter is active
+            @if (request()->hasAny(['start_date', 'end_date']))
+                document.addEventListener('DOMContentLoaded', function() {
+                    toggleFilters();
+                });
+            @endif
+        </script>
 </x-layout>

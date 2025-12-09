@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>iPharma Mart - QA Testing Checklist</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 20px;
+                min-height: 100vh;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                overflow: hidden;
+            }
+
+            .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 28px;
+                margin-bottom: 10px;
+            }
+
+            .header p {
+                opacity: 0.9;
+                font-size: 14px;
+            }
+
+            .progress-bar {
+                background: #f0f0f0;
+                height: 8px;
+                border-radius: 4px;
+                overflow: hidden;
+                margin-top: 20px;
+            }
+
+            .progress-fill {
+                background: linear-gradient(90deg, #10b981, #059669);
+                height: 100%;
+                width: 0%;
+                transition: width 0.3s ease;
+            }
+
+            .stats {
+                display: flex;
+                justify-content: space-around;
+                padding: 20px;
+                background: #f9fafb;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .stat {
+                text-align: center;
+            }
+
+            .stat-value {
+                font-size: 32px;
+                font-weight: bold;
+                color: #667eea;
+            }
+
+            .stat-label {
+                font-size: 12px;
+                color: #6b7280;
+                text-transform: uppercase;
+                margin-top: 5px;
+            }
+
+            .controls {
+                padding: 20px;
+                background: #f9fafb;
+                border-bottom: 1px solid #e5e7eb;
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+                transition: all 0.2s;
+            }
+
+            .btn-primary {
+                background: #667eea;
+                color: white;
+            }
+
+            .btn-primary:hover {
+                background: #5568d3;
+            }
+
+            .btn-success {
+                background: #10b981;
+                color: white;
+            }
+
+            .btn-success:hover {
+                background: #059669;
+            }
+
+            .btn-danger {
+                background: #ef4444;
+                color: white;
+            }
+
+            .btn-danger:hover {
+                background: #dc2626;
+            }
+
+            .btn-secondary {
+                background: #6b7280;
+                color: white;
+            }
+
+            .btn-secondary:hover {
+                background: #4b5563;
+            }
+
+            .content {
+                padding: 30px;
+                max-height: calc(100vh - 400px);
+                overflow-y: auto;
+            }
+
+            .section {
+                margin-bottom: 30px;
+            }
+
+            .section-header {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 15px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-radius: 8px;
+                cursor: pointer;
+                user-select: none;
+                transition: transform 0.2s;
+            }
+
+            .section-header:hover {
+                transform: translateX(5px);
+            }
+
+            .section-header h2 {
+                font-size: 18px;
+                flex: 1;
+            }
+
+            .section-progress {
+                font-size: 14px;
+                opacity: 0.9;
+            }
+
+            .toggle-icon {
+                transition: transform 0.3s;
+            }
+
+            .section.collapsed .toggle-icon {
+                transform: rotate(-90deg);
+            }
+
+            .section-content {
+                padding: 20px;
+                background: #f9fafb;
+                border-radius: 0 0 8px 8px;
+                margin-top: -8px;
+            }
+
+            .section.collapsed .section-content {
+                display: none;
+            }
+
+            .subsection {
+                margin-bottom: 20px;
+            }
+
+            .subsection-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: #374151;
+                margin-bottom: 10px;
+                padding-left: 10px;
+                border-left: 4px solid #667eea;
+            }
+
+            .checklist-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px;
+                background: white;
+                border-radius: 6px;
+                margin-bottom: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                border: 2px solid transparent;
+            }
+
+            .checklist-item:hover {
+                border-color: #667eea;
+                transform: translateX(5px);
+            }
+
+            .checklist-item.checked {
+                background: #f0fdf4;
+                border-color: #10b981;
+            }
+
+            .checklist-item.checked label {
+                text-decoration: line-through;
+                opacity: 0.6;
+            }
+
+            .checkbox {
+                width: 20px;
+                height: 20px;
+                border: 2px solid #d1d5db;
+                border-radius: 4px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: white;
+                flex-shrink: 0;
+            }
+
+            .checklist-item.checked .checkbox {
+                background: #10b981;
+                border-color: #10b981;
+            }
+
+            .checkmark {
+                display: none;
+                color: white;
+                font-size: 14px;
+            }
+
+            .checklist-item.checked .checkmark {
+                display: block;
+            }
+
+            label {
+                cursor: pointer;
+                flex: 1;
+                font-size: 14px;
+                color: #374151;
+            }
+
+            .footer {
+                padding: 20px;
+                background: #f9fafb;
+                border-top: 1px solid #e5e7eb;
+                text-align: center;
+                font-size: 12px;
+                color: #6b7280;
+            }
+
+            @media print {
+                body {
+                    background: white;
+                    padding: 0;
+                }
+
+                .container {
+                    box-shadow: none;
+                }
+
+                .controls,
+                .stats {
+                    display: none;
+                }
+
+                .content {
+                    max-height: none;
+                }
+
+                .checklist-item:hover {
+                    transform: none;
+                    border-color: transparent;
+                }
+            }
+
+            .search-box {
+                flex: 1;
+                min-width: 300px;
+            }
+
+            .search-box input {
+                width: 100%;
+                padding: 10px 15px;
+                border: 2px solid #e5e7eb;
+                border-radius: 6px;
+                font-size: 14px;
+            }
+
+            .search-box input:focus {
+                outline: none;
+                border-color: #667eea;
+            }
+
+            .hidden {
+                display: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🎯 iPharma Mart Management System</h1>
+                <p>QA Testing Checklist - Version 1.0 | December 6, 2025</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalItems">0</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="checkedItems">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="percentComplete">0%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="search-box">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="🔍 Search checklist items..."
+                    />
+                </div>
+                <button class="btn btn-success" onclick="checkAll()">
+                    ✓ Check All
+                </button>
+                <button class="btn btn-danger" onclick="uncheckAll()">
+                    ✗ Uncheck All
+                </button>
+                <button class="btn btn-primary" onclick="expandAll()">
+                    ⬇ Expand All
+                </button>
+                <button class="btn btn-secondary" onclick="collapseAll()">
+                    ⬆ Collapse All
+                </button>
+                <button class="btn btn-primary" onclick="saveProgress()">
+                    💾 Save Progress
+                </button>
+                <button class="btn btn-secondary" onclick="window.print()">
+                    🖨️ Print
+                </button>
+            </div>
+
+            <div class="content" id="checklistContent">
+                <!-- Checklist items will be generated here -->
+            </div>
+
+            <div class="footer">
+                <p>
+                    <strong>Test Data:</strong> Users: 5 | Products: 50 |
+                    Customers: 40 | Sales: 280 | SC Transactions: 87 | PWD
+                    Transactions: 50
+                </p>
+                <p style="margin-top: 10px">
+                    <strong>Test Credentials:</strong>
+                    superadmin/admin/cashier1/cashier2/inventory1 : password
+                </p>
+            </div>
+        </div>
+
+        <script>
+            const checklistData = [
+                {
+                    title: "1. Authentication & Security",
+                    items: [
+                        "Login with each user role (superadmin, admin, cashier, inventory_manager)",
+                        "Verify autocomplete is disabled on all forms (inspect with DevTools)",
+                        "Test logout functionality",
+                        "Verify role-based redirects (cashier → POS, others → Dashboard)",
+                        "Test password field autocomplete prevention",
+                        "Verify session persistence",
+                        "Test throttling on login attempts (5 attempts per minute)",
+                    ],
+                },
+                {
+                    title: "2. Dashboard Features",
+                    subsections: [
+                        {
+                            title: "Role-Based Data Display",
+                            items: [
+                                "Login as Cashier - verify only personal sales data shown",
+                                "Login as Admin - verify all sales data visible",
+                                "Login as Superadmin - verify complete system overview",
+                            ],
+                        },
+                        {
+                            title: "Date Range Filtering",
+                            items: [
+                                "Test default filter (month-to-date from Dec 1-6, 2025)",
+                                "Apply custom date range (e.g., Jan 1 - Mar 31, 2025)",
+                                "Apply full year range (Jan 1 - Dec 6, 2025)",
+                                "Test 'Reset' button - verify returns to default month-to-date",
+                                "Verify data updates correctly with each filter change",
+                                "Check revenue totals match filtered period",
+                                "Verify transaction counts match filtered period",
+                            ],
+                        },
+                        {
+                            title: "Dashboard Metrics",
+                            items: [
+                                "Verify Total Revenue displays correctly (hidden until hover/press)",
+                                "Check Total Products count (should be 50)",
+                                "Check Total Customers count (should be 40)",
+                                "Check Low Stock Items count",
+                                "Verify Monthly Sales calculation",
+                                "Check Top Products section shows correct sales data",
+                                "Verify Low Stock Products table",
+                                "Check Expiry Alerts section (products expiring soon)",
+                                "Verify Expired Batches section",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    title: "3. Point of Sale (POS)",
+                    subsections: [
+                        {
+                            title: "Product Search & Cart",
+                            items: [
+                                "Search product by name (e.g., 'UNILAB Biogesic')",
+                                "Search product by brand name",
+                                "Add product to cart via grid",
+                                "Add product to cart via search",
+                                "Verify stock validation prevents over-ordering",
+                                "Test editable quantity input field",
+                                "Test quantity increase (+) button",
+                                "Test quantity decrease (-) button",
+                                "Verify quantity cannot go below 1",
+                                "Verify quantity cannot exceed available stock",
+                                "Remove product from cart",
+                                "Clear entire cart",
+                                "Verify brand name displays prominently",
+                                "Verify generic name shows for pharmacy products",
+                                "Test product type filter (Pharmacy/Mini Mart)",
+                            ],
+                        },
+                        {
+                            title: "Customer Selection & Discount",
+                            items: [
+                                "Select 'New Customer' option",
+                                "Enter new customer details",
+                                "Select 'Existing Customer' option",
+                                "Test customer search by name",
+                                "Test customer search by phone number",
+                                "Check Senior Citizen discount checkbox",
+                                "Verify customer dropdown filters to show only SC customers",
+                                "Select a Senior Citizen customer",
+                                "Verify SC ID auto-fills",
+                                "Check PWD discount checkbox",
+                                "Verify customer dropdown filters to show only PWD customers",
+                                "Select a PWD customer",
+                                "Verify PWD ID auto-fills",
+                                "Uncheck discount - verify all customers shown again",
+                                "Test discount calculation (20% for SC/PWD)",
+                            ],
+                        },
+                        {
+                            title: "Payment Processing",
+                            items: [
+                                "Complete sale with Cash payment",
+                                "Complete sale with GCash payment",
+                                "Complete sale with Card payment",
+                                "Verify change calculation",
+                                "Test insufficient payment amount validation",
+                                "Verify receipt generation shows brand + product names",
+                                "Check stock deduction after sale",
+                                "Verify transaction saved in Sales History",
+                                "Verify receipt shows correct product names (not 'undefined')",
+                            ],
+                        },
+                        {
+                            title: "Stock Validation",
+                            items: [
+                                "Attempt to add product with 0 stock - verify error",
+                                "Attempt to order more than available stock - verify error",
+                                "Verify error message shows actual available stock",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    title: "4. Customer Management",
+                    items: [
+                        "View customers list",
+                        "Create new customer with Senior Citizen details",
+                        "Create new customer with PWD details",
+                        "Create new regular customer",
+                        "Edit customer information",
+                        "Update Senior Citizen ID",
+                        "Update PWD ID",
+                        "Search customers by name",
+                        "Filter customers (if implemented)",
+                        "Verify pagination works",
+                        "Test customer validation (required fields)",
+                    ],
+                },
+                {
+                    title: "5. Inventory Management",
+                    subsections: [
+                        {
+                            title: "Product Tabs",
+                            items: [
+                                "Access Inventory page (should show Pharmacy by default)",
+                                "Switch to Pharmacy Products tab",
+                                "Switch to Mini Mart Products tab",
+                                "Verify tab filters work correctly",
+                            ],
+                        },
+                        {
+                            title: "Product Display",
+                            items: [
+                                "Verify brand name shows prominently in product list",
+                                "Verify product name displays correctly",
+                                "Verify generic name shows for pharmacy products only",
+                                "Check product details formatting (Brand > Name > Generic)",
+                                "Verify table takes full width of container",
+                            ],
+                        },
+                        {
+                            title: "Filters & Search",
+                            items: [
+                                "Search product by name",
+                                "Filter by category",
+                                "Filter by stock status (OK/Low/Critical/Out)",
+                                "Test 'Apply Filter' button",
+                                "Verify filtered results match criteria",
+                            ],
+                        },
+                        {
+                            title: "Product Operations",
+                            items: [
+                                "View products list",
+                                "Create new pharmacy product with brand and generic name",
+                                "Create new mini mart product",
+                                "Edit product details",
+                                "Update shelf stock",
+                                "Update back stock",
+                                "Set low stock threshold",
+                                "Set danger level",
+                                "Verify total_stock calculation (shelf + back)",
+                                "Test product void functionality",
+                            ],
+                        },
+                        {
+                            title: "Stock Movements",
+                            items: [
+                                "View stock movements history",
+                                "Create Stock In movement",
+                                "Create Stock Out movement",
+                                "Verify stock updates after movements",
+                                "Check reference numbers",
+                                "Test date filtering",
+                                "Verify pagination",
+                            ],
+                        },
+                        {
+                            title: "Shelf Movements",
+                            items: [
+                                "View shelf movements history",
+                                "Create shelf movement (back → shelf)",
+                                "Verify shelf stock increases",
+                                "Verify back stock decreases",
+                                "Check movement history accuracy",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    title: "6. Unified Reports (Admin Only)",
+                    subsections: [
+                        {
+                            title: "Report Types",
+                            items: [
+                                "Access Reports page (should show Sales by default)",
+                                "Switch to Sales Report tab",
+                                "Switch to Inventory Report tab",
+                                "Switch to Senior Citizen Report tab",
+                                "Switch to PWD Report tab",
+                            ],
+                        },
+                        {
+                            title: "Date Filtering",
+                            items: [
+                                "Apply date filter to Sales Report",
+                                "Apply date filter to Inventory Report",
+                                "Apply date filter to Senior Citizen Report",
+                                "Apply date filter to PWD Report",
+                                "Test default date range (month-to-date)",
+                                "Test custom date range across multiple months",
+                            ],
+                        },
+                        {
+                            title: "Sales Report Content",
+                            items: [
+                                "Verify Total Revenue calculation",
+                                "Verify Total Transactions count",
+                                "Verify Average Transaction calculation",
+                                "Check sales table data accuracy",
+                                "Verify pagination works",
+                                "Check receipt numbers are unique",
+                                "Verify customer names display correctly",
+                                "Check cashier names display correctly",
+                            ],
+                        },
+                        {
+                            title: "Inventory Report Content",
+                            items: [
+                                "Verify Total Products count",
+                                "Verify Low Stock count",
+                                "Verify Out of Stock count",
+                                "Verify Stock Value calculation",
+                                "Check product details (brand, name, generic for pharmacy)",
+                                "Verify shelf stock + back stock = total stock",
+                                "Check 'Sold (Period)' column accuracy",
+                                "Verify status badges (In Stock, Low Stock, Out of Stock)",
+                            ],
+                        },
+                        {
+                            title: "Senior Citizen Report Content",
+                            items: [
+                                "Verify Total Transactions count (should be ~87)",
+                                "Verify Total Discount Given",
+                                "Check SC ID numbers display",
+                                "Verify discount amount calculations (20%)",
+                                "Check original amount vs discounted amount",
+                            ],
+                        },
+                        {
+                            title: "PWD Report Content",
+                            items: [
+                                "Verify Total Transactions count (should be ~50)",
+                                "Verify Total Discount Given",
+                                "Check PWD ID numbers display",
+                                "Verify discount amount calculations (20%)",
+                                "Check original amount vs discounted amount",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    title: "7. Unified Discounts (Admin & Cashier)",
+                    subsections: [
+                        {
+                            title: "Discount Types",
+                            items: [
+                                "Access Discounts page (should show Senior Citizen by default)",
+                                "Switch to Senior Citizen tab",
+                                "Switch to PWD tab",
+                                "Verify table takes full width",
+                            ],
+                        },
+                        {
+                            title: "Date Filtering",
+                            items: [
+                                "Apply date filter to Senior Citizen transactions",
+                                "Apply date filter to PWD transactions",
+                                "Test default date range (month-to-date)",
+                                "Test custom date range",
+                            ],
+                        },
+                        {
+                            title: "Discount Content",
+                            items: [
+                                "Verify transaction counts match",
+                                "Verify total discount amounts",
+                                "Check ID numbers display correctly",
+                                "Verify customer names",
+                                "Check cashier names",
+                                "Verify discount calculations (20%)",
+                                "Test pagination",
+                                "Verify 'No transactions found' message when appropriate",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    title: "8. General Settings (Admin Only)",
+                    subsections: [
+                        {
+                            title: "Display Settings",
+                            items: [
+                                "Access Settings page",
+                                "View current pagination setting (default: 15)",
+                                "Change pagination to 10",
+                                "Save settings",
+                                "Verify pagination updates in other pages",
+                                "Change pagination to 25",
+                                "Verify change persists after logout/login",
+                            ],
+                        },
+                        {
+                            title: "Data Management Settings",
+                            items: [
+                                "View current data retention period (default: 365 days)",
+                                "Change retention period to 180 days",
+                                "Save settings",
+                                "Verify setting persists after refresh",
+                            ],
+                        },
+                        {
+                            title: "Alert Settings",
+                            items: [
+                                "View current expiry alert days (default: 7)",
+                                "Change to 14 days",
+                                "Save settings",
+                                "Verify expiring products alert updates",
+                                "Test with different alert periods (1, 7, 30, 90 days)",
+                                "Enable/disable Low Stock Alerts checkbox",
+                                "Enable/disable Automatic Backups checkbox",
+                                "Verify checkbox values persist after save and refresh",
+                            ],
+                        },
+                        {
+                            title: "Expiry Alerts",
+                            items: [
+                                "Verify expiry alert section shows on Settings page",
+                                "Check products expiring within alert period",
+                                "Verify batch numbers display",
+                                "Check expiry dates are accurate",
+                                "Verify 'expires in X days' calculation",
+                            ],
+                        },
+                        {
+                            title: "System Actions",
+                            items: [
+                                "Test 'Clear Cache' button",
+                                "Verify success message",
+                                "Verify settings persist after cache clear",
+                                "Test 'Review Old Data' button",
+                                "Verify confirmation dialog",
+                                "Check info message about data retention",
+                                "Verify action button colors are visible",
+                                "Test 'Create Manual Backup' button",
+                                "Verify backup appears in history",
+                                "Test backup download",
+                                "Test backup delete",
+                            ],
+                        },
+                        {
+                            title: "Layout & Design",
+                            items: [
+                                "Verify 2-column grid layout (Settings left, Actions right)",
+                                "Check background colors are visible (gray, red, blue, amber)",
+                                "Verify no excessive scrolling",
+                                "Check compact spacing throughout",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    title: "9. Sales History (Admin & Cashier)",
+                    items: [
+                        "View sales history",
+                        "Filter by date range",
+                        "Search by receipt number",
+                        "View sale details (receipt format with max-width)",
+                        "Check sale items list",
+                        "Verify discount information displays (SC/PWD)",
+                        "Test pagination",
+                        "Verify cashier only sees own sales",
+                        "Verify receipt matches POS checkout receipt design",
+                    ],
+                },
+                {
+                    title: "10. UI/UX Features",
+                    subsections: [
+                        {
+                            title: "Header",
+                            items: [
+                                "Verify profile dropdown in header (not sidebar)",
+                                "Click profile avatar - dropdown opens",
+                                "Check user name displays",
+                                "Check role displays correctly",
+                                "Click 'Profile Settings' option",
+                                "Click 'Logout' option",
+                                "Test logout modal (with confirmation)",
+                                "Test ESC key to close logout modal",
+                                "Test click-away to close dropdown",
+                            ],
+                        },
+                        {
+                            title: "Sidebar",
+                            items: [
+                                "Verify logo is sticky when scrolling",
+                                "Scroll sidebar content - logo stays at top",
+                                "Check navigation items for current role",
+                                "Verify active page highlighting",
+                                "Test mobile menu toggle",
+                                "Check section headers (Sales, Inventory, Reports, etc.)",
+                                "Verify profile footer removed from sidebar",
+                            ],
+                        },
+                        {
+                            title: "Navigation",
+                            items: [
+                                "Verify Reports appears as single menu item",
+                                "Verify Discounts appears under Sales section",
+                                "Check Settings menu item (Admin only)",
+                                "Test all navigation links",
+                                "Verify role-based menu visibility",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    title: "11. User Management (Superadmin Only)",
+                    items: [
+                        "Login as superadmin",
+                        "View users list",
+                        "Create new user (cannot create superadmin)",
+                        "Edit user details",
+                        "Change user role",
+                        "Verify superadmin accounts show 'Protected' instead of edit/delete",
+                        "Attempt to edit superadmin account (should fail)",
+                        "Attempt to delete superadmin account (should fail)",
+                        "Test user search",
+                        "Verify pagination",
+                    ],
+                },
+                {
+                    title: "12. Data Validation",
+                    subsections: [
+                        {
+                            title: "Sales Data",
+                            items: [
+                                "Total sales count: 280 transactions",
+                                "Date range: January 1, 2025 - December 6, 2025",
+                                "Senior Citizen transactions: ~87",
+                                "PWD transactions: ~50",
+                                "Verify discount amounts are 20% of original amount",
+                                "Check all sales have valid payment methods",
+                                "Verify all sales have valid receipt numbers",
+                                "Verify discount transactions don't have redundant items_purchased field",
+                            ],
+                        },
+                        {
+                            title: "Customer Data",
+                            items: [
+                                "Total customers: 40",
+                                "Senior Citizens: 12 with valid SC IDs (format: SC-2025-XXXX)",
+                                "PWD customers: 8 with valid PWD IDs (format: PWD-2025-XXXXXX)",
+                                "Regular customers: 20",
+                                "Verify all have phone numbers",
+                                "Check email format validation",
+                            ],
+                        },
+                        {
+                            title: "Product Data",
+                            items: [
+                                "Total products: 50",
+                                "Pharmacy items: 25 with authentic Philippine brands",
+                                "Mini Mart items: 25 with popular brands",
+                                "Verify UNILAB products (Biogesic, Dolfenal, Alaxan FR, etc.)",
+                                "Verify RITEMED products have generic names",
+                                "Check all pharmacy products have generic names",
+                                "Verify mini mart products have brand names",
+                                "All products have categories",
+                                "All products have suppliers",
+                                "Verify shelf_stock + back_stock calculation",
+                                "Check all have valid barcodes",
+                            ],
+                        },
+                    ],
+                },
+                {
+                    title: "13. Browser Compatibility",
+                    subsections: [
+                        {
+                            title: "Desktop Browsers",
+                            items: [
+                                "Test in Google Chrome (latest)",
+                                "Test in Mozilla Firefox (latest)",
+                                "Test in Microsoft Edge (latest)",
+                            ],
+                        },
+                        {
+                            title: "Mobile Responsiveness",
+                            items: [
+                                "Test on mobile viewport (375px width)",
+                                "Test on tablet viewport (768px width)",
+                                "Test on desktop viewport (1920px width)",
+                                "Check mobile menu functionality",
+                                "Verify touch interactions work",
+                                "Check form inputs on mobile",
+                            ],
+                        },
+                    ],
+                },
+            ];
+
+            let itemId = 0;
+
+            function generateChecklist() {
+                const content = document.getElementById("checklistContent");
+                content.innerHTML = "";
+
+                checklistData.forEach((section, sectionIndex) => {
+                    const sectionDiv = document.createElement("div");
+                    sectionDiv.className = "section";
+                    sectionDiv.id = `section-${sectionIndex}`;
+
+                    const header = document.createElement("div");
+                    header.className = "section-header";
+                    header.onclick = () => toggleSection(sectionIndex);
+
+                    const checkedCount =
+                        getCheckedCountForSection(sectionIndex);
+                    const totalCount = getTotalCountForSection(sectionIndex);
+
+                    header.innerHTML = `
+                    <h2>${section.title}</h2>
+                    <span class="section-progress">${checkedCount}/${totalCount}</span>
+                    <span class="toggle-icon">▼</span>
+                `;
+
+                    const sectionContent = document.createElement("div");
+                    sectionContent.className = "section-content";
+
+                    if (section.subsections) {
+                        section.subsections.forEach((subsection) => {
+                            const subsectionDiv = document.createElement("div");
+                            subsectionDiv.className = "subsection";
+
+                            const subsectionTitle =
+                                document.createElement("div");
+                            subsectionTitle.className = "subsection-title";
+                            subsectionTitle.textContent = subsection.title;
+                            subsectionDiv.appendChild(subsectionTitle);
+
+                            subsection.items.forEach((item) => {
+                                subsectionDiv.appendChild(
+                                    createChecklistItem(item)
+                                );
+                            });
+
+                            sectionContent.appendChild(subsectionDiv);
+                        });
+                    } else if (section.items) {
+                        section.items.forEach((item) => {
+                            sectionContent.appendChild(
+                                createChecklistItem(item)
+                            );
+                        });
+                    }
+
+                    sectionDiv.appendChild(header);
+                    sectionDiv.appendChild(sectionContent);
+                    content.appendChild(sectionDiv);
+                });
+
+                updateStats();
+                loadProgress();
+            }
+
+            function createChecklistItem(text) {
+                const item = document.createElement("div");
+                item.className = "checklist-item";
+                item.dataset.id = itemId++;
+                item.onclick = () => toggleCheck(item);
+
+                item.innerHTML = `
+                <div class="checkbox">
+                    <span class="checkmark">✓</span>
+                </div>
+                <label>${text}</label>
+            `;
+
+                return item;
+            }
+
+            function toggleCheck(item) {
+                item.classList.toggle("checked");
+                updateStats();
+                updateSectionProgress();
+            }
+
+            function toggleSection(sectionIndex) {
+                const section = document.getElementById(
+                    `section-${sectionIndex}`
+                );
+                section.classList.toggle("collapsed");
+            }
+
+            function expandAll() {
+                document.querySelectorAll(".section").forEach((section) => {
+                    section.classList.remove("collapsed");
+                });
+            }
+
+            function collapseAll() {
+                document.querySelectorAll(".section").forEach((section) => {
+                    section.classList.add("collapsed");
+                });
+            }
+
+            function checkAll() {
+                document.querySelectorAll(".checklist-item").forEach((item) => {
+                    item.classList.add("checked");
+                });
+                updateStats();
+                updateSectionProgress();
+            }
+
+            function uncheckAll() {
+                document.querySelectorAll(".checklist-item").forEach((item) => {
+                    item.classList.remove("checked");
+                });
+                updateStats();
+                updateSectionProgress();
+            }
+
+            function getCheckedCountForSection(sectionIndex) {
+                const section = document.getElementById(
+                    `section-${sectionIndex}`
+                );
+                if (!section) return 0;
+                return section.querySelectorAll(".checklist-item.checked")
+                    .length;
+            }
+
+            function getTotalCountForSection(sectionIndex) {
+                const section = document.getElementById(
+                    `section-${sectionIndex}`
+                );
+                if (!section) return 0;
+                return section.querySelectorAll(".checklist-item").length;
+            }
+
+            function updateSectionProgress() {
+                document
+                    .querySelectorAll(".section")
+                    .forEach((section, index) => {
+                        const checked = getCheckedCountForSection(index);
+                        const total = getTotalCountForSection(index);
+                        const progress =
+                            section.querySelector(".section-progress");
+                        if (progress) {
+                            progress.textContent = `${checked}/${total}`;
+                        }
+                    });
+            }
+
+            function updateStats() {
+                const allItems = document.querySelectorAll(".checklist-item");
+                const checkedItems = document.querySelectorAll(
+                    ".checklist-item.checked"
+                );
+                const total = allItems.length;
+                const checked = checkedItems.length;
+                const percent =
+                    total > 0 ? Math.round((checked / total) * 100) : 0;
+
+                document.getElementById("totalItems").textContent = total;
+                document.getElementById("checkedItems").textContent = checked;
+                document.getElementById("percentComplete").textContent =
+                    percent + "%";
+                document.getElementById("progressBar").style.width =
+                    percent + "%";
+            }
+
+            function saveProgress() {
+                const checkedItems = [];
+                document
+                    .querySelectorAll(".checklist-item.checked")
+                    .forEach((item) => {
+                        checkedItems.push(item.dataset.id);
+                    });
+                localStorage.setItem(
+                    "qaTesting_progress",
+                    JSON.stringify(checkedItems)
+                );
+                alert("Progress saved! ✓");
+            }
+
+            function loadProgress() {
+                const saved = localStorage.getItem("qaTesting_progress");
+                if (saved) {
+                    const checkedItems = JSON.parse(saved);
+                    checkedItems.forEach((id) => {
+                        const item = document.querySelector(
+                            `[data-id="${id}"]`
+                        );
+                        if (item) {
+                            item.classList.add("checked");
+                        }
+                    });
+                    updateStats();
+                    updateSectionProgress();
+                }
+            }
+
+            // Search functionality
+            document.addEventListener("DOMContentLoaded", function () {
+                const searchInput = document.getElementById("searchInput");
+                searchInput.addEventListener("input", function (e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    document
+                        .querySelectorAll(".checklist-item")
+                        .forEach((item) => {
+                            const text = item.textContent.toLowerCase();
+                            if (text.includes(searchTerm)) {
+                                item.classList.remove("hidden");
+                            } else {
+                                item.classList.add("hidden");
+                            }
+                        });
+
+                    // Show/hide sections based on visible items
+                    document.querySelectorAll(".section").forEach((section) => {
+                        const visibleItems = section.querySelectorAll(
+                            ".checklist-item:not(.hidden)"
+                        );
+                        if (visibleItems.length === 0 && searchTerm) {
+                            section.style.display = "none";
+                        } else {
+                            section.style.display = "block";
+                        }
+                    });
+                });
+
+                generateChecklist();
+            });
+        </script>
+    </body>
+</html>
