@@ -106,7 +106,7 @@
         <div class="px-4 py-2 border-b border-[var(--color-border-light)]">
             <h3 class="text-base font-medium text-gray-700">Payment Method Breakdown</h3>
         </div>
-        <div class="p-4">
+        <div class="table-container">
             <table class="table">
                 <thead>
                     <tr>
