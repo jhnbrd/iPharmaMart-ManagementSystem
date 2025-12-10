@@ -74,7 +74,7 @@
     </div>
 
     <!-- Summary Stats -->
-    <div class="bg-gray-50 border border-gray-200 rounded mb-3">
+    <div class="bg-gray-50 border border-gray-200 rounded-lg mb-3">
         <div class="px-3 py-1.5 border-b border-gray-200">
             <h3 class="text-sm font-medium text-gray-600">Summary</h3>
         </div>
@@ -110,39 +110,49 @@
     </div>
 
     <!-- Movements Table -->
-    <div class="bg-white border border-[var(--color-border-light)]">
-        <div class="px-4 py-2 border-b border-[var(--color-border-light)]">
-            <h3 class="text-base font-medium text-gray-700">Movement History</h3>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold">Movement History</h2>
         </div>
-        <div class="table-container">
-            <table class="table">
-                <thead>
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th>Date & Time</th>
-                        <th>Product</th>
-                        <th>Batch</th>
-                        <th>Movement</th>
-                        <th class="text-right">Quantity</th>
-                        <th class="text-right">Shelf Stock</th>
-                        <th class="text-right">Back Stock</th>
-                        <th>User</th>
-                        <th>Remarks</th>
-                        <th width="100">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date
+                            & Time</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Product</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Batch</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Movement</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Quantity</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Shelf Stock</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Back Stock</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Remarks</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            width="100">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($movements as $movement)
-                        <tr>
-                            <td class="font-medium">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">
                                 {{ $movement->created_at->format('M d, Y') }}<br>
                                 <span
                                     class="text-xs text-gray-500">{{ $movement->created_at->format('h:i A') }}</span>
                             </td>
-                            <td>
+                            <td class="px-6 py-4">
                                 <div class="font-medium">{{ $movement->product->name }}</div>
                                 <div class="text-xs text-gray-500">{{ $movement->product->code }}</div>
                             </td>
-                            <td>
+                            <td class="px-6 py-4">
                                 @if ($movement->batch)
                                     <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
                                         {{ $movement->batch->batch_number }}
@@ -156,7 +166,7 @@
                                     <span class="text-gray-400">-</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="px-6 py-4">
                                 @php
                                     $isRestock = $movement->new_shelf_stock > $movement->previous_shelf_stock;
                                 @endphp
@@ -180,22 +190,23 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="text-right font-semibold">{{ number_format($movement->quantity) }}</td>
-                            <td class="text-right">
+                            <td class="px-6 py-4 text-right font-semibold">{{ number_format($movement->quantity) }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
                                 <span
                                     class="text-gray-500">{{ number_format($movement->previous_shelf_stock) }}</span>
                                 <span class="mx-1">→</span>
                                 <span class="font-semibold">{{ number_format($movement->new_shelf_stock) }}</span>
                             </td>
-                            <td class="text-right">
+                            <td class="px-6 py-4 text-right">
                                 <span class="text-gray-500">{{ number_format($movement->previous_back_stock) }}</span>
                                 <span class="mx-1">→</span>
                                 <span class="font-semibold">{{ number_format($movement->new_back_stock) }}</span>
                             </td>
-                            <td>
+                            <td class="px-6 py-4">
                                 <div class="text-sm">{{ $movement->user->name ?? 'System' }}</div>
                             </td>
-                            <td>
+                            <td class="px-6 py-4">
                                 @if ($movement->remarks)
                                     <span
                                         class="text-sm text-gray-600">{{ Str::limit($movement->remarks, 30) }}</span>
@@ -203,14 +214,14 @@
                                     <span class="text-gray-400">-</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="px-6 py-4 text-center">
                                 <a href="{{ route('inventory.shelf-movements.show', $movement) }}"
                                     class="btn btn-sm btn-secondary">View</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center py-8 text-gray-500">
+                            <td colspan="10" class="px-6 py-8 text-center text-gray-500">
                                 No shelf movements found
                             </td>
                         </tr>

@@ -74,66 +74,80 @@
     </div>
 
     <!-- Sales Table -->
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Sale ID</th>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Items</th>
-                    <th>Payment Method</th>
-                    <th>Total</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($sales as $sale)
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold">Sales Transactions</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <td class="font-medium">#{{ $sale->id }}</td>
-                        <td>{{ $sale->created_at->format('Y-m-d H:i') }}</td>
-                        <td>{{ $sale->customer->name }}</td>
-                        <td>
-                            @foreach ($sale->items as $item)
-                                {{ $item->product->name }} ({{ $item->quantity }})@if (!$loop->last)
-                                    ,
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sale
+                            ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Payment Method</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($sales as $sale)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">#{{ $sale->id }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $sale->created_at->format('Y-m-d H:i') }}</td>
+                            <td class="px-6 py-4">{{ $sale->customer->name }}</td>
+                            <td class="px-6 py-4">
+                                @foreach ($sale->items as $item)
+                                    {{ $item->product->name }} ({{ $item->quantity }})@if (!$loop->last)
+                                        ,
+                                    @endif
+                                @endforeach
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if ($sale->payment_method === 'cash')
+                                    <span class="badge-success">💵 Cash</span>
+                                @elseif($sale->payment_method === 'gcash')
+                                    <span class="badge-info">📱 GCash</span>
+                                @elseif($sale->payment_method === 'card')
+                                    <span class="badge-warning">💳 Card</span>
                                 @endif
-                            @endforeach
-                        </td>
-                        <td>
-                            @if ($sale->payment_method === 'cash')
-                                <span class="badge-success">💵 Cash</span>
-                            @elseif($sale->payment_method === 'gcash')
-                                <span class="badge-info">📱 GCash</span>
-                            @elseif($sale->payment_method === 'card')
-                                <span class="badge-warning">💳 Card</span>
-                            @endif
-                        </td>
-                        <td class="font-semibold text-[var(--color-brand-green)]">₱{{ number_format($sale->total, 2) }}
-                        </td>
-                        <td>
-                            <a href="{{ route('sales.show', $sale) }}"
-                                class="text-[var(--color-brand-green)] hover:underline">
-                                View Details
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="text-center py-8 text-[var(--color-text-secondary)]">
-                            @if (auth()->user()->role === 'cashier')
-                                No sales found. <a href="{{ route('pos.index') }}"
-                                    class="text-[var(--color-brand-green)] hover:underline">Go to POS to create your
-                                    first
-                                    sale</a>
-                            @else
-                                No sales found matching the selected criteria.
-                            @endif
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap font-semibold text-[var(--color-brand-green)]">
+                                ₱{{ number_format($sale->total, 2) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <a href="{{ route('sales.show', $sale) }}"
+                                    class="text-[var(--color-brand-green)] hover:underline">
+                                    View Details
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-[var(--color-text-secondary)]">
+                                @if (auth()->user()->role === 'cashier')
+                                    No sales found. <a href="{{ route('pos.index') }}"
+                                        class="text-[var(--color-brand-green)] hover:underline">Go to POS to create
+                                        your
+                                        first
+                                        sale</a>
+                                @else
+                                    No sales found matching the selected criteria.
+                                @endif
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="mt-6">
