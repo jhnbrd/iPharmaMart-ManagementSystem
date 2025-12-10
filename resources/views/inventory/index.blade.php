@@ -12,7 +12,7 @@
                 </button>
                 <div class="flex gap-2">
                     @if (in_array(auth()->user()->role, ['admin', 'inventory_manager']))
-                        <a href="{{ route('reports.inventory') }}" class="btn btn-secondary">
+                        <a href="{{ route('reports.index', ['type' => 'inventory']) }}" class="btn btn-secondary">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -37,7 +37,7 @@
         <div class="p-4">
             <form method="GET" action="{{ route('inventory.index') }}" class="flex flex-wrap gap-2">
                 <button type="submit" name="product_type" value="pharmacy"
-                    class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('product_type') === 'pharmacy' || !request('product_type') ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                    class="px-4 py-2 rounded-lg font-medium transition-colors {{ request('product_type', 'pharmacy') === 'pharmacy' ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
                     Pharmacy Products
                 </button>
                 <button type="submit" name="product_type" value="mini_mart"

@@ -20,10 +20,9 @@ class InventoryController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by product type
-        if ($request->filled('product_type')) {
-            $query->where('product_type', $request->product_type);
-        }
+        // Filter by product type (default to pharmacy if not specified)
+        $productType = $request->input('product_type', 'pharmacy');
+        $query->where('product_type', $productType);
 
         // Filter by category
         if ($request->filled('category_id')) {
