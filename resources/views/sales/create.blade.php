@@ -65,8 +65,11 @@
                                         <option value="">Select Product</option>
                                         @foreach ($products as $product)
                                             <option value="{{ $product->id }}" data-price="{{ $product->price }}"
-                                                data-stock="{{ $product->stock }}">
-                                                {{ $product->name }} (Stock: {{ $product->stock }})
+                                                data-stock="{{ $product->stock }}"
+                                                data-search="{{ strtolower($product->brand_name . ' ' . $product->name . ' ' . $product->generic_name) }}">
+                                                {{ $product->brand_name }} - {{ $product->name }}@if ($product->generic_name)
+                                                    ({{ $product->generic_name }})
+                                                @endif - Stock: {{ $product->stock }}
                                             </option>
                                         @endforeach
                                     </select>

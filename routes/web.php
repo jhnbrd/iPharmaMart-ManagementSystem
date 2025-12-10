@@ -91,6 +91,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
         Route::get('/reports/senior-citizen', [ReportController::class, 'seniorCitizen'])->name('reports.senior-citizen');
         Route::get('/reports/pwd', [ReportController::class, 'pwd'])->name('reports.pwd');
+
+        // PDF Report Generation
+        Route::get('/reports/sales/pdf', [ReportController::class, 'salesPdf'])->name('reports.sales.pdf');
+        Route::get('/reports/senior-citizen/pdf', [ReportController::class, 'seniorCitizenPdf'])->name('reports.senior-citizen.pdf');
+        Route::get('/reports/pwd/pdf', [ReportController::class, 'pwdPdf'])->name('reports.pwd.pdf');
     });
 
     // Admin & SuperAdmin - General Settings
@@ -103,9 +108,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings/list-backups', [SettingsController::class, 'listBackups'])->name('settings.list-backups');
         Route::get('/settings/download-backup/{filename}', [SettingsController::class, 'downloadBackup'])->name('settings.download-backup');
         Route::delete('/settings/delete-backup/{filename}', [SettingsController::class, 'deleteBackup'])->name('settings.delete-backup');
-    });    // Admin & Inventory Manager - Inventory Reports
+    });
+
+    // Admin & Inventory Manager - Inventory Reports
     Route::middleware('role:admin,inventory_manager')->group(function () {
         Route::get('/reports/inventory', [ReportController::class, 'inventory'])->name('reports.inventory');
+        Route::get('/reports/inventory/pdf', [ReportController::class, 'inventoryPdf'])->name('reports.inventory.pdf');
     });
 
     // Admin & Cashier - Sales & Customers

@@ -135,9 +135,10 @@ class SalesController extends Controller
                     ];
                 }
 
-                // Calculate tax and total
-                $tax = $subtotal * 0.12; // 12% VAT
-                $originalTotal = $subtotal + $tax;
+                // Calculate VAT (inclusive - VAT is already in the price)
+                // VAT = Subtotal / 1.12 * 0.12
+                $tax = $subtotal - ($subtotal / 1.12); // Extract 12% VAT from subtotal
+                $originalTotal = $subtotal; // Total is the subtotal since VAT is inclusive
                 $total = $originalTotal;
 
                 // Apply discount if applicable

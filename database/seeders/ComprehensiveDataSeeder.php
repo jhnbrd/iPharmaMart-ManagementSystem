@@ -16,6 +16,7 @@ use App\Models\StockMovement;
 use App\Models\ShelfMovement;
 use App\Models\SeniorCitizenTransaction;
 use App\Models\PwdTransaction;
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -86,67 +87,66 @@ class ComprehensiveDataSeeder extends Seeder
         // Create 50 Products (shelf_stock + back_stock)
         $this->command->info('📦 Creating 50 products...');
         $products = [
-            // Pharmacy Products (25)
-            ['brand' => 'UNILAB', 'name' => 'Biogesic', 'generic' => 'Paracetamol', 'type' => 'pharmacy', 'price' => 65],
-            ['brand' => 'UNILAB', 'name' => 'Dolfenal', 'generic' => 'Mefenamic Acid', 'type' => 'pharmacy', 'price' => 125],
-            ['brand' => 'UNILAB', 'name' => 'Alaxan FR', 'generic' => 'Ibuprofen + Paracetamol', 'type' => 'pharmacy', 'price' => 85],
-            ['brand' => 'UNILAB', 'name' => 'Medicol', 'generic' => 'Ibuprofen', 'type' => 'pharmacy', 'price' => 95],
-            ['brand' => 'UNILAB', 'name' => 'Decolgen Forte', 'generic' => 'Phenylpropanolamine + Paracetamol + Chlorphenamine', 'type' => 'pharmacy', 'price' => 78],
-            ['brand' => 'UNILAB', 'name' => 'Bioflu', 'generic' => 'Phenylephrine + Paracetamol + Chlorphenamine', 'type' => 'pharmacy', 'price' => 72],
-            ['brand' => 'UNILAB', 'name' => 'Tuseran Forte', 'generic' => 'Dextromethorphan HBr', 'type' => 'pharmacy', 'price' => 68],
-            ['brand' => 'UNILAB', 'name' => 'Kremil-S', 'generic' => 'Aluminum Hydroxide + Magnesium Hydroxide', 'type' => 'pharmacy', 'price' => 55],
-            ['brand' => 'RITEMED', 'name' => 'Paracetamol', 'generic' => 'Paracetamol 500mg', 'type' => 'pharmacy', 'price' => 35],
-            ['brand' => 'RITEMED', 'name' => 'Ibuprofen', 'generic' => 'Ibuprofen 400mg', 'type' => 'pharmacy', 'price' => 45],
-            ['brand' => 'RITEMED', 'name' => 'Cetirizine', 'generic' => 'Cetirizine 10mg', 'type' => 'pharmacy', 'price' => 38],
-            ['brand' => 'RITEMED', 'name' => 'Amoxicillin', 'generic' => 'Amoxicillin 500mg', 'type' => 'pharmacy', 'price' => 42],
-            ['brand' => 'RITEMED', 'name' => 'Loperamide', 'generic' => 'Loperamide 2mg', 'type' => 'pharmacy', 'price' => 32],
-            ['brand' => 'MUNDIPHARMA', 'name' => 'Betadine Solution', 'generic' => 'Povidone-Iodine', 'type' => 'pharmacy', 'price' => 165],
-            ['brand' => 'BAYER', 'name' => 'Aspirin', 'generic' => 'Aspirin 80mg', 'type' => 'pharmacy', 'price' => 58],
-            ['brand' => 'AstraZeneca', 'name' => 'Losartan', 'generic' => 'Losartan 50mg', 'type' => 'pharmacy', 'price' => 155],
-            ['brand' => 'PFIZER', 'name' => 'Norvasc', 'generic' => 'Amlodipine 5mg', 'type' => 'pharmacy', 'price' => 245],
-            ['brand' => 'GSK', 'name' => 'Amoxicillin', 'generic' => 'Amoxicillin 500mg', 'type' => 'pharmacy', 'price' => 185],
-            ['brand' => 'PASCUAL', 'name' => 'Salbutamol Inhaler', 'generic' => 'Salbutamol', 'type' => 'pharmacy', 'price' => 385],
-            ['brand' => 'GREEN CROSS', 'name' => 'Alcohol 70%', 'generic' => 'Isopropyl Alcohol', 'type' => 'pharmacy', 'price' => 95],
-            ['brand' => 'BAND-AID', 'name' => 'Adhesive Bandages', 'generic' => 'Sterile Strips', 'type' => 'pharmacy', 'price' => 125],
-            ['brand' => 'JOHNSON & JOHNSON', 'name' => 'Cotton Balls', 'generic' => 'Absorbent Cotton', 'type' => 'pharmacy', 'price' => 85],
-            ['brand' => 'VITAHEALTH', 'name' => 'Vitamin C', 'generic' => 'Ascorbic Acid 500mg', 'type' => 'pharmacy', 'price' => 145],
-            ['brand' => 'CENTRUM', 'name' => 'Multivitamins', 'generic' => 'Multivitamin + Minerals', 'type' => 'pharmacy', 'price' => 385],
-            ['brand' => 'BACTIDOL', 'name' => 'Oral Antiseptic', 'generic' => 'Hexetidine', 'type' => 'pharmacy', 'price' => 165],
+            // Pharmacy Products (25) - Generic names should be general terms, product names include dosage
+            ['brand' => 'UNILAB', 'name' => 'Biogesic 500mg', 'generic' => 'Paracetamol', 'type' => 'pharmacy', 'price' => 65, 'category' => 1],
+            ['brand' => 'UNILAB', 'name' => 'Dolfenal 500mg', 'generic' => 'Mefenamic Acid', 'type' => 'pharmacy', 'price' => 125, 'category' => 1],
+            ['brand' => 'UNILAB', 'name' => 'Alaxan FR', 'generic' => 'Ibuprofen + Paracetamol', 'type' => 'pharmacy', 'price' => 85, 'category' => 1],
+            ['brand' => 'UNILAB', 'name' => 'Medicol 200mg', 'generic' => 'Ibuprofen', 'type' => 'pharmacy', 'price' => 95, 'category' => 1],
+            ['brand' => 'UNILAB', 'name' => 'Decolgen Forte', 'generic' => 'Phenylpropanolamine + Paracetamol', 'type' => 'pharmacy', 'price' => 78, 'category' => 4],
+            ['brand' => 'UNILAB', 'name' => 'Bioflu', 'generic' => 'Phenylephrine + Paracetamol', 'type' => 'pharmacy', 'price' => 72, 'category' => 4],
+            ['brand' => 'UNILAB', 'name' => 'Tuseran Forte', 'generic' => 'Dextromethorphan', 'type' => 'pharmacy', 'price' => 68, 'category' => 4],
+            ['brand' => 'UNILAB', 'name' => 'Kremil-S', 'generic' => 'Aluminum Hydroxide + Magnesium Hydroxide', 'type' => 'pharmacy', 'price' => 55, 'category' => 5],
+            ['brand' => 'RITEMED', 'name' => 'Paracetamol 500mg', 'generic' => 'Paracetamol', 'type' => 'pharmacy', 'price' => 35, 'category' => 1],
+            ['brand' => 'RITEMED', 'name' => 'Ibuprofen 400mg', 'generic' => 'Ibuprofen', 'type' => 'pharmacy', 'price' => 45, 'category' => 1],
+            ['brand' => 'RITEMED', 'name' => 'Cetirizine 10mg', 'generic' => 'Cetirizine', 'type' => 'pharmacy', 'price' => 38, 'category' => 4],
+            ['brand' => 'RITEMED', 'name' => 'Amoxicillin 500mg', 'generic' => 'Amoxicillin', 'type' => 'pharmacy', 'price' => 42, 'category' => 2],
+            ['brand' => 'RITEMED', 'name' => 'Loperamide 2mg', 'generic' => 'Loperamide', 'type' => 'pharmacy', 'price' => 32, 'category' => 5],
+            ['brand' => 'MUNDIPHARMA', 'name' => 'Betadine Solution 30ml', 'generic' => 'Povidone-Iodine', 'type' => 'pharmacy', 'price' => 165, 'category' => 7],
+            ['brand' => 'BAYER', 'name' => 'Aspirin 80mg', 'generic' => 'Aspirin', 'type' => 'pharmacy', 'price' => 58, 'category' => 1],
+            ['brand' => 'AstraZeneca', 'name' => 'Losartan 50mg', 'generic' => 'Losartan', 'type' => 'pharmacy', 'price' => 155, 'category' => 8],
+            ['brand' => 'PFIZER', 'name' => 'Norvasc 5mg', 'generic' => 'Amlodipine', 'type' => 'pharmacy', 'price' => 245, 'category' => 8],
+            ['brand' => 'GSK', 'name' => 'Amoxicillin 500mg', 'generic' => 'Amoxicillin', 'type' => 'pharmacy', 'price' => 185, 'category' => 2],
+            ['brand' => 'PASCUAL', 'name' => 'Salbutamol Inhaler', 'generic' => 'Salbutamol', 'type' => 'pharmacy', 'price' => 385, 'category' => 4],
+            ['brand' => 'GREEN CROSS', 'name' => 'Isopropyl Alcohol 70% 500ml', 'generic' => 'Isopropyl Alcohol', 'type' => 'pharmacy', 'price' => 95, 'category' => 7],
+            ['brand' => 'BAND-AID', 'name' => 'Adhesive Bandages 10s', 'generic' => 'Adhesive Bandages', 'type' => 'pharmacy', 'price' => 125, 'category' => 7],
+            ['brand' => 'JOHNSON & JOHNSON', 'name' => 'Cotton Balls 50g', 'generic' => 'Absorbent Cotton', 'type' => 'pharmacy', 'price' => 85, 'category' => 7],
+            ['brand' => 'VITAHEALTH', 'name' => 'Vitamin C 500mg', 'generic' => 'Ascorbic Acid', 'type' => 'pharmacy', 'price' => 145, 'category' => 3],
+            ['brand' => 'CENTRUM', 'name' => 'Multivitamins 30s', 'generic' => 'Multivitamins', 'type' => 'pharmacy', 'price' => 385, 'category' => 3],
+            ['brand' => 'BACTIDOL', 'name' => 'Oral Antiseptic 250ml', 'generic' => 'Hexetidine', 'type' => 'pharmacy', 'price' => 165, 'category' => 8],
 
-            // Mini Mart Products (25)
-            ['brand' => 'Coca-Cola', 'name' => '1.5L', 'generic' => null, 'type' => 'mini_mart', 'price' => 85],
-            ['brand' => 'Sprite', 'name' => '1.5L', 'generic' => null, 'type' => 'mini_mart', 'price' => 85],
-            ['brand' => 'Royal', 'name' => 'Tru-Orange 1.5L', 'generic' => null, 'type' => 'mini_mart', 'price' => 75],
-            ['brand' => 'Absolute', 'name' => 'Distilled Water 500ml', 'generic' => null, 'type' => 'mini_mart', 'price' => 15],
-            ['brand' => 'Milo', 'name' => 'Chocolate Drink 1L', 'generic' => null, 'type' => 'mini_mart', 'price' => 165],
-            ['brand' => 'Nescafe', 'name' => '3-in-1 Original', 'generic' => null, 'type' => 'mini_mart', 'price' => 125],
-            ['brand' => 'Great Taste', 'name' => 'White Coffee', 'generic' => null, 'type' => 'mini_mart', 'price' => 115],
-            ['brand' => 'Piattos', 'name' => 'Cheese 85g', 'generic' => null, 'type' => 'mini_mart', 'price' => 45],
-            ['brand' => 'Nova', 'name' => 'Barbecue 78g', 'generic' => null, 'type' => 'mini_mart', 'price' => 42],
-            ['brand' => 'Skyflakes', 'name' => 'Crackers 250g', 'generic' => null, 'type' => 'mini_mart', 'price' => 58],
-            ['brand' => 'Oishi', 'name' => 'Prawn Crackers', 'generic' => null, 'type' => 'mini_mart', 'price' => 38],
-            ['brand' => 'Lucky Me', 'name' => 'Pancit Canton', 'generic' => null, 'type' => 'mini_mart', 'price' => 18],
-            ['brand' => 'Safeguard', 'name' => 'Soap Bar', 'generic' => null, 'type' => 'mini_mart', 'price' => 35],
-            ['brand' => 'Palmolive', 'name' => 'Shampoo 180ml', 'generic' => null, 'type' => 'mini_mart', 'price' => 95],
-            ['brand' => 'Colgate', 'name' => 'Toothpaste 150g', 'generic' => null, 'type' => 'mini_mart', 'price' => 125],
-            ['brand' => 'Tide', 'name' => 'Detergent Powder 1kg', 'generic' => null, 'type' => 'mini_mart', 'price' => 185],
-            ['brand' => 'Zonrox', 'name' => 'Bleach 1L', 'generic' => null, 'type' => 'mini_mart', 'price' => 65],
-            ['brand' => 'Downy', 'name' => 'Fabric Conditioner', 'generic' => null, 'type' => 'mini_mart', 'price' => 145],
-            ['brand' => 'Pampers', 'name' => 'Diapers Size M', 'generic' => null, 'type' => 'mini_mart', 'price' => 385],
-            ['brand' => 'Alaska', 'name' => 'Evaporated Milk', 'generic' => null, 'type' => 'mini_mart', 'price' => 58],
-            ['brand' => 'Eden', 'name' => 'Cheese 165g', 'generic' => null, 'type' => 'mini_mart', 'price' => 95],
-            ['brand' => 'Del Monte', 'name' => 'Tomato Sauce', 'generic' => null, 'type' => 'mini_mart', 'price' => 42],
-            ['brand' => 'Red Bull', 'name' => 'Energy Drink', 'generic' => null, 'type' => 'mini_mart', 'price' => 75],
-            ['brand' => 'Gatorade', 'name' => 'Blue Bolt 500ml', 'generic' => null, 'type' => 'mini_mart', 'price' => 45],
-            ['brand' => 'Kopiko', 'name' => 'Coffee Candy', 'generic' => null, 'type' => 'mini_mart', 'price' => 25],
+            // Mini Mart Products (25) - Product names include brand and size
+            ['brand' => 'Coca-Cola', 'name' => 'Coca-Cola 1.5L', 'generic' => null, 'type' => 'mini_mart', 'price' => 85, 'category' => 9],
+            ['brand' => 'Sprite', 'name' => 'Sprite 1.5L', 'generic' => null, 'type' => 'mini_mart', 'price' => 85, 'category' => 9],
+            ['brand' => 'Royal', 'name' => 'Royal Tru-Orange 1.5L', 'generic' => null, 'type' => 'mini_mart', 'price' => 75, 'category' => 9],
+            ['brand' => 'Absolute', 'name' => 'Absolute Distilled Water 500ml', 'generic' => null, 'type' => 'mini_mart', 'price' => 15, 'category' => 9],
+            ['brand' => 'Milo', 'name' => 'Milo Chocolate Drink 1L', 'generic' => null, 'type' => 'mini_mart', 'price' => 165, 'category' => 9],
+            ['brand' => 'Nescafe', 'name' => 'Nescafe 3-in-1 Original 30s', 'generic' => null, 'type' => 'mini_mart', 'price' => 125, 'category' => 9],
+            ['brand' => 'Great Taste', 'name' => 'Great Taste White Coffee 30s', 'generic' => null, 'type' => 'mini_mart', 'price' => 115, 'category' => 9],
+            ['brand' => 'Piattos', 'name' => 'Piattos Cheese 85g', 'generic' => null, 'type' => 'mini_mart', 'price' => 45, 'category' => 10],
+            ['brand' => 'Nova', 'name' => 'Nova Barbecue 78g', 'generic' => null, 'type' => 'mini_mart', 'price' => 42, 'category' => 10],
+            ['brand' => 'Skyflakes', 'name' => 'Skyflakes Crackers 250g', 'generic' => null, 'type' => 'mini_mart', 'price' => 58, 'category' => 10],
+            ['brand' => 'Oishi', 'name' => 'Oishi Prawn Crackers 60g', 'generic' => null, 'type' => 'mini_mart', 'price' => 38, 'category' => 10],
+            ['brand' => 'Lucky Me', 'name' => 'Lucky Me Pancit Canton', 'generic' => null, 'type' => 'mini_mart', 'price' => 18, 'category' => 11],
+            ['brand' => 'Safeguard', 'name' => 'Safeguard Soap Bar 135g', 'generic' => null, 'type' => 'mini_mart', 'price' => 35, 'category' => 13],
+            ['brand' => 'Palmolive', 'name' => 'Palmolive Shampoo 180ml', 'generic' => null, 'type' => 'mini_mart', 'price' => 95, 'category' => 13],
+            ['brand' => 'Colgate', 'name' => 'Colgate Toothpaste 150g', 'generic' => null, 'type' => 'mini_mart', 'price' => 125, 'category' => 13],
+            ['brand' => 'Tide', 'name' => 'Tide Detergent Powder 1kg', 'generic' => null, 'type' => 'mini_mart', 'price' => 185, 'category' => 14],
+            ['brand' => 'Zonrox', 'name' => 'Zonrox Bleach 1L', 'generic' => null, 'type' => 'mini_mart', 'price' => 65, 'category' => 14],
+            ['brand' => 'Downy', 'name' => 'Downy Fabric Conditioner 1L', 'generic' => null, 'type' => 'mini_mart', 'price' => 145, 'category' => 14],
+            ['brand' => 'Pampers', 'name' => 'Pampers Diapers Size M 16s', 'generic' => null, 'type' => 'mini_mart', 'price' => 385, 'category' => 15],
+            ['brand' => 'Alaska', 'name' => 'Alaska Evaporated Milk 370ml', 'generic' => null, 'type' => 'mini_mart', 'price' => 58, 'category' => 16],
+            ['brand' => 'Eden', 'name' => 'Eden Cheese 165g', 'generic' => null, 'type' => 'mini_mart', 'price' => 95, 'category' => 16],
+            ['brand' => 'Del Monte', 'name' => 'Del Monte Tomato Sauce 250g', 'generic' => null, 'type' => 'mini_mart', 'price' => 42, 'category' => 12],
+            ['brand' => 'Red Bull', 'name' => 'Red Bull Energy Drink 250ml', 'generic' => null, 'type' => 'mini_mart', 'price' => 75, 'category' => 9],
+            ['brand' => 'Gatorade', 'name' => 'Gatorade Blue Bolt 500ml', 'generic' => null, 'type' => 'mini_mart', 'price' => 45, 'category' => 9],
+            ['brand' => 'Kopiko', 'name' => 'Kopiko Coffee Candy 175g', 'generic' => null, 'type' => 'mini_mart', 'price' => 25, 'category' => 10],
         ];
 
         foreach ($products as $i => $productData) {
-            // Assign category based on product type
-            // Pharmacy categories: 1-8, Mini Mart categories: 9-16
-            $categoryId = $productData['type'] === 'pharmacy'
-                ? rand(1, 8)  // Pharmacy categories
-                : rand(9, 16); // Mini Mart categories
+            // Use specified category or assign random based on product type
+            $categoryId = isset($productData['category'])
+                ? $productData['category']
+                : ($productData['type'] === 'pharmacy' ? rand(1, 8) : rand(9, 16));
 
             Product::create([
                 'brand_name' => $productData['brand'],
@@ -427,6 +427,7 @@ class ComprehensiveDataSeeder extends Seeder
         $this->command->info('   ✓ Shelf Movements: ' . ShelfMovement::count());
         $this->command->info('   ✓ Senior Citizen Transactions: ' . SeniorCitizenTransaction::count());
         $this->command->info('   ✓ PWD Transactions: ' . PwdTransaction::count());
+        $this->command->info('   ✓ Audit Logs: ' . AuditLog::count());
         $this->command->info('');
     }
 }
