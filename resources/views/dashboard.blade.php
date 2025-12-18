@@ -45,12 +45,12 @@
         </form>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div class="bg-white p-6 border-l-4 border-[var(--color-brand-green)] shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
-                        <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide">Total Revenue</p>
+                        <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide">Total Sales</p>
                         <button type="button"
                             onmousedown="document.getElementById('revenueValue').classList.remove('hidden'); document.getElementById('revenueHidden').classList.add('hidden'); this.querySelector('.eye-open').classList.add('hidden'); this.querySelector('.eye-closed').classList.remove('hidden');"
                             onmouseup="document.getElementById('revenueValue').classList.add('hidden'); document.getElementById('revenueHidden').classList.remove('hidden'); this.querySelector('.eye-open').classList.remove('hidden'); this.querySelector('.eye-closed').classList.add('hidden');"
@@ -100,20 +100,6 @@
             </div>
         </div>
 
-        <div class="bg-white p-6 border-l-4 border-[var(--color-accent-blue)] shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">Expiring Soon
-                    </p>
-                    <p class="text-xs text-[var(--color-text-secondary)] mt-1">Within {{ $expiryAlertDays }} days</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-3xl font-bold text-[var(--color-accent-blue)]">
-                        {{ number_format($expiringProductsCount) }}</p>
-                </div>
-            </div>
-        </div>
-
         <div class="bg-white p-6 border-l-4 border-[var(--color-danger)] shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
@@ -143,7 +129,7 @@
             <div class="p-4">
                 <div class="space-y-3">
                     <div class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
-                        <span class="text-sm text-[var(--color-text-secondary)]">Total Revenue</span>
+                        <span class="text-sm text-[var(--color-text-secondary)]">Total Sales</span>
                         <span
                             class="text-xl font-bold text-[var(--color-brand-green)]">₱{{ number_format($monthlySales, 2) }}</span>
                     </div>
@@ -159,78 +145,6 @@
                         </span>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Expiring Products -->
-        <div class="bg-white border border-[var(--color-border-light)]">
-            <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-base font-semibold">Expiring Products</h2>
-                    <span class="text-xs text-[var(--color-text-secondary)] bg-gray-100 px-2 py-1 rounded">
-                        Alert: {{ $expiryAlertDays }} days
-                    </span>
-                </div>
-            </div>
-            <div class="p-4">
-                @if ($expiringBatches->isEmpty())
-                    <p class="text-[var(--color-text-secondary)] text-center py-8 text-sm">No products expiring soon
-                    </p>
-                @else
-                    <div class="space-y-3">
-                        @foreach ($expiringBatches->take(3) as $batch)
-                            <div class="py-3 border-b border-[var(--color-border-light)] last:border-b-0">
-                                <div class="flex items-start justify-between mb-2">
-                                    <div class="flex-1">
-                                        <div class="text-sm font-medium text-[var(--color-text-primary)]">
-                                            {{ $batch->product->name }}</div>
-                                        <div class="text-xs text-[var(--color-text-secondary)] mt-1">
-                                            Batch: {{ $batch->batch_number }}
-                                        </div>
-                                        <div class="text-xs text-[var(--color-text-secondary)]">
-                                            Qty: {{ number_format($batch->shelf_quantity + $batch->back_quantity) }}
-                                            units
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        @php
-                                            $daysUntilExpiry = now()->diffInDays($batch->expiry_date, false);
-                                            $colorClass =
-                                                $daysUntilExpiry <= 3
-                                                    ? 'text-[var(--color-danger)]'
-                                                    : 'text-[var(--color-accent-orange)]';
-                                        @endphp
-                                        <div class="text-xs font-medium {{ $colorClass }}">
-                                            {{ $batch->expiry_date->format('M d, Y') }}
-                                        </div>
-                                        <div class="text-xs {{ $colorClass }}">
-                                            {{ abs($daysUntilExpiry) }}
-                                            {{ abs($daysUntilExpiry) == 1 ? 'day' : 'days' }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex gap-2 mt-2">
-                                    <a href="{{ route('stock.out') }}?batch_id={{ $batch->id }}"
-                                        class="text-xs px-3 py-1.5 bg-[var(--color-danger)] text-white rounded hover:bg-red-700 transition-colors">
-                                        Stock Out
-                                    </a>
-                                    <a href="{{ route('inventory.show', $batch->product_id) }}"
-                                        class="text-xs px-3 py-1.5 bg-[var(--color-accent-blue)] text-white rounded hover:bg-blue-700 transition-colors">
-                                        View Details
-                                    </a>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                    @if ($expiringBatches->count() > 3)
-                        <div class="mt-3 pt-3 border-t border-[var(--color-border-light)]">
-                            <a href="{{ route('settings.index') }}#expiry-alerts"
-                                class="text-xs text-[var(--color-brand-green)] hover:underline">
-                                +{{ $expiringBatches->count() - 3 }} more expiring products
-                            </a>
-                        </div>
-                    @endif
-                @endif
             </div>
         </div>
 

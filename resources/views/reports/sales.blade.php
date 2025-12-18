@@ -77,7 +77,7 @@
         <div class="p-2">
             <div class="flex justify-between items-center space-x-4">
                 <div class="flex-1 text-center py-1">
-                    <div class="text-xs text-gray-500">Revenue</div>
+                    <div class="text-xs text-gray-500">Total Sales</div>
                     <div class="text-base font-semibold text-[var(--color-brand-green)]">
                         ₱{{ number_format($totalRevenue, 2) }}</div>
                 </div>

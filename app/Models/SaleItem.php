@@ -10,11 +10,12 @@ class SaleItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['sale_id', 'product_id', 'quantity', 'price', 'subtotal'];
+    protected $fillable = ['sale_id', 'product_id', 'quantity', 'price', 'subtotal', 'is_voided'];
 
     protected $casts = [
         'price' => 'decimal:2',
         'subtotal' => 'decimal:2',
+        'is_voided' => 'boolean',
     ];
 
     public function sale(): BelongsTo

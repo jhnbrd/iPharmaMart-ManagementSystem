@@ -86,16 +86,16 @@
                         <div class="pt-4 border-t border-gray-200">
                             <h3 class="text-sm font-semibold text-gray-900 mb-3">Data Management</h3>
                             <div>
-                                <label for="data_deletion_age_days"
+                                <label for="data_retention_years"
                                     class="block text-sm font-medium text-gray-700 mb-2">Data Retention Period
-                                    (Days)</label>
-                                <input type="number" id="data_deletion_age_days" name="data_deletion_age_days"
-                                    value="{{ old('data_deletion_age_days', $settings['data_deletion_age_days']) }}"
-                                    min="1095" max="3650"
+                                    (Years)</label>
+                                <input type="number" id="data_retention_years" name="data_retention_years"
+                                    value="{{ old('data_retention_years', round($settings['data_deletion_age_days'] / 365)) }}"
+                                    min="3" max="10"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
                                 <p class="text-xs text-gray-500 mt-1">Records older than this will be archived (3-10
-                                    years: 1095-3650 days)</p>
-                                @error('data_deletion_age_days')
+                                    years)</p>
+                                @error('data_retention_years')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -174,7 +174,7 @@
                             <form method="POST" action="{{ route('settings.clear-cache') }}">
                                 @csrf
                                 <button type="submit"
-                                    class="px-6 py-2.5 bg-yellow-500 text-yellow-700 rounded-lg hover:bg-yellow-600 transition-colors font-semibold shadow-md hover:shadow-lg">
+                                    class="px-6 py-2.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-semibold shadow-md hover:shadow-lg">
                                     Clear Cache
                                 </button>
                             </form>
@@ -191,7 +191,7 @@
                                 onsubmit="return confirm('This will flag old records for archival. Continue?');">
                                 @csrf
                                 <button type="submit"
-                                    class="px-6 py-2.5 bg-red-500 text-red-700 rounded-lg hover:bg-red-600 transition-colors font-semibold shadow-md hover:shadow-lg">
+                                    class="px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold shadow-md hover:shadow-lg">
                                     Review Old Data
                                 </button>
                             </form>
@@ -214,7 +214,7 @@
                             <form method="POST" action="{{ route('settings.backup-database') }}">
                                 @csrf
                                 <button type="submit"
-                                    class="px-6 py-2.5 bg-blue-500 text-black rounded-lg hover:bg-blue-600 transition-colors font-semibold shadow-md hover:shadow-lg">
+                                    class="px-6 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold shadow-md hover:shadow-lg">
                                     Backup Now
                                 </button>
                             </form>

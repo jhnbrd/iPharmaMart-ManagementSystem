@@ -29,6 +29,11 @@
                         <p class="text-xs text-gray-600">Tel: +63 912 345 6789 | Email: info@ipharmamart.com</p>
                         <p class="text-xs text-gray-600 mt-1 font-semibold">Your Health, Our Priority</p>
                         <h2 class="text-base font-bold text-gray-700 mt-2">Official Receipt</h2>
+                        @if ($sale->is_voided)
+                            <div class="mt-3 inline-block px-4 py-2 bg-red-100 border-2 border-red-600 rounded">
+                                <span class="text-red-700 font-bold text-lg">⚠️ VOIDED TRANSACTION</span>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Receipt Info -->
@@ -37,6 +42,16 @@
                         <div><strong>Date:</strong> {{ $sale->created_at->format('F d, Y') }}</div>
                         <div><strong>Time:</strong> {{ $sale->created_at->format('h:i A') }}</div>
                         <div><strong>Cashier:</strong> {{ $sale->user->name }}</div>
+                        @if ($sale->is_voided)
+                            <div class="mt-2 pt-2 border-t border-red-300 text-red-700">
+                                <div><strong>Voided By:</strong> {{ $sale->voidedBy->name ?? 'Unknown' }}</div>
+                                <div><strong>Voided At:</strong>
+                                    {{ $sale->voided_at ? $sale->voided_at->format('F d, Y h:i A') : 'N/A' }}</div>
+                                @if ($sale->void_reason)
+                                    <div><strong>Reason:</strong> {{ $sale->void_reason }}</div>
+                                @endif
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Customer Info -->
@@ -78,11 +93,19 @@
                             </thead>
                             <tbody>
                                 @foreach ($sale->items as $item)
-                                    <tr>
-                                        <td class="py-1">{{ $item->product->name }}</td>
-                                        <td class="text-center py-1">{{ $item->quantity }}</td>
-                                        <td class="text-right py-1">₱{{ number_format($item->price, 2) }}</td>
-                                        <td class="text-right py-1">₱{{ number_format($item->subtotal, 2) }}</td>
+                                    <tr class="{{ $item->is_voided ? 'opacity-50' : '' }}">
+                                        <td class="py-1">
+                                            {{ $item->product->name }}
+                                            @if ($item->is_voided)
+                                                <span class="text-red-600 font-semibold">(VOIDED)</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center py-1 {{ $item->is_voided ? 'line-through' : '' }}">
+                                            {{ $item->quantity }}</td>
+                                        <td class="text-right py-1 {{ $item->is_voided ? 'line-through' : '' }}">
+                                            ₱{{ number_format($item->price, 2) }}</td>
+                                        <td class="text-right py-1 {{ $item->is_voided ? 'line-through' : '' }}">
+                                            ₱{{ number_format($item->subtotal, 2) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

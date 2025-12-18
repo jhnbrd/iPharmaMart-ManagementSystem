@@ -100,8 +100,13 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($sales as $sale)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap font-medium">#{{ $sale->id }}</td>
+                        <tr class="hover:bg-gray-50 {{ $sale->is_voided ? 'opacity-60' : '' }}">
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">
+                                #{{ $sale->id }}
+                                @if ($sale->is_voided)
+                                    <span class="badge badge-danger ml-2">VOID</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $sale->created_at->format('Y-m-d H:i') }}</td>
                             <td class="px-6 py-4">{{ $sale->customer->name }}</td>
                             <td class="px-6 py-4">
@@ -113,14 +118,15 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if ($sale->payment_method === 'cash')
-                                    <span class="badge-success">💵 Cash</span>
+                                    <span class="badge badge-success">💵 Cash</span>
                                 @elseif($sale->payment_method === 'gcash')
-                                    <span class="badge-info">📱 GCash</span>
+                                    <span class="badge badge-info">📱 GCash</span>
                                 @elseif($sale->payment_method === 'card')
-                                    <span class="badge-warning">💳 Card</span>
+                                    <span class="badge badge-warning">💳 Card</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap font-semibold text-[var(--color-brand-green)]">
+                            <td
+                                class="px-6 py-4 whitespace-nowrap font-semibold {{ $sale->is_voided ? 'line-through text-gray-400' : 'text-[var(--color-brand-green)]' }}">
                                 ₱{{ number_format($sale->total, 2) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">

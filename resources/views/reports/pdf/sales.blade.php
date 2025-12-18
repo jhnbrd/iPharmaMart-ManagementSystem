@@ -228,7 +228,7 @@
         <h2>Executive Summary</h2>
         <div class="summary-cards">
             <div class="summary-card">
-                <h3>Total Revenue</h3>
+                <h3>Total Sales</h3>
                 <div class="value">₱{{ number_format($totalRevenue, 2) }}</div>
             </div>
             <div class="summary-card">

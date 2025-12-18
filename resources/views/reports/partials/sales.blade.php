@@ -1,7 +1,7 @@
 <!-- Summary Cards -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
     <div class="bg-white p-6 border-l-4 border-[var(--color-brand-green)] shadow-sm">
-        <p class="text-sm text-gray-600 uppercase mb-1">Total Revenue</p>
+        <p class="text-sm text-gray-600 uppercase mb-1">Total Sales</p>
         <p class="text-3xl font-bold text-[var(--color-brand-green)]">₱{{ number_format($data['totalRevenue'], 2) }}</p>
     </div>
     <div class="bg-white p-6 border-l-4 border-[var(--color-accent-blue)] shadow-sm">

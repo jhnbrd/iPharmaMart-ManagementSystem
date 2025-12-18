@@ -64,7 +64,7 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'pagination_per_page' => 'required|integer|min:5|max:100',
-            'data_deletion_age_days' => 'required|integer|min:1095|max:3650',
+            'data_retention_years' => 'required|integer|min:3|max:10',
             'expiry_alert_days' => 'required|integer|min:1|max:90',
             'low_stock_alert_enabled' => 'nullable|boolean',
             'auto_backup_enabled' => 'nullable|boolean',
@@ -74,10 +74,13 @@ class SettingsController extends Controller
         $lowStockEnabled = $request->has('low_stock_alert_enabled') ? true : false;
         $autoBackupEnabled = $request->has('auto_backup_enabled') ? true : false;
 
+        // Convert years to days for internal storage
+        $retentionDays = (int)$validated['data_retention_years'] * 365;
+
         // Store settings in a JSON file for persistence
         $settings = [
             'pagination_per_page' => (int)$validated['pagination_per_page'],
-            'data_deletion_age_days' => (int)$validated['data_deletion_age_days'],
+            'data_deletion_age_days' => $retentionDays,
             'expiry_alert_days' => (int)$validated['expiry_alert_days'],
             'low_stock_alert_enabled' => $lowStockEnabled,
             'auto_backup_enabled' => $autoBackupEnabled,

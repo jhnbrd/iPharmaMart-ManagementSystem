@@ -28,11 +28,20 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
+            // Role restriction based on current user
+            $currentUserRole = auth()->user()->role;
+
+            if ($currentUserRole === 'superadmin') {
+                $allowedRoles = ['admin'];
+            } else {
+                $allowedRoles = ['cashier', 'inventory_manager'];
+            }
+
             $validated = $request->validate([
                 'username' => 'required|string|max:255|unique:users,username|alpha_dash',
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',
-                'role' => 'required|in:admin,cashier,inventory_manager',
+                'role' => 'required|in:' . implode(',', $allowedRoles),
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ]);
 
@@ -69,13 +78,22 @@ class UserController extends Controller
                     ->with('error', 'Super Admin accounts cannot be modified.');
             }
 
+            // Role restriction based on current user
+            $currentUserRole = auth()->user()->role;
+
+            if ($currentUserRole === 'superadmin') {
+                $allowedRoles = ['admin'];
+            } else {
+                $allowedRoles = ['cashier', 'inventory_manager'];
+            }
+
             $oldValues = $user->only(['username', 'name', 'email', 'role']);
 
             $validated = $request->validate([
                 'username' => 'required|string|max:255|unique:users,username,' . $user->id . '|alpha_dash',
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
-                'role' => 'required|in:admin,cashier,inventory_manager',
+                'role' => 'required|in:' . implode(',', $allowedRoles),
                 'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             ]);
 

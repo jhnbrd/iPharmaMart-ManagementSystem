@@ -40,17 +40,25 @@
                     <label for="role" class="form-label">Role *</label>
                     <select id="role" name="role" class="form-select" required>
                         <option value="">Select Role</option>
-                        <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin
-                        </option>
-                        <option value="cashier" {{ old('role', $user->role) == 'cashier' ? 'selected' : '' }}>Cashier
-                        </option>
-                        <option value="inventory_manager"
-                            {{ old('role', $user->role) == 'inventory_manager' ? 'selected' : '' }}>Inventory Manager
-                        </option>
+                        @if (auth()->user()->role === 'superadmin')
+                            <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin
+                            </option>
+                        @else
+                            <option value="cashier" {{ old('role', $user->role) == 'cashier' ? 'selected' : '' }}>
+                                Cashier</option>
+                            <option value="inventory_manager"
+                                {{ old('role', $user->role) == 'inventory_manager' ? 'selected' : '' }}>Inventory
+                                Manager</option>
+                        @endif
                     </select>
                     @error('role')
                         <p class="form-error">{{ $message }}</p>
                     @enderror
+                    @if (auth()->user()->role === 'superadmin')
+                        <p class="form-help">Super Admin can only edit Admin accounts</p>
+                    @else
+                        <p class="form-help">Admin can edit Cashier and Inventory Manager accounts</p>
+                    @endif
                 </div>
 
                 <div class="form-group">

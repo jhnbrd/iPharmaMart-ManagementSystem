@@ -683,6 +683,25 @@
                         <input type="text" id="referenceNumber" class="form-input text-sm"
                             placeholder="Enter transaction reference" autocomplete="off">
                     </div>
+
+                    <!-- Card Payment Details (for Card only) -->
+                    <div id="cardDetailsDiv" style="display: none;" class="space-y-2">
+                        <div>
+                            <label class="form-label text-xs">Bank Name</label>
+                            <input type="text" id="cardBankName" class="form-input text-sm"
+                                placeholder="e.g., BDO, BPI, Metrobank" autocomplete="off">
+                        </div>
+                        <div>
+                            <label class="form-label text-xs">Cardholder Name</label>
+                            <input type="text" id="cardHolderName" class="form-input text-sm"
+                                placeholder="Name on card" autocomplete="off">
+                        </div>
+                        <div>
+                            <label class="form-label text-xs">Last 4 Digits</label>
+                            <input type="text" id="cardLastFour" class="form-input text-sm" placeholder="XXXX"
+                                maxlength="4" pattern="[0-9]{4}" autocomplete="off">
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Right Column -->
@@ -1369,6 +1388,12 @@
             document.getElementById('changeAmount').textContent = '₱0.00';
             document.getElementById('referenceNumberDiv').style.display = 'none';
 
+            // Reset card details
+            document.getElementById('cardBankName').value = '';
+            document.getElementById('cardHolderName').value = '';
+            document.getElementById('cardLastFour').value = '';
+            document.getElementById('cardDetailsDiv').style.display = 'none';
+
             // Reset customer selection
             document.querySelector('input[name="customerOption"][value="walkin"]').checked = true;
             selectCustomerOption('walkin');
@@ -1470,12 +1495,16 @@
         function handlePaymentMethodChange() {
             const method = document.getElementById('paymentMethod').value;
             const refDiv = document.getElementById('referenceNumberDiv');
+            const cardDetailsDiv = document.getElementById('cardDetailsDiv');
             const paidAmountInput = document.getElementById('paidAmount');
             const total = parseFloat(document.getElementById('modalTotal').textContent.replace('₱', '').replace(',', '')) ||
                 0;
 
             // Show/hide reference number field
             refDiv.style.display = (method === 'gcash' || method === 'card') ? 'block' : 'none';
+
+            // Show/hide card details fields (only for card)
+            cardDetailsDiv.style.display = (method === 'card') ? 'block' : 'none';
 
             // Auto-fill and disable amount for GCash/Card
             if (method === 'gcash' || method === 'card') {
@@ -1586,6 +1615,17 @@
 
                 if (paymentMethod === 'gcash' || paymentMethod === 'card') {
                     formData.append('reference_number', document.getElementById('referenceNumber').value.trim());
+                }
+                
+                // Add card payment details if card payment
+                if (paymentMethod === 'card') {
+                    const bankName = document.getElementById('cardBankName').value.trim();
+                    const holderName = document.getElementById('cardHolderName').value.trim();
+                    const lastFour = document.getElementById('cardLastFour').value.trim();
+                    
+                    if (bankName) formData.append('card_bank_name', bankName);
+                    if (holderName) formData.append('card_holder_name', holderName);
+                    if (lastFour) formData.append('card_last_four', lastFour);
                 }
 
                 if (customerData) {
@@ -1753,9 +1793,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                    <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                    <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                </div>` : ''}
+                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1774,9 +1814,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                    <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                    <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                </div>` : ''}
+                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
@@ -1811,26 +1851,22 @@
             // Close receipt modal
             document.getElementById('receiptModal').style.display = 'none';
 
-            // Clear cart and reset
-            cart = [];
-            currentCustomer = null;
-            updateCart();
+            // Reload the page to refresh product list and start fresh
+            location.reload();
+        }
+        document.getElementById('customerDisplay').innerHTML =
+            '<div class="text-sm text-gray-600 italic">Walk-in Customer</div>';
 
-            // Reset customer display
-            document.getElementById('customerId').value = '';
-            document.getElementById('customerDisplay').innerHTML =
-                '<div class="text-sm text-gray-600 italic">Walk-in Customer</div>';
+        // Show success message
+        const notification = document.createElement('div');
+        notification.className =
+            'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+        notification.innerHTML = '✓ Ready for new transaction';
+        document.body.appendChild(notification);
 
-            // Show success message
-            const notification = document.createElement('div');
-            notification.className =
-                'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-            notification.innerHTML = '✓ Ready for new transaction';
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.remove();
-            }, 2000);
+        setTimeout(() => {
+            notification.remove();
+        }, 2000);
         }
 
         // Search form auto-submit with debounce
@@ -1950,6 +1986,20 @@
         // Initial pagination link interception
         document.addEventListener('DOMContentLoaded', function() {
             interceptPaginationLinks();
+
+            // Auto-enter fullscreen mode
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request failed:', err);
+                });
+            } else if (elem.webkitRequestFullscreen) {
+                /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                /* IE11 */
+                elem.msRequestFullscreen();
+            }
         });
     </script>
 </x-pos-layout>

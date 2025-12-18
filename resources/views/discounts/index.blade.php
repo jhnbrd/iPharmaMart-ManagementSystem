@@ -1,10 +1,11 @@
 <x-layout title="Discount Transactions">
     <div class="mb-6">
-        <!-- Discount Type Filter -->
+        <!-- Page Header with Type Tabs and Show Filters Button -->
         <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
-            <form method="GET" action="{{ route('discounts.index') }}" class="space-y-4">
-                <!-- Discount Type Tabs -->
-                <div class="flex flex-wrap gap-2 border-b border-gray-200 pb-4">
+            <div class="flex items-center justify-between">
+                <form method="GET" action="{{ route('discounts.index') }}" class="flex gap-2">
+                    <input type="hidden" name="start_date" value="{{ $startDate }}">
+                    <input type="hidden" name="end_date" value="{{ $endDate }}">
                     <button type="submit" name="type" value="senior-citizen"
                         class="px-4 py-2 rounded-lg font-medium transition-colors {{ $discountType === 'senior-citizen' ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
                         Senior Citizen
@@ -13,40 +14,48 @@
                         class="px-4 py-2 rounded-lg font-medium transition-colors {{ $discountType === 'pwd' ? 'bg-[var(--color-brand-green)] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
                         PWD
                     </button>
-                </div>
+                </form>
+                <button onclick="toggleFilters()" class="btn btn-secondary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <span id="filter-btn-text">Show Filters</span>
+                </button>
+            </div>
+        </div>
 
-                <!-- Date Range Filter -->
-                <div class="grid grid-cols-3 md:grid-cols-3 gap-4">
-                    <div>
-                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                        <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
-                    </div>
-                    <div>
-                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                        <input type="date" id="end_date" name="end_date" value="{{ $endDate }}"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit"
-                            class="w-full px-4 py-2 bg-[var(--color-brand-green)] text-white rounded-lg hover:bg-green-700 transition-colors">
-                            Apply Filter
-                        </button>
-                    </div>
+        <!-- Date Range Filters (Hidden by default) -->
+        <div id="filters-section" class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4 hidden">
+            <form method="GET" action="{{ route('discounts.index') }}" class="flex gap-4 items-end">
+                <input type="hidden" name="type" value="{{ $discountType }}">
+                <div class="flex-1">
+                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
                 </div>
+                <div class="flex-1">
+                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ $endDate }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-brand-green)] focus:border-transparent">
+                </div>
+                <button type="submit"
+                    class="px-4 py-2 bg-[var(--color-brand-green)] text-white rounded-lg hover:bg-green-700 transition-colors">
+                    Apply Filter
+                </button>
+                <a href="{{ route('discounts.index', ['type' => $discountType]) }}" class="btn btn-secondary">Clear</a>
             </form>
         </div>
 
-        <!-- Summary Cards -->
+        <!-- Summary Cards (Simplified) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="bg-white p-6 border-l-4 border-[var(--color-brand-green)] shadow-sm">
-                <p class="text-sm text-gray-600 uppercase mb-1">Total Transactions</p>
-                <p class="text-3xl font-bold text-gray-900">{{ number_format($totalTransactions) }}</p>
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between">
+                <p class="text-sm text-gray-600 font-medium">Total Transactions</p>
+                <p class="text-2xl font-bold text-gray-900">{{ number_format($totalTransactions) }}</p>
             </div>
-            <div class="bg-white p-6 border-l-4 border-[var(--color-accent-orange)] shadow-sm">
-                <p class="text-sm text-gray-600 uppercase mb-1">Total Discount Given</p>
-                <p class="text-3xl font-bold text-[var(--color-accent-orange)]">₱{{ number_format($totalDiscount, 2) }}
-                </p>
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between">
+                <p class="text-sm text-gray-600 font-medium">Total Discount Given</p>
+                <p class="text-2xl font-bold text-gray-900">₱{{ number_format($totalDiscount, 2) }}</p>
             </div>
         </div>
 
@@ -60,37 +69,35 @@
                 <table class="w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[12%]">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Sale ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Date</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[13%]">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 {{ $discountType === 'pwd' ? 'PWD ID Number' : 'SC ID Number' }}</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Name</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[12%]">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Cashier</th>
-                            <th
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[13%]">
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Original Amount
                             </th>
-                            <th
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[13%]">
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Discount</th>
-                            <th
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[12%]">
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Final Amount
                             </th>
                             <th
-                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse ($transactions as $transaction)
                             <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    #{{ $transaction->sale_id }}
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $transaction->sale->created_at->format('M d, Y H:i') }}
                                 </td>
@@ -146,4 +153,26 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleFilters() {
+            const filtersSection = document.getElementById('filters-section');
+            const filterBtnText = document.getElementById('filter-btn-text');
+
+            if (filtersSection.classList.contains('hidden')) {
+                filtersSection.classList.remove('hidden');
+                filterBtnText.textContent = 'Hide Filters';
+            } else {
+                filtersSection.classList.add('hidden');
+                filterBtnText.textContent = 'Show Filters';
+            }
+        }
+
+        // Show filters if any filter is active
+        @if (request()->hasAny(['start_date', 'end_date']))
+            document.addEventListener('DOMContentLoaded', function() {
+                toggleFilters();
+            });
+        @endif
+    </script>
 </x-layout>
