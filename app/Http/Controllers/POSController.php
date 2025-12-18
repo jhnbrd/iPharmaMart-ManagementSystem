@@ -11,7 +11,13 @@ class POSController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'supplier'])
+        $query = Product::with(['category', 'supplier', 'batches' => function ($q) {
+            // Get active batches sorted by expiry date (FIFO)
+            $q->where(function ($query) {
+                $query->where('shelf_quantity', '>', 0)
+                    ->orWhere('back_quantity', '>', 0);
+            })->orderBy('expiry_date', 'asc');
+        }])
             ->whereRaw('(shelf_stock + back_stock) > 0');
 
         // Apply filters

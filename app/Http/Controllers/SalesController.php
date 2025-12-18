@@ -72,6 +72,9 @@ class SalesController extends Controller
                 'paid_amount' => 'required|numeric|min:0',
                 'change_amount' => 'required|numeric|min:0',
                 'reference_number' => 'nullable|string|max:255',
+                'card_bank_name' => 'nullable|string|max:255',
+                'card_holder_name' => 'nullable|string|max:255',
+                'card_last_four' => 'nullable|string|size:4',
                 'discount_type' => 'nullable|in:senior_citizen,pwd',
                 'discount_id_number' => 'nullable|string|max:255',
                 'discount_percentage' => 'nullable|numeric|min:0|max:100',
@@ -173,6 +176,9 @@ class SalesController extends Controller
                     'paid_amount' => $validated['paid_amount'],
                     'change_amount' => $validated['change_amount'],
                     'reference_number' => $validated['reference_number'] ?? null,
+                    'card_bank_name' => $validated['card_bank_name'] ?? null,
+                    'card_holder_name' => $validated['card_holder_name'] ?? null,
+                    'card_last_four' => $validated['card_last_four'] ?? null,
                 ]);
 
                 // Create sale items and update stock

@@ -414,6 +414,22 @@
                                     <span class="text-xs text-gray-400">•
                                         {{ ucfirst(str_replace('_', ' ', $product->product_type)) }}</span>
                                 </div>
+                                @if ($product->batches && $product->batches->count() > 0)
+                                    @php
+                                        $earliestBatch = $product->batches->first();
+                                        $daysUntilExpiry = now()->diffInDays($earliestBatch->expiry_date, false);
+                                    @endphp
+                                    <div class="text-xs mt-1">
+                                        <span class="font-semibold"
+                                            style="color: {{ $daysUntilExpiry <= 30 ? '#dc2626' : '#6b7280' }}">
+                                            📦 Batch: {{ $earliestBatch->batch_number }}
+                                        </span>
+                                        <span class="text-gray-400">•</span>
+                                        <span style="color: {{ $daysUntilExpiry <= 30 ? '#dc2626' : '#6b7280' }}">
+                                            Exp: {{ $earliestBatch->expiry_date->format('M d, Y') }}
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
                             <div class="product-price">₱{{ number_format($product->price, 2) }}</div>
                             <div class="product-stock {{ $stockStatus }}">
@@ -1616,13 +1632,13 @@
                 if (paymentMethod === 'gcash' || paymentMethod === 'card') {
                     formData.append('reference_number', document.getElementById('referenceNumber').value.trim());
                 }
-                
+
                 // Add card payment details if card payment
                 if (paymentMethod === 'card') {
                     const bankName = document.getElementById('cardBankName').value.trim();
                     const holderName = document.getElementById('cardHolderName').value.trim();
                     const lastFour = document.getElementById('cardLastFour').value.trim();
-                    
+
                     if (bankName) formData.append('card_bank_name', bankName);
                     if (holderName) formData.append('card_holder_name', holderName);
                     if (lastFour) formData.append('card_last_four', lastFour);
@@ -1675,12 +1691,26 @@
                     showReceipt(data.receipt);
                     showToast('Transaction completed successfully!', 'success');
                 } else {
-                    throw new Error(data.message || 'Failed to process sale');
+                    // Handle validation errors or general errors
+                    if (data.errors) {
+                        // Show first validation error only
+                        const firstError = Object.values(data.errors)[0][0];
+                        showToast(firstError, 'error');
+                    } else {
+                        showToast(data.message || 'Failed to process sale', 'error');
+                    }
+                    // Re-enable button
+                    const confirmBtn = document.getElementById('confirmPaymentBtn');
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = 'Confirm & Print Receipt';
                 }
 
             } catch (error) {
                 console.error('Error:', error);
-                showToast('Transaction failed: ' + error.message, 'error');
+                // Only show toast if not already shown
+                if (!error.message.includes('Failed to process sale')) {
+                    showToast('Transaction failed: ' + error.message, 'error');
+                }
                 // Re-enable button
                 const confirmBtn = document.getElementById('confirmPaymentBtn');
                 confirmBtn.disabled = false;
@@ -1793,9 +1823,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                                    </div>` : ''}
+                                                                                                                                    <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                                    <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                                </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1814,9 +1844,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                                    </div>` : ''}
+                                                                                                                                    <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                                    <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                                </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
