@@ -162,6 +162,24 @@
                                             {{ $product->generic_name }}
                                         </div>
                                     @endif
+                                    @if ($product->batches && $product->batches->count() > 0)
+                                        <div class="text-xs mt-1 text-gray-600">
+                                            📦 {{ $product->batches->count() }}
+                                            {{ $product->batches->count() == 1 ? 'batch' : 'batches' }}
+                                            @php
+                                                $earliestBatch = $product->batches->first();
+                                                $daysUntilExpiry = now()->diffInDays(
+                                                    $earliestBatch->expiry_date,
+                                                    false,
+                                                );
+                                            @endphp
+                                            <span class="text-gray-400">•</span>
+                                            <span
+                                                style="color: {{ $daysUntilExpiry <= 30 ? '#dc2626' : ($daysUntilExpiry <= 90 ? '#f59e0b' : '#6b7280') }}">
+                                                Next exp: {{ $earliestBatch->expiry_date->format('M d, Y') }}
+                                            </span>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <span class="font-mono bg-gray-100 px-2 py-1 rounded text-xs">

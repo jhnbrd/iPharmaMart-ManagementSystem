@@ -13,7 +13,13 @@ class InventoryController extends Controller
     use LogsActivity;
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'supplier']);
+        $query = Product::with(['category', 'supplier', 'batches' => function ($q) {
+            // Load active batches with stock, sorted by expiry date
+            $q->where(function ($query) {
+                $query->where('shelf_quantity', '>', 0)
+                    ->orWhere('back_quantity', '>', 0);
+            })->orderBy('expiry_date', 'asc');
+        }]);
 
         // Filter by product name
         if ($request->filled('search')) {
