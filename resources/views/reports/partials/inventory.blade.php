@@ -1,21 +1,48 @@
 <!-- Summary Cards -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-white p-6 border-l-4 border-[var(--color-brand-green)] shadow-sm">
-        <p class="text-sm text-gray-600 uppercase mb-1">Total Products</p>
-        <p class="text-3xl font-bold text-[var(--color-brand-green)]">{{ number_format($data['totalProducts']) }}</p>
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 uppercase tracking-wide">Total Products</p>
+            </div>
+            <div class="text-right">
+                <p class="text-3xl font-bold text-[var(--color-brand-green)]">{{ number_format($data['totalProducts']) }}
+                </p>
+            </div>
+        </div>
     </div>
     <div class="bg-white p-6 border-l-4 border-[var(--color-accent-orange)] shadow-sm">
-        <p class="text-sm text-gray-600 uppercase mb-1">Low Stock</p>
-        <p class="text-3xl font-bold text-[var(--color-accent-orange)]">{{ number_format($data['lowStockCount']) }}</p>
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 uppercase tracking-wide">Low Stock</p>
+            </div>
+            <div class="text-right">
+                <p class="text-3xl font-bold text-[var(--color-accent-orange)]">
+                    {{ number_format($data['lowStockCount']) }}</p>
+            </div>
+        </div>
     </div>
     <div class="bg-white p-6 border-l-4 border-[var(--color-danger)] shadow-sm">
-        <p class="text-sm text-gray-600 uppercase mb-1">Out of Stock</p>
-        <p class="text-3xl font-bold text-[var(--color-danger)]">{{ number_format($data['outOfStockCount']) }}</p>
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 uppercase tracking-wide">Out of Stock</p>
+            </div>
+            <div class="text-right">
+                <p class="text-3xl font-bold text-[var(--color-danger)]">{{ number_format($data['outOfStockCount']) }}
+                </p>
+            </div>
+        </div>
     </div>
     <div class="bg-white p-6 border-l-4 border-[var(--color-accent-blue)] shadow-sm">
-        <p class="text-sm text-gray-600 uppercase mb-1">Stock Value</p>
-        <p class="text-3xl font-bold text-[var(--color-accent-blue)]">₱{{ number_format($data['totalStockValue'], 2) }}
-        </p>
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 uppercase tracking-wide">Stock Value</p>
+            </div>
+            <div class="text-right">
+                <p class="text-3xl font-bold text-[var(--color-accent-blue)]">
+                    ₱{{ number_format($data['totalStockValue'], 2) }}</p>
+            </div>
+        </div>
     </div>
 </div>
 

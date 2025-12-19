@@ -130,18 +130,6 @@
                             </div>
                         </div>
 
-                        <!-- System Settings -->
-                        <div class="pt-4 border-t border-gray-200">
-                            <h3 class="text-sm font-semibold text-gray-900 mb-3">System Settings</h3>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="auto_backup_enabled" name="auto_backup_enabled"
-                                    value="1" {{ $settings['auto_backup_enabled'] ? 'checked' : '' }}
-                                    class="w-4 h-4 text-[var(--color-brand-green)] border-gray-300 rounded focus:ring-[var(--color-brand-green)]">
-                                <label for="auto_backup_enabled" class="ml-2 text-sm text-gray-700">Enable Automatic
-                                    Daily Backups</label>
-                            </div>
-                        </div>
-
                         <!-- Action Buttons -->
                         <div class="flex gap-3 pt-4">
                             <button type="submit"
@@ -205,6 +193,38 @@
                         <h2 class="text-lg font-semibold">Database Backup</h2>
                     </div>
                     <div class="p-6 space-y-4">
+                        <!-- Automatic Backup Setting -->
+                        <form method="POST" action="{{ route('settings.update') }}"
+                            class="p-4 rounded-lg border border-gray-200"
+                            style="background-color: #f0fdf4 !important;">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="pagination_per_page"
+                                value="{{ $settings['pagination_per_page'] }}">
+                            <input type="hidden" name="data_retention_years"
+                                value="{{ round($settings['data_deletion_age_days'] / 365) }}">
+                            <input type="hidden" name="expiry_alert_days"
+                                value="{{ $settings['expiry_alert_days'] }}">
+                            <input type="hidden" name="low_stock_alert_enabled"
+                                value="{{ $settings['low_stock_alert_enabled'] ? '1' : '0' }}">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="auto_backup_enabled_db" name="auto_backup_enabled"
+                                        value="1" {{ $settings['auto_backup_enabled'] ? 'checked' : '' }}
+                                        class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                    <label for="auto_backup_enabled_db"
+                                        class="ml-2 text-sm font-medium text-gray-900">
+                                        Enable Automatic Daily Backups
+                                    </label>
+                                </div>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold">
+                                    Save Setting
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-2 ml-6">Automatic backups will run daily at 2:00 AM</p>
+                        </form>
+
                         <div class="flex items-center justify-between p-4 rounded-lg"
                             style="background-color: #eff6ff !important;">
                             <div>

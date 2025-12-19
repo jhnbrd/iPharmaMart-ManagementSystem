@@ -45,7 +45,7 @@
         </form>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <div class="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div class="bg-white p-6 border-l-4 border-[var(--color-brand-green)] shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
@@ -108,18 +108,6 @@
                 </div>
                 <div class="text-right">
                     <p class="text-3xl font-bold text-[var(--color-danger)]">{{ $lowStockItems }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white p-6 border-l-4 border-red-600 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">Expired Products
-                    </p>
-                </div>
-                <div class="text-right">
-                    <p class="text-3xl font-bold text-red-600">{{ $expiredProductsCount ?? 0 }}</p>
                 </div>
             </div>
         </div>

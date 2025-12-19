@@ -1831,9 +1831,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                                                    </div>` : ''}
+                                                                                                                                            <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                                            <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                                        </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1852,9 +1852,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                                                    </div>` : ''}
+                                                                                                                                            <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                                            <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                                        </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
@@ -1889,8 +1889,37 @@
             // Close receipt modal
             document.getElementById('receiptModal').style.display = 'none';
 
-            // Reload the page to refresh product list and start fresh
-            location.reload();
+            // Clear cart and reset state
+            cart = [];
+            updateCart();
+
+            // Reset customer selection
+            selectedCustomerId = null;
+            document.getElementById('existingCustomerSelect').value = '';
+            document.getElementById('customerOption-walkin').checked = true;
+            document.getElementById('customerDisplay').innerHTML =
+                '<div class="text-sm text-gray-600 italic">Walk-in Customer</div>';
+
+            // Reset discount fields
+            document.getElementById('seniorDiscount').checked = false;
+            document.getElementById('pwdDiscount').checked = false;
+            document.getElementById('seniorIdNumber').value = '';
+            document.getElementById('seniorIdNumber').disabled = true;
+            document.getElementById('seniorName').value = '';
+            document.getElementById('seniorName').disabled = true;
+            document.getElementById('pwdIdNumber').value = '';
+            document.getElementById('pwdIdNumber').disabled = true;
+            document.getElementById('pwdName').value = '';
+            document.getElementById('pwdName').disabled = true;
+
+            // Reset payment method
+            document.getElementById('paymentMethod').value = 'cash';
+            handlePaymentMethodChange();
+
+            // Reload the page to refresh product list with updated stock
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
         }
         document.getElementById('customerDisplay').innerHTML =
             '<div class="text-sm text-gray-600 italic">Walk-in Customer</div>';

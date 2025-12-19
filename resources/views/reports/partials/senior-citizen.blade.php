@@ -1,13 +1,25 @@
 <!-- Summary Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
     <div class="bg-white p-6 border-l-4 border-[var(--color-brand-green)] shadow-sm">
-        <p class="text-sm text-gray-600 uppercase mb-1">Total Transactions</p>
-        <p class="text-3xl font-bold text-gray-900">{{ number_format($data['totalTransactions']) }}</p>
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 uppercase tracking-wide">Total Transactions</p>
+            </div>
+            <div class="text-right">
+                <p class="text-3xl font-bold text-gray-900">{{ number_format($data['totalTransactions']) }}</p>
+            </div>
+        </div>
     </div>
     <div class="bg-white p-6 border-l-4 border-[var(--color-accent-orange)] shadow-sm">
-        <p class="text-sm text-gray-600 uppercase mb-1">Total Discount Given</p>
-        <p class="text-3xl font-bold text-[var(--color-accent-orange)]">₱{{ number_format($data['totalDiscount'], 2) }}
-        </p>
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 uppercase tracking-wide">Total Discount Given</p>
+            </div>
+            <div class="text-right">
+                <p class="text-3xl font-bold text-[var(--color-accent-orange)]">
+                    ₱{{ number_format($data['totalDiscount'], 2) }}</p>
+            </div>
+        </div>
     </div>
 </div>
 

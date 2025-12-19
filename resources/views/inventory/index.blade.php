@@ -112,125 +112,233 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[18%]">
                                 Product Details</th>
                             <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">
-                                Barcode</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">
-                                Category</th>
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                                Batch #</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                                Exp. Date</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">
+                                Barcode</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                                Category</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[6%]">
                                 Unit</th>
                             <th
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[5%]">
                                 Shelf</th>
                             <th
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[5%]">
                                 Back</th>
                             <th
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[5%]">
                                 Total</th>
                             <th
-                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">
                                 Price</th>
                             <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
                                 Supplier</th>
                             <th
-                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[7%]">
                                 Status</th>
                             <th
-                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[5%]">
+                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[8%]">
                                 Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($products as $product)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($product->brand_name)
-                                        <div class="text-sm font-bold text-gray-900">{{ $product->brand_name }}</div>
-                                    @endif
-                                    <div
-                                        class="text-sm {{ $product->brand_name ? 'text-gray-700' : 'font-bold text-gray-900' }}">
-                                        {{ $product->name }}
-                                    </div>
-                                    @if ($product->generic_name && $product->product_type === 'pharmacy')
-                                        <div class="text-xs text-gray-500 italic">Generic:
-                                            {{ $product->generic_name }}
-                                        </div>
-                                    @endif
-                                    @if ($product->batches && $product->batches->count() > 0)
-                                        <div class="text-xs mt-1 text-gray-600">
-                                            📦 {{ $product->batches->count() }}
-                                            {{ $product->batches->count() == 1 ? 'batch' : 'batches' }}
-                                            @php
-                                                $earliestBatch = $product->batches->first();
-                                                $daysUntilExpiry = now()->diffInDays(
-                                                    $earliestBatch->expiry_date,
-                                                    false,
-                                                );
-                                            @endphp
-                                            <span class="text-gray-400">•</span>
+                            @php
+                                $batches = $product->batches()->orderBy('expiry_date', 'asc')->get();
+                                $hasBatches = $batches->count() > 0;
+                                $rowspan = $hasBatches ? $batches->count() : 1;
+                            @endphp
+
+                            @if ($hasBatches)
+                                @foreach ($batches as $index => $batch)
+                                    @php
+                                        $daysUntilExpiry = now()->diffInDays($batch->expiry_date, false);
+                                        $expiryColor =
+                                            $daysUntilExpiry <= 0
+                                                ? '#dc2626'
+                                                : ($daysUntilExpiry <= 30
+                                                    ? '#f59e0b'
+                                                    : ($daysUntilExpiry <= 90
+                                                        ? '#fb923c'
+                                                        : '#6b7280'));
+                                    @endphp
+                                    <tr class="hover:bg-gray-50 {{ $index > 0 ? 'border-t border-gray-100' : '' }}">
+                                        @if ($index === 0)
+                                            <td class="px-6 py-4" rowspan="{{ $rowspan }}">
+                                                @if ($product->brand_name)
+                                                    <div class="text-sm font-bold text-gray-900">
+                                                        {{ $product->brand_name }}</div>
+                                                @endif
+                                                <div
+                                                    class="text-sm {{ $product->brand_name ? 'text-gray-700' : 'font-bold text-gray-900' }}">
+                                                    {{ $product->name }}
+                                                </div>
+                                                @if ($product->generic_name && $product->product_type === 'pharmacy')
+                                                    <div class="text-xs text-gray-500 italic">Generic:
+                                                        {{ $product->generic_name }}</div>
+                                                @endif
+                                                <div class="text-xs mt-1 text-gray-600">
+                                                    📦 {{ $batches->count() }}
+                                                    {{ $batches->count() == 1 ? 'batch' : 'batches' }}
+                                                </div>
+                                            </td>
+                                        @endif
+                                        <td class="px-4 py-3 text-sm">
                                             <span
-                                                style="color: {{ $daysUntilExpiry <= 30 ? '#dc2626' : ($daysUntilExpiry <= 90 ? '#f59e0b' : '#6b7280') }}">
-                                                Next exp: {{ $earliestBatch->expiry_date->format('M d, Y') }}
+                                                class="font-mono bg-blue-50 px-2 py-1 rounded text-xs font-semibold text-blue-700">
+                                                {{ $batch->batch_number }}
                                             </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">
+                                            <span class="font-medium" style="color: {{ $expiryColor }}">
+                                                {{ $batch->expiry_date->format('M d, Y') }}
+                                            </span>
+                                            @if ($daysUntilExpiry <= 0)
+                                                <div class="text-xs text-red-600 font-semibold">EXPIRED</div>
+                                            @elseif ($daysUntilExpiry <= 30)
+                                                <div class="text-xs" style="color: {{ $expiryColor }}">
+                                                    {{ $daysUntilExpiry }}d left</div>
+                                            @endif
+                                        </td>
+                                        @if ($index === 0)
+                                            <td class="px-4 py-3 text-sm" rowspan="{{ $rowspan }}">
+                                                <span class="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
+                                                    {{ $product->barcode ?? 'N/A' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-900"
+                                                rowspan="{{ $rowspan }}">
+                                                {{ $product->category->name }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-900"
+                                                rowspan="{{ $rowspan }}">
+                                                {{ $product->unit }} ({{ $product->unit_quantity }})
+                                            </td>
+                                        @endif
+                                        <td class="px-4 py-3 text-sm text-right">
+                                            <span
+                                                class="font-medium text-blue-600">{{ $batch->shelf_quantity }}</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-right">
+                                            <span
+                                                class="font-medium text-green-600">{{ $batch->back_quantity }}</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-right">
+                                            <span
+                                                class="font-bold text-gray-900">{{ $batch->shelf_quantity + $batch->back_quantity }}</span>
+                                        </td>
+                                        @if ($index === 0)
+                                            <td class="px-4 py-3 text-sm text-right font-medium text-gray-900"
+                                                rowspan="{{ $rowspan }}">
+                                                ₱{{ number_format($product->price, 2) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-900"
+                                                rowspan="{{ $rowspan }}">
+                                                {{ $product->supplier->name }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-center" rowspan="{{ $rowspan }}">
+                                                @if ($product->isDangerStock())
+                                                    <span class="badge-danger">Critical</span>
+                                                @elseif ($product->isLowStock())
+                                                    <span class="badge-warning">Low</span>
+                                                @else
+                                                    <span class="badge-success">OK</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-center" rowspan="{{ $rowspan }}">
+                                                <div class="flex gap-2 justify-center">
+                                                    <a href="{{ route('inventory.edit', $product->id) }}"
+                                                        class="text-[var(--color-brand-green)] hover:underline text-xs">
+                                                        Edit
+                                                    </a>
+                                                    <button type="button"
+                                                        onclick="openVoidModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                                        class="text-[var(--color-danger)] hover:underline text-xs">
+                                                        Void
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4">
+                                        @if ($product->brand_name)
+                                            <div class="text-sm font-bold text-gray-900">{{ $product->brand_name }}
+                                            </div>
+                                        @endif
+                                        <div
+                                            class="text-sm {{ $product->brand_name ? 'text-gray-700' : 'font-bold text-gray-900' }}">
+                                            {{ $product->name }}
                                         </div>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span class="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
-                                        {{ $product->barcode ?? 'N/A' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $product->category->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $product->unit }}
-                                    ({{ $product->unit_quantity }})
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                    <span class="font-medium text-blue-600">{{ $product->shelf_stock }}</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                    <span class="font-medium text-green-600">{{ $product->back_stock }}</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                    <span class="font-bold text-gray-900">{{ $product->total_stock }}</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
-                                    ₱{{ number_format($product->price, 2) }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $product->supplier->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                                    @if ($product->isDangerStock())
-                                        <span class="badge-danger">Critical</span>
-                                    @elseif ($product->isLowStock())
-                                        <span class="badge-warning">Low</span>
-                                    @else
-                                        <span class="badge-success">OK</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                                    <div class="flex gap-2 justify-center">
-                                        <a href="{{ route('inventory.edit', $product->id) }}"
-                                            class="text-[var(--color-brand-green)] hover:underline text-xs">
-                                            Edit
-                                        </a>
-                                        <button type="button"
-                                            onclick="openVoidModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                            class="text-[var(--color-danger)] hover:underline text-xs">
-                                            Void
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                                        @if ($product->generic_name && $product->product_type === 'pharmacy')
+                                            <div class="text-xs text-gray-500 italic">Generic:
+                                                {{ $product->generic_name }}</div>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-400" colspan="2">
+                                        <span class="italic">No batches</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span class="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
+                                            {{ $product->barcode ?? 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900">{{ $product->category->name }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-900">{{ $product->unit }}
+                                        ({{ $product->unit_quantity }})</td>
+                                    <td class="px-4 py-3 text-sm text-right">
+                                        <span class="font-medium text-blue-600">{{ $product->shelf_stock }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-right">
+                                        <span class="font-medium text-green-600">{{ $product->back_stock }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-right">
+                                        <span class="font-bold text-gray-900">{{ $product->total_stock }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-right font-medium text-gray-900">
+                                        ₱{{ number_format($product->price, 2) }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900">{{ $product->supplier->name }}</td>
+                                    <td class="px-4 py-3 text-sm text-center">
+                                        @if ($product->isDangerStock())
+                                            <span class="badge-danger">Critical</span>
+                                        @elseif ($product->isLowStock())
+                                            <span class="badge-warning">Low</span>
+                                        @else
+                                            <span class="badge-success">OK</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-center">
+                                        <div class="flex gap-2 justify-center">
+                                            <a href="{{ route('inventory.edit', $product->id) }}"
+                                                class="text-[var(--color-brand-green)] hover:underline text-xs">
+                                                Edit
+                                            </a>
+                                            <button type="button"
+                                                onclick="openVoidModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                                class="text-[var(--color-danger)] hover:underline text-xs">
+                                                Void
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
                         @empty
                             <tr>
-                                <td colspan="11" class="px-6 py-8 text-center text-gray-500">
+                                <td colspan="13" class="px-6 py-8 text-center text-gray-500">
                                     No products found. <a href="{{ route('inventory.create') }}"
                                         class="text-[var(--color-brand-green)] hover:underline">Add your first
                                         product</a>
