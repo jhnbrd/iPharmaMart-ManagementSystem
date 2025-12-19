@@ -32,7 +32,7 @@ class DashboardController extends Controller
                 $salesQuery->where('user_id', $user->id);
             }
 
-            // Get total revenue
+            // Get total sales
             $totalRevenue = (clone $salesQuery)->sum('total') ?? 0;
 
             // Get total transactions count (within date range)
@@ -42,6 +42,11 @@ class DashboardController extends Controller
             $expiryAlertDays = \Illuminate\Support\Facades\Cache::get('settings.expiry_alert_days', 7);
             $expiringProductsCount = \App\Models\ProductBatch::where('expiry_date', '<=', Carbon::now()->addDays($expiryAlertDays))
                 ->where('expiry_date', '>', Carbon::now())
+                ->whereRaw('(shelf_quantity + back_quantity) > 0')
+                ->count();
+
+            // Get expired products count
+            $expiredProductsCount = \App\Models\ProductBatch::where('expiry_date', '<=', Carbon::now())
                 ->whereRaw('(shelf_quantity + back_quantity) > 0')
                 ->count();
 
@@ -217,6 +222,7 @@ class DashboardController extends Controller
                 'totalRevenue',
                 'totalTransactions',
                 'expiringProductsCount',
+                'expiredProductsCount',
                 'lowStockItems',
                 'monthlySales',
                 'monthlySalesCount',

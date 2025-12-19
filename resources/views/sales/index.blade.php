@@ -88,6 +88,9 @@
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Source
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -109,6 +112,12 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $sale->created_at->format('Y-m-d H:i') }}</td>
                             <td class="px-6 py-4">{{ $sale->customer->name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span
+                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    🛒 POS
+                                </span>
+                            </td>
                             <td class="px-6 py-4">
                                 @foreach ($sale->items as $item)
                                     {{ $item->product->name }} ({{ $item->quantity }})@if (!$loop->last)
@@ -138,7 +147,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-[var(--color-text-secondary)]">
+                            <td colspan="8" class="px-6 py-8 text-center text-[var(--color-text-secondary)]">
                                 @if (auth()->user()->role === 'cashier')
                                     No sales found. <a href="{{ route('pos.index') }}"
                                         class="text-[var(--color-brand-green)] hover:underline">Go to POS to create

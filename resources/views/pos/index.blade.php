@@ -666,6 +666,9 @@
                                     <input type="text" id="seniorIdNumber" class="form-input text-xs mt-1"
                                         placeholder="ID Number" disabled onclick="event.stopPropagation()"
                                         autocomplete="off">
+                                    <input type="text" id="seniorName" class="form-input text-xs mt-1"
+                                        placeholder="Senior Citizen Name" disabled onclick="event.stopPropagation()"
+                                        autocomplete="off">
                                 </div>
                             </label>
                             <label
@@ -675,7 +678,10 @@
                                 <div class="flex-1">
                                     <div class="font-semibold text-sm">PWD (20%)</div>
                                     <input type="text" id="pwdIdNumber" class="form-input text-xs mt-1"
-                                        placeholder="ID Number" disabled onclick="event.stopPropagation()"
+                                        placeholder="PWD ID Number" disabled onclick="event.stopPropagation()"
+                                        autocomplete="off">
+                                    <input type="text" id="pwdName" class="form-input text-xs mt-1"
+                                        placeholder="PWD Name" disabled onclick="event.stopPropagation()"
                                         autocomplete="off">
                                 </div>
                             </label>
@@ -1658,10 +1664,12 @@
                 if (seniorChecked) {
                     formData.append('discount_type', 'senior_citizen');
                     formData.append('discount_id_number', document.getElementById('seniorIdNumber').value.trim());
+                    formData.append('discount_name', document.getElementById('seniorName').value.trim());
                     formData.append('discount_percentage', 20);
                 } else if (pwdChecked) {
                     formData.append('discount_type', 'pwd');
                     formData.append('discount_id_number', document.getElementById('pwdIdNumber').value.trim());
+                    formData.append('discount_name', document.getElementById('pwdName').value.trim());
                     formData.append('discount_percentage', 20);
                 }
 
@@ -1823,9 +1831,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                                                    <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                                                    <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                                                </div>` : ''}
+                                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1844,9 +1852,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                                                    <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                                                    <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                                                </div>` : ''}
+                                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>

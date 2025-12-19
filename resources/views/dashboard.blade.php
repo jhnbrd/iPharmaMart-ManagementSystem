@@ -45,7 +45,7 @@
         </form>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <div class="bg-white p-6 border-l-4 border-[var(--color-brand-green)] shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
@@ -108,6 +108,31 @@
                 </div>
                 <div class="text-right">
                     <p class="text-3xl font-bold text-[var(--color-danger)]">{{ $lowStockItems }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 border-l-4 border-red-600 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">Expired Products
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-3xl font-bold text-red-600">{{ $expiredProductsCount ?? 0 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 border-l-4 border-orange-500 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-[var(--color-text-secondary)] uppercase tracking-wide mb-1">Expiring Soon
+                        ({{ $expiryAlertDays }}d)
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-3xl font-bold text-orange-500">{{ $expiringProductsCount ?? 0 }}</p>
                 </div>
             </div>
         </div>
@@ -195,55 +220,6 @@
                 @endif
             </div>
         </div>
-    </div>
-
-    <div class="grid grid-cols-3 gap-6">
-        <!-- Top Products -->
-        <div class="bg-white border border-[var(--color-border-light)]">
-            <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
-                <h2 class="text-base font-semibold">
-                    @if ($isFiltered)
-                        Top Products - {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to
-                        {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
-                    @else
-                        Top Products - {{ now()->format('F Y') }}
-                    @endif
-                </h2>
-            </div>
-            <div class="p-4">
-                @if ($topProducts->isEmpty())
-                    <p class="text-[var(--color-text-secondary)] text-center py-8 text-sm">No sales data available</p>
-                @else
-                    <div class="space-y-3">
-                        @foreach ($topProducts as $index => $product)
-                            <div
-                                class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <span
-                                            class="text-sm font-bold text-[var(--color-brand-green)]">{{ $index + 1 }}.</span>
-                                        <div>
-                                            <div class="text-sm font-medium">{{ $product->name }}</div>
-                                            <div class="text-xs text-[var(--color-text-secondary)]">
-                                                {{ $product->category_name }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xl font-bold text-[var(--color-brand-green)]">
-                                        ₱{{ number_format($product->total_revenue, 2) }}
-                                    </div>
-                                    <div class="text-xs text-[var(--color-text-secondary)]">
-                                        {{ number_format($product->total_sold) }} sold
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </div>
-
         <!-- Expiry Alerts -->
         @if ($expiredBatches->isNotEmpty() || $expiringBatches->isNotEmpty())
             <div class="bg-white border border-red-300">
@@ -311,6 +287,55 @@
                 </div>
             </div>
         @endif
+
+    </div>
+
+    <div class="grid grid-cols-3 gap-6">
+        <!-- Top Products -->
+        <div class="bg-white border border-[var(--color-border-light)]">
+            <div class="px-6 py-3 border-b border-[var(--color-border-light)]">
+                <h2 class="text-base font-semibold">
+                    @if ($isFiltered)
+                        Top Products - {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to
+                        {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                    @else
+                        Top Products - {{ now()->format('F Y') }}
+                    @endif
+                </h2>
+            </div>
+            <div class="p-4">
+                @if ($topProducts->isEmpty())
+                    <p class="text-[var(--color-text-secondary)] text-center py-8 text-sm">No sales data available</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach ($topProducts as $index => $product)
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-[var(--color-border-light)]">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="text-sm font-bold text-[var(--color-brand-green)]">{{ $index + 1 }}.</span>
+                                        <div>
+                                            <div class="text-sm font-medium">{{ $product->name }}</div>
+                                            <div class="text-xs text-[var(--color-text-secondary)]">
+                                                {{ $product->category_name }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold text-[var(--color-brand-green)]">
+                                        ₱{{ number_format($product->total_revenue, 2) }}
+                                    </div>
+                                    <div class="text-xs text-[var(--color-text-secondary)]">
+                                        {{ number_format($product->total_sold) }} sold
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
 
         <!-- Low Stock Products -->
         <div class="bg-white border border-[var(--color-border-light)]">

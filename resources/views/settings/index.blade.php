@@ -283,7 +283,7 @@
                                     Download
                                 </a>
                                 <button onclick="deleteBackup('${backup.filename}')"
-                                    class="px-3 py-1 text-sm font-medium bg-red-500 text-red-700 rounded hover:bg-red-600 transition-colors shadow-sm">
+                                    class="px-3 py-1 text-sm font-medium bg-red-500 text-white rounded hover:bg-red-600 transition-colors shadow-sm">
                                     Delete
                                 </button>
                             </div>

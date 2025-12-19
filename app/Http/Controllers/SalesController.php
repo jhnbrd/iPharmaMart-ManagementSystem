@@ -77,6 +77,7 @@ class SalesController extends Controller
                 'card_last_four' => 'nullable|string|size:4',
                 'discount_type' => 'nullable|in:senior_citizen,pwd',
                 'discount_id_number' => 'nullable|string|max:255',
+                'discount_name' => 'nullable|string|max:255',
                 'discount_percentage' => 'nullable|numeric|min:0|max:100',
             ], [
                 'items.required' => 'Cannot process checkout - No items in cart',
@@ -157,6 +158,7 @@ class SalesController extends Controller
                     $discountInfo = [
                         'type' => $validated['discount_type'],
                         'id_number' => $validated['discount_id_number'],
+                        'name' => $validated['discount_name'] ?? ($customerId ? Customer::find($customerId)->name : 'N/A'),
                         'percentage' => $discountPercentage,
                         'amount' => $discountAmount,
                     ];
@@ -181,7 +183,7 @@ class SalesController extends Controller
                     'card_last_four' => $validated['card_last_four'] ?? null,
                 ]);
 
-                // Create sale items and update stock
+                // Create sale items and update stock using FIFO for batches
                 foreach ($itemsDetails as $item) {
                     $product = Product::find($item['product_id']);
 
@@ -193,30 +195,69 @@ class SalesController extends Controller
                         'subtotal' => $item['subtotal'],
                     ]);
 
-                    // Update product stock (decrement from shelf first, then back stock if needed)
+                    // Update product stock using FIFO for products with expiration dates
                     $quantityToDecrement = $item['quantity'];
-                    if ($product->shelf_stock >= $quantityToDecrement) {
-                        // Sufficient shelf stock
-                        $product->decrement('shelf_stock', $quantityToDecrement);
-                    } else {
-                        // Use all shelf stock and remaining from back stock
-                        $fromShelf = $product->shelf_stock;
-                        $fromBack = $quantityToDecrement - $fromShelf;
-                        $product->shelf_stock = 0;
-                        $product->decrement('back_stock', $fromBack);
+
+                    // Check if product has batches (products with expiration dates)
+                    $batches = $product->batches()
+                        ->where(function ($query) {
+                            $query->where('shelf_quantity', '>', 0)
+                                ->orWhere('back_quantity', '>', 0);
+                        })
+                        ->orderBy('expiry_date', 'asc') // FIFO - earliest expiry first
+                        ->lockForUpdate()
+                        ->get();
+
+                    if ($batches->count() > 0) {
+                        // Product has batches - use FIFO
+                        foreach ($batches as $batch) {
+                            if ($quantityToDecrement <= 0) break;
+
+                            // Try to take from shelf first
+                            if ($batch->shelf_quantity > 0) {
+                                $takeFromShelf = min($batch->shelf_quantity, $quantityToDecrement);
+                                $batch->shelf_quantity -= $takeFromShelf;
+                                $product->shelf_stock -= $takeFromShelf;
+                                $quantityToDecrement -= $takeFromShelf;
+                            }
+
+                            // If still need more, take from back
+                            if ($quantityToDecrement > 0 && $batch->back_quantity > 0) {
+                                $takeFromBack = min($batch->back_quantity, $quantityToDecrement);
+                                $batch->back_quantity -= $takeFromBack;
+                                $product->back_stock -= $takeFromBack;
+                                $quantityToDecrement -= $takeFromBack;
+                            }
+
+                            $batch->save();
+                        }
                         $product->save();
+                    } else {
+                        // Product has no batches - use old method (for non-expiring items)
+                        if ($product->shelf_stock >= $quantityToDecrement) {
+                            // Sufficient shelf stock
+                            $product->decrement('shelf_stock', $quantityToDecrement);
+                        } else {
+                            // Use all shelf stock and remaining from back stock
+                            $fromShelf = $product->shelf_stock;
+                            $fromBack = $quantityToDecrement - $fromShelf;
+                            $product->shelf_stock = 0;
+                            $product->decrement('back_stock', $fromBack);
+                            $product->save();
+                        }
                     }
                 }
 
                 // Create discount transaction record if discount was applied
                 if ($discountInfo) {
                     $customer = Customer::find($customerId);
+                    $discountName = $discountInfo['name'] ?? $customer->name;
 
                     if ($discountInfo['type'] === 'senior_citizen') {
                         SeniorCitizenTransaction::create([
                             'sale_id' => $sale->id,
                             'sc_id_number' => $discountInfo['id_number'],
-                            'sc_name' => $customer->name,
+                            'sc_name' => $discountName,
                             'sc_birthdate' => $customer->birthdate ?? now()->subYears(65),
                             'original_amount' => $originalTotal,
                             'discount_percentage' => $discountInfo['percentage'],
@@ -227,7 +268,7 @@ class SalesController extends Controller
                         PwdTransaction::create([
                             'sale_id' => $sale->id,
                             'pwd_id_number' => $discountInfo['id_number'],
-                            'pwd_name' => $customer->name,
+                            'pwd_name' => $discountName,
                             'pwd_birthdate' => $customer->birthdate ?? now()->subYears(30),
                             'disability_type' => $customer->disability_type ?? 'Not specified',
                             'original_amount' => $originalTotal,
