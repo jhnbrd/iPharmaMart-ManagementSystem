@@ -354,4 +354,105 @@ class SalesController extends Controller
 
         return view('sales.show', compact('sale', 'discountInfo'));
     }
+
+    public function void(Request $request, Sale $sale)
+    {
+        // Only allow admin to void sales
+        if (Auth::user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only administrators can void sales.',
+            ], 403);
+        }
+
+        // Check if sale is already voided
+        if ($sale->is_voided) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This sale has already been voided.',
+            ], 400);
+        }
+
+        $validated = $request->validate([
+            'void_reason' => 'required|string|max:500',
+        ]);
+
+        try {
+            DB::transaction(function () use ($sale, $validated) {
+                // Mark sale as voided
+                $sale->update([
+                    'is_voided' => true,
+                    'voided_at' => now(),
+                    'voided_by' => Auth::id(),
+                    'void_reason' => $validated['void_reason'],
+                ]);
+
+                // Mark all sale items as voided
+                $sale->items()->update([
+                    'is_voided' => true,
+                ]);
+
+                // Return stock to inventory using FIFO reversal
+                foreach ($sale->items as $item) {
+                    $product = Product::find($item->product_id);
+                    if ($product) {
+                        // Get batches in reverse FIFO order (newest first) to reverse the deduction
+                        $batches = $product->batches()
+                            ->where(function ($q) {
+                                $q->where('shelf_quantity', '>', 0)
+                                    ->orWhere('back_quantity', '>', 0);
+                            })
+                            ->orderBy('expiry_date', 'desc')
+                            ->get();
+
+                        $remainingQty = $item->quantity;
+
+                        // Add stock back to batches
+                        foreach ($batches as $batch) {
+                            if ($remainingQty <= 0) break;
+
+                            // Prioritize adding back to shelf first
+                            if ($batch->shelf_quantity > 0) {
+                                $addToShelf = min($remainingQty, $product->shelf_capacity - $batch->shelf_quantity);
+                                $batch->shelf_quantity += $addToShelf;
+                                $remainingQty -= $addToShelf;
+                            }
+
+                            // Add remaining to back stock
+                            if ($remainingQty > 0) {
+                                $batch->back_quantity += $remainingQty;
+                                $remainingQty = 0;
+                            }
+
+                            $batch->save();
+                        }
+                    }
+                }
+
+                // Log activity with Sale ID included
+                $this->logActivity(
+                    'voided_sale',
+                    "Voided Sale #{$sale->id}. Reason: {$validated['void_reason']}",
+                    null,
+                    null,
+                    [
+                        'sale_id' => $sale->id,
+                        'total_amount' => $sale->total,
+                        'items_count' => $sale->items->count(),
+                        'void_reason' => $validated['void_reason'],
+                    ]
+                );
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sale has been voided successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error voiding sale: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

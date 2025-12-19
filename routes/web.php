@@ -96,6 +96,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/sales/pdf', [ReportController::class, 'salesPdf'])->name('reports.sales.pdf');
         Route::get('/reports/senior-citizen/pdf', [ReportController::class, 'seniorCitizenPdf'])->name('reports.senior-citizen.pdf');
         Route::get('/reports/pwd/pdf', [ReportController::class, 'pwdPdf'])->name('reports.pwd.pdf');
+
+        // Void sale (Admin only)
+        Route::post('/sales/{sale}/void', [SalesController::class, 'void'])->name('sales.void');
     });
 
     // Admin & SuperAdmin - General Settings

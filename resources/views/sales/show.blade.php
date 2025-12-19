@@ -9,13 +9,24 @@
                     </svg>
                     Back to Sales
                 </a>
-                <button onclick="window.print()" class="btn btn-primary">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Print Receipt
-                </button>
+                <div class="flex gap-2">
+                    @if (auth()->user()->role === 'admin' && !$sale->is_voided)
+                        <button onclick="openVoidModal()" class="btn btn-danger">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Void Sale
+                        </button>
+                    @endif
+                    <button onclick="window.print()" class="btn btn-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        Print Receipt
+                    </button>
+                </div>
             </div>
 
             <!-- Receipt Container -->
@@ -207,4 +218,104 @@
             }
         }
     </style>
+
+    <!-- Void Sale Modal -->
+    @if (auth()->user()->role === 'admin' && !$sale->is_voided)
+        <div id="voidModal"
+            class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Void Sale #{{ $sale->id }}</h3>
+                        <button onclick="closeVoidModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-4">This action will void the sale and return stock to
+                            inventory. This cannot be undone.</p>
+
+                        <div>
+                            <label for="void_reason" class="block text-sm font-medium text-gray-700 mb-2">Reason for
+                                Voiding *</label>
+                            <textarea id="void_reason" name="void_reason" rows="3"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                                placeholder="Enter reason for voiding this sale..." required></textarea>
+                            <p id="reasonError" class="mt-1 text-sm text-red-600 hidden"></p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="closeVoidModal()" class="btn btn-secondary">
+                            Cancel
+                        </button>
+                        <button type="button" onclick="confirmVoid()" class="btn btn-danger">
+                            Void Sale
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function openVoidModal() {
+                document.getElementById('voidModal').classList.remove('hidden');
+                document.getElementById('void_reason').value = '';
+                document.getElementById('reasonError').classList.add('hidden');
+            }
+
+            function closeVoidModal() {
+                document.getElementById('voidModal').classList.add('hidden');
+            }
+
+            function confirmVoid() {
+                const reason = document.getElementById('void_reason').value.trim();
+                const reasonError = document.getElementById('reasonError');
+
+                if (!reason) {
+                    reasonError.textContent = 'Please provide a reason for voiding this sale.';
+                    reasonError.classList.remove('hidden');
+                    return;
+                }
+
+                if (reason.length > 500) {
+                    reasonError.textContent = 'Reason must not exceed 500 characters.';
+                    reasonError.classList.remove('hidden');
+                    return;
+                }
+
+                reasonError.classList.add('hidden');
+
+                // Send void request
+                fetch('{{ route('sales.void', $sale) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            void_reason: reason
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('✓ ' + data.message);
+                            window.location.reload();
+                        } else {
+                            alert('✗ ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('✗ An error occurred while voiding the sale.');
+                    });
+            }
+        </script>
+    @endif
 </x-layout>
