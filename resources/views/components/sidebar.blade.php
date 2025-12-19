@@ -153,7 +153,7 @@
                 </a>
             @endif
 
-            @if (auth()->user()->role === 'superadmin')
+            @if (in_array(auth()->user()->role, ['admin', 'superadmin']))
                 <!-- ADMINISTRATION SECTION -->
                 <div class="px-4 pt-4 pb-2">
                     <h3 class="text-xs font-semibold text-white/50 uppercase tracking-wider">Administration</h3>
@@ -168,14 +168,16 @@
                     <span>Users</span>
                 </a>
 
-                <a href="{{ route('audit-logs.index') }}"
-                    class="sidebar-nav-item {{ str_starts_with($currentRoute, 'audit-logs.') ? 'active' : '' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>Audit Logs</span>
-                </a>
+                @if (auth()->user()->role === 'superadmin')
+                    <a href="{{ route('audit-logs.index') }}"
+                        class="sidebar-nav-item {{ str_starts_with($currentRoute, 'audit-logs.') ? 'active' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Audit Logs</span>
+                    </a>
+                @endif
             @endif
         </nav>
     </div>

@@ -963,17 +963,17 @@
         }
 
         // Helper function to add to cart from data attributes (avoids quote escaping issues)
-        function addToCartFromData(element) {
+        window.addToCartFromData = function(element) {
             const productId = parseInt(element.getAttribute('data-id'));
             const productName = element.getAttribute('data-product-name');
             const price = parseFloat(element.getAttribute('data-price'));
             const stock = parseInt(element.getAttribute('data-stock'));
             const category = element.getAttribute('data-category-name');
 
-            addToCart(productId, productName, price, stock, category);
-        }
+            window.addToCart(productId, productName, price, stock, category);
+        };
 
-        function addToCart(productId, productName, price, stock, category) {
+        window.addToCart = function(productId, productName, price, stock, category) {
             // Validate stock availability
             if (stock <= 0) {
                 showToast(`Cannot add "${productName}" - Out of stock!`, 'error');
@@ -1048,6 +1048,13 @@
         }
 
         // Void Item Functions
+        function openVoidItemModalFromRow(button) {
+            const row = button.closest('tr');
+            const productId = parseInt(row.getAttribute('data-item-id'));
+            const productName = row.getAttribute('data-item-name');
+            openVoidItemModal(productId, productName);
+        }
+
         function openVoidItemModal(productId, productName) {
             document.getElementById('voidItemId').value = productId;
             document.getElementById('voidItemName').textContent = productName;
@@ -1194,7 +1201,7 @@
             cart.forEach(item => {
                 const subtotal = item.price * item.quantity;
                 html += `
-                    <tr>
+                    <tr data-item-id="${item.id}" data-item-name="${item.name}">
                         <td>
                             <div class="font-medium text-sm">${item.name}</div>
                             <div class="text-xs text-gray-500">${item.category}</div>
@@ -1220,7 +1227,7 @@
                         <td class="text-right">₱${item.price.toFixed(2)}</td>
                         <td class="text-right font-semibold">₱${subtotal.toFixed(2)}</td>
                         <td>
-                            <button onclick="openVoidItemModal(${item.id}, '${item.name.replace(/'/g, '\\\\\'')}')" class="text-red-600 hover:text-red-800" title="Void Item">
+                            <button onclick="openVoidItemModalFromRow(this)" class="text-red-600 hover:text-red-800" title="Void Item">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -1846,9 +1853,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                                                                                <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                                                                                <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                                                                            </div>` : ''}
+                                                                                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1867,9 +1874,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                                                                                <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                                                                                <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                                                                            </div>` : ''}
+                                                                                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
@@ -1949,16 +1956,6 @@
         setTimeout(() => {
             notification.remove();
         }, 2000);
-        }
-
-        // Search form auto-submit with debounce
-        let searchTimeout;
-        document.getElementById('searchProduct').addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                document.getElementById('filterForm').submit();
-            }, 500);
-        });
 
         // Close modals when clicking outside
         document.getElementById('customerModal').addEventListener('click', function(e) {
@@ -2051,22 +2048,42 @@
             });
         }
 
-        // Search input with debounce
-        document.getElementById('searchProduct').addEventListener('input', function() {
-            clearTimeout(filterTimeout);
-            filterTimeout = setTimeout(() => {
-                applyFilters(1);
-            }, 500);
-        });
-
-        // Intercept form submission (Enter key or button click)
-        document.getElementById('filterForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            applyFilters(1);
-        });
-
-        // Initial pagination link interception
+        // Defer DOM event bindings until DOMContentLoaded to avoid missing elements
         document.addEventListener('DOMContentLoaded', function() {
+            // Delegate product clicks to the products grid (works after AJAX updates)
+            const productsGrid = document.getElementById('productsGrid');
+            if (productsGrid) {
+                productsGrid.addEventListener('click', function(e) {
+                    const item = e.target.closest('.product-item');
+                    if (item) {
+                        // Use the data-* attributes to add to cart
+                        window.addToCartFromData(item);
+                    }
+                });
+            }
+
+            // Bind search input with debounce
+            const searchInput = document.getElementById('searchProduct');
+            if (searchInput) {
+                let localFilterTimeout;
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(localFilterTimeout);
+                    localFilterTimeout = setTimeout(() => {
+                        applyFilters(1);
+                    }, 500);
+                });
+            }
+
+            // Intercept form submission (Enter key or button click)
+            const filterForm = document.getElementById('filterForm');
+            if (filterForm) {
+                filterForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    applyFilters(1);
+                });
+            }
+
+            // Initial pagination link interception
             interceptPaginationLinks();
         });
     </script>

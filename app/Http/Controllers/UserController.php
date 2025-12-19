@@ -14,6 +14,12 @@ class UserController extends Controller
     use LogsActivity;
     public function index()
     {
+        // Only admin and superadmin can access user management
+        if (!in_array(auth()->user()->role, ['admin', 'superadmin'])) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Unauthorized access.');
+        }
+
         $perPage = request('per_page', 10);
         $users = User::orderBy('created_at', 'desc')->paginate($perPage);
 
@@ -22,6 +28,11 @@ class UserController extends Controller
 
     public function create()
     {
+        if (!in_array(auth()->user()->role, ['admin', 'superadmin'])) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Unauthorized access.');
+        }
+
         return view('users.create');
     }
 
@@ -33,8 +44,11 @@ class UserController extends Controller
 
             if ($currentUserRole === 'superadmin') {
                 $allowedRoles = ['admin'];
+            } elseif ($currentUserRole === 'admin') {
+                // Admin can create any role except superadmin
+                $allowedRoles = ['admin', 'cashier', 'inventory_manager'];
             } else {
-                $allowedRoles = ['cashier', 'inventory_manager'];
+                return redirect()->back()->with('error', 'Unauthorized action.');
             }
 
             $validated = $request->validate([
@@ -67,6 +81,11 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        if (!in_array(auth()->user()->role, ['admin', 'superadmin'])) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Unauthorized access.');
+        }
+
         return view('users.edit', compact('user'));
     }
 
@@ -83,8 +102,11 @@ class UserController extends Controller
 
             if ($currentUserRole === 'superadmin') {
                 $allowedRoles = ['admin'];
+            } elseif ($currentUserRole === 'admin') {
+                // Admin can assign any role except superadmin
+                $allowedRoles = ['admin', 'cashier', 'inventory_manager'];
             } else {
-                $allowedRoles = ['cashier', 'inventory_manager'];
+                return redirect()->back()->with('error', 'Unauthorized action.');
             }
 
             $oldValues = $user->only(['username', 'name', 'email', 'role']);
@@ -123,6 +145,11 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         try {
+            if (!in_array(auth()->user()->role, ['admin', 'superadmin'])) {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Unauthorized access.');
+            }
+
             if ($user->role === 'superadmin') {
                 return redirect()->back()
                     ->with('error', 'Super Admin accounts cannot be deleted.');

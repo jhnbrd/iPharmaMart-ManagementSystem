@@ -48,9 +48,13 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
 
-    // Superadmin Only - Owner access
-    Route::middleware('role:superadmin')->group(function () {
+    // Users management: Admin and Superadmin
+    Route::middleware('role:admin,superadmin')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
+    });
+
+    // Audit logs: Superadmin only
+    Route::middleware('role:superadmin')->group(function () {
         Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
     });
 

@@ -1,12 +1,15 @@
 <x-layout title="Users" subtitle="Manage system users and roles">
     <!-- Page Header -->
     <div class="page-header">
-        <a href="{{ route('users.create') }}" class="btn btn-primary">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Add User
-        </a>
+        @if (in_array(auth()->user()->role, ['admin', 'superadmin']))
+            <a href="{{ route('users.create') }}" class="btn btn-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add User
+            </a>
+        @endif
     </div>
 
     <!-- Users Table -->
@@ -73,8 +76,11 @@
                 @empty
                     <tr>
                         <td colspan="7" class="text-center py-8 text-[var(--color-text-secondary)]">
-                            No users found. <a href="{{ route('users.create') }}"
-                                class="text-[var(--color-brand-green)] hover:underline">Add your first user</a>
+                            No users found.
+                            @if (in_array(auth()->user()->role, ['admin', 'superadmin']))
+                                <a href="{{ route('users.create') }}"
+                                    class="text-[var(--color-brand-green)] hover:underline">Add your first user</a>
+                            @endif
                         </td>
                     </tr>
                 @endforelse

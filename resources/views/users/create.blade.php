@@ -41,6 +41,12 @@
                         <option value="">Select Role</option>
                         @if (auth()->user()->role === 'superadmin')
                             <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                        @elseif (auth()->user()->role === 'admin')
+                            <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="cashier" {{ old('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
+                            <option value="inventory_manager"
+                                {{ old('role') == 'inventory_manager' ? 'selected' : '' }}>
+                                Inventory Manager</option>
                         @else
                             <option value="cashier" {{ old('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
                             <option value="inventory_manager"
@@ -53,6 +59,9 @@
                     @enderror
                     @if (auth()->user()->role === 'superadmin')
                         <p class="form-help">Super Admin can only create Admin accounts</p>
+                    @elseif (auth()->user()->role === 'admin')
+                        <p class="form-help">Admin can create Admin, Cashier, and Inventory Manager accounts (cannot
+                            create Superadmin)</p>
                     @else
                         <p class="form-help">Admin can create Cashier and Inventory Manager accounts</p>
                     @endif
