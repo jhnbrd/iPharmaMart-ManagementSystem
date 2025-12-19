@@ -392,11 +392,15 @@
                                 $stockStatus = 'stock-low';
                                 $stockText = 'Low Stock';
                             }
+                            $productFullName =
+                                ($product->brand_name ? $product->brand_name . ' ' : '') . $product->name;
+                            $categoryName = $product->category->name;
                         @endphp
                         <div class="product-item" data-category="{{ $product->category_id }}"
-                            data-name="{{ strtolower(($product->brand_name ? $product->brand_name . ' ' : '') . $product->name) }}"
-                            data-id="{{ $product->id }}" data-type="{{ $product->product_type }}"
-                            onclick="addToCart({{ $product->id }}, '{{ addslashes(($product->brand_name ? $product->brand_name . ' ' : '') . $product->name) }}', {{ $product->price }}, {{ $product->total_stock }}, '{{ addslashes($product->category->name) }}')">
+                            data-name="{{ strtolower($productFullName) }}" data-id="{{ $product->id }}"
+                            data-type="{{ $product->product_type }}" data-product-name="{{ $productFullName }}"
+                            data-price="{{ $product->price }}" data-stock="{{ $product->total_stock }}"
+                            data-category-name="{{ $categoryName }}" onclick="addToCartFromData(this)">
                             <div class="product-info">
                                 <div class="product-name"
                                     title="{{ ($product->brand_name ? $product->brand_name . ' ' : '') . $product->name }}">
@@ -958,6 +962,17 @@
             }, 5000);
         }
 
+        // Helper function to add to cart from data attributes (avoids quote escaping issues)
+        function addToCartFromData(element) {
+            const productId = parseInt(element.getAttribute('data-id'));
+            const productName = element.getAttribute('data-product-name');
+            const price = parseFloat(element.getAttribute('data-price'));
+            const stock = parseInt(element.getAttribute('data-stock'));
+            const category = element.getAttribute('data-category-name');
+
+            addToCart(productId, productName, price, stock, category);
+        }
+
         function addToCart(productId, productName, price, stock, category) {
             // Validate stock availability
             if (stock <= 0) {
@@ -1205,7 +1220,7 @@
                         <td class="text-right">₱${item.price.toFixed(2)}</td>
                         <td class="text-right font-semibold">₱${subtotal.toFixed(2)}</td>
                         <td>
-                            <button onclick="openVoidItemModal(${item.id}, '${item.name.replace(/'/g, "\\'")}')" class="text-red-600 hover:text-red-800" title="Void Item">
+                            <button onclick="openVoidItemModal(${item.id}, '${item.name.replace(/'/g, '\\\\\'')}')" class="text-red-600 hover:text-red-800" title="Void Item">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -1831,9 +1846,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                                                            <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                                                            <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                                                        </div>` : ''}
+                                                                                                                                                                <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                                                                <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                                                            </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1852,9 +1867,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                                                            <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                                                            <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                                                        </div>` : ''}
+                                                                                                                                                                <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                                                                <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                                                            </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
@@ -2053,20 +2068,6 @@
         // Initial pagination link interception
         document.addEventListener('DOMContentLoaded', function() {
             interceptPaginationLinks();
-
-            // Auto-enter fullscreen mode
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(err => {
-                    console.log('Fullscreen request failed:', err);
-                });
-            } else if (elem.webkitRequestFullscreen) {
-                /* Safari */
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) {
-                /* IE11 */
-                elem.msRequestFullscreen();
-            }
         });
     </script>
 </x-pos-layout>

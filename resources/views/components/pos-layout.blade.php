@@ -342,32 +342,26 @@
 
         // Check fullscreen status on page load
         window.addEventListener('DOMContentLoaded', () => {
-            // Check if we were in fullscreen before navigation
-            const wasFullscreen = localStorage.getItem('posFullscreen') === 'true';
-
-            if (!document.fullscreenElement && !wasFullscreen) {
-                // Not in fullscreen and wasn't before - show modal
-                modal.classList.remove('hidden');
-                posContent.classList.remove('active');
-            } else if (!document.fullscreenElement && wasFullscreen) {
-                // Was in fullscreen but navigation exited it - try to re-enter
-                // Small delay to ensure page is fully loaded
-                setTimeout(() => {
-                    document.documentElement.requestFullscreen()
-                        .then(() => {
-                            modal.classList.add('hidden');
-                            posContent.classList.add('active');
-                        })
-                        .catch((err) => {
-                            // Browser blocked auto re-entry, show minimal prompt
-                            console.log('Auto fullscreen blocked:', err);
-                            showQuickFullscreenPrompt();
-                        });
-                }, 100);
+            // Always try to enter fullscreen immediately on POS page load
+            if (!document.fullscreenElement) {
+                // Try to enter fullscreen automatically
+                document.documentElement.requestFullscreen()
+                    .then(() => {
+                        modal.classList.add('hidden');
+                        posContent.classList.add('active');
+                        localStorage.setItem('posFullscreen', 'true');
+                    })
+                    .catch((err) => {
+                        // Browser blocked auto-entry, show modal for user to click
+                        console.log('Auto fullscreen blocked, showing modal:', err);
+                        modal.classList.remove('hidden');
+                        posContent.classList.remove('active');
+                    });
             } else {
                 // Already in fullscreen
                 modal.classList.add('hidden');
                 posContent.classList.add('active');
+                localStorage.setItem('posFullscreen', 'true');
             }
 
             // Clear flag when leaving POS
