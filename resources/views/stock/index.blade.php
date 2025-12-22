@@ -167,7 +167,7 @@
                             <td>
                                 @if ($movement->reference_number)
                                     <span
-                                        class="text-xs font-mono bg-gray-100 px-2 py-1 rounded">{{ $movement->reference_number }}</span>
+                                        class="text-xs font-mono px-2 py-1 rounded">{{ $movement->reference_number }}</span>
                                 @else
                                     <span class="text-gray-400">-</span>
                                 @endif
@@ -195,7 +195,7 @@
                             </td>
                             <td>
                                 @if ($movement->batch)
-                                    <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
+                                    <span class="text-xs font-mono px-2 py-1 rounded">
                                         {{ $movement->batch->batch_number }}
                                     </span>
                                     @if ($movement->batch->expiry_date)

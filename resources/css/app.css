@@ -409,43 +409,54 @@
     background-color: var(--color-gray-50);
 }
 
-.badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.625rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
 .badge-success {
-    background-color: rgb(220 252 231);
+    background-color: none;
     color: rgb(21 128 61);
-    border: 1px solid rgb(134 239 172);
+    border: none;
 }
-
 .badge-danger {
-    background-color: rgb(254 226 226);
+    background-color: none;
     color: rgb(185 28 28);
-    border: 1px solid rgb(252 165 165);
+    border: none;
 }
-
 .badge-info {
-    background-color: rgb(219 234 254);
+    background-color: none;
     color: rgb(29 78 216);
-    border: 1px solid rgb(147 197 253);
+    border: none;
+}
+.badge-warning {
+    background-color: none;
+    color: rgb(161 98 7);
+    border: none;
+}
+.badge-secondary {
+    background-color: none;
+    color: rgb(75 85 99);
+    border: none;
 }
 
 .badge-warning {
-    background-color: rgb(254 243 199);
+    background-color: none;
     color: rgb(161 98 7);
-    border: 1px solid rgb(253 224 71);
+    border: none;
 }
 
 .badge-secondary {
-    background-color: rgb(243 244 246);
+    background-color: none;
     color: rgb(75 85 99);
-    border: 1px solid rgb(209 213 219);
+    border: none;
+}
+
+/* Ensure any badge-like utility classes render text-only (no background/pill) */
+.badge,
+.badge-success,
+.badge-danger,
+.badge-info,
+.badge-warning,
+.badge-secondary {
+     background-color: transparent !important;
+     border: none !important;
+     padding: 0 !important;
 }
 
 .page-header {

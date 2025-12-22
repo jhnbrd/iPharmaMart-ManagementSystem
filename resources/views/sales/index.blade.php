@@ -114,8 +114,8 @@
                             <td class="px-6 py-4">{{ $sale->customer->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span
-                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    🛒 POS
+                                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-green-800">
+                                    POS
                                 </span>
                             </td>
                             <td class="px-6 py-4">
@@ -127,11 +127,11 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if ($sale->payment_method === 'cash')
-                                    <span class="badge badge-success">💵 Cash</span>
+                                    <span class="font-medium text-[var(--color-success)]">Cash</span>
                                 @elseif($sale->payment_method === 'gcash')
-                                    <span class="badge badge-info">📱 GCash</span>
+                                    <span class="font-medium text-[var(--color-info)]">GCash</span>
                                 @elseif($sale->payment_method === 'card')
-                                    <span class="badge badge-warning">💳 Card</span>
+                                    <span class="font-medium text-[var(--color-warning)]">Card</span>
                                 @endif
                             </td>
                             <td

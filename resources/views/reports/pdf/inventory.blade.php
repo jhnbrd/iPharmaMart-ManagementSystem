@@ -146,22 +146,22 @@
         }
 
         .badge-success {
-            background-color: #dcfce7;
+            background-color: none;
             color: #166534;
         }
 
         .badge-warning {
-            background-color: #fef3c7;
+            background-color: none;
             color: #92400e;
         }
 
         .badge-danger {
-            background-color: #fee2e2;
+            background-color: none;
             color: #991b1b;
         }
 
         .badge-secondary {
-            background-color: #f3f4f6;
+            background-color: none;
             color: #4b5563;
         }
     </style>

@@ -62,7 +62,7 @@
                                 <p class="mt-1">
                                     @if ($stockMovement->reference_number)
                                         <span
-                                            class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">{{ $stockMovement->reference_number }}</span>
+                                            class="font-mono text-sm text-gray-700">{{ $stockMovement->reference_number }}</span>
                                     @else
                                         <span class="text-gray-400">-</span>
                                     @endif
@@ -195,13 +195,13 @@
 
                             <div>
                                 <label class="text-sm font-medium text-gray-600">Product Code</label>
-                                <p class="mt-1 font-mono text-sm bg-gray-100 px-2 py-1 rounded">
-                                    {{ $stockMovement->product->code }}</p>
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-medium text-gray-600">Category</label>
-                                <p class="mt-1">{{ $stockMovement->product->category }}</p>
+                                <p class="mt-1 font-mono text-sm text-gray-700">{{ $stockMovement->product->code }}
+                                </p>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-600">Batch Number</label>
+                                    <p class="mt-1 font-mono text-sm text-gray-700">
+                                        {{ $stockMovement->batch->batch_number }}</p>
+                                </div>
                             </div>
 
                             <div>

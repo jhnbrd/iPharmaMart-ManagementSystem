@@ -103,7 +103,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     <span
-                                        class="font-mono text-sm {{ $discountType === 'pwd' ? 'bg-blue-100' : 'bg-purple-100' }} px-2 py-1 rounded">
+                                        class="font-mono text-sm {{ $discountType === 'pwd' ? 'text-blue-700' : 'text-purple-700' }}">
                                         {{ $discountType === 'pwd' ? $transaction->pwd_id_number : $transaction->sc_id_number }}
                                     </span>
                                 </td>

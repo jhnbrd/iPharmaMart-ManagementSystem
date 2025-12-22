@@ -76,12 +76,12 @@
                                 : ($totalStock <= $product->low_stock_threshold
                                     ? 'Low Stock'
                                     : 'In Stock');
-                        $statusColor =
+                        $statusTextColor =
                             $totalStock == 0
-                                ? 'text-red-600 bg-red-50'
+                                ? 'text-red-600'
                                 : ($totalStock <= $product->low_stock_threshold
-                                    ? 'text-orange-600 bg-orange-50'
-                                    : 'text-green-600 bg-green-50');
+                                    ? 'text-orange-600'
+                                    : 'text-green-600');
                     @endphp
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 text-sm text-gray-900">{{ $product->name }}</td>
@@ -100,8 +100,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
                             ₱{{ number_format($product->price, 2) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span
-                                class="px-2 py-1 text-xs font-medium rounded-full {{ $statusColor }}">{{ $status }}</span>
+                            <span class="text-xs font-medium {{ $statusTextColor }}">{{ $status }}</span>
                         </td>
                     </tr>
                 @empty

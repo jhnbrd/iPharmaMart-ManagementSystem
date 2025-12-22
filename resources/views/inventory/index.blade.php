@@ -195,8 +195,7 @@
                                             </td>
                                         @endif
                                         <td class="px-4 py-3 text-sm">
-                                            <span
-                                                class="font-mono bg-blue-50 px-2 py-1 rounded text-xs font-semibold text-blue-700">
+                                            <span class="font-mono text-xs font-semibold text-blue-700">
                                                 {{ $batch->batch_number }}
                                             </span>
                                         </td>
@@ -213,9 +212,8 @@
                                         </td>
                                         @if ($index === 0)
                                             <td class="px-4 py-3 text-sm" rowspan="{{ $rowspan }}">
-                                                <span class="font-mono bg-gray-100 px-2 py-1 rounded text-xs">
-                                                    {{ $product->barcode ?? 'N/A' }}
-                                                </span>
+                                                <span
+                                                    class="font-mono text-xs text-gray-700">{{ $product->barcode ?? 'N/A' }}</span>
                                             </td>
                                             <td class="px-4 py-3 text-sm text-gray-900"
                                                 rowspan="{{ $rowspan }}">
@@ -298,7 +296,8 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-900">{{ $product->category->name }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-900">{{ $product->unit }}
-                                        ({{ $product->unit_quantity }})</td>
+                                        ({{ $product->unit_quantity }})
+                                    </td>
                                     <td class="px-4 py-3 text-sm text-right">
                                         <span class="font-medium text-blue-600">{{ $product->shelf_stock }}</span>
                                     </td>

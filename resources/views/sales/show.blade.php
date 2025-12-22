@@ -167,6 +167,21 @@
                                 <span class="font-mono">{{ $sale->reference_number }}</span>
                             </div>
                         @endif
+                        @if (strtolower($sale->payment_method) === 'card')
+                            <div class="flex justify-between text-sm mb-1.5">
+                                <span class="font-semibold text-gray-700">Card Bank:</span>
+                                <span class="font-mono">{{ $sale->card_bank_name ?? 'N/A' }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-1.5">
+                                <span class="font-semibold text-gray-700">Card Holder:</span>
+                                <span class="font-medium">{{ $sale->card_holder_name ?? 'N/A' }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-1.5">
+                                <span class="font-semibold text-gray-700">Card (Last 4):</span>
+                                <span
+                                    class="font-mono">{{ $sale->card_last_four ? '****' . $sale->card_last_four : 'N/A' }}</span>
+                            </div>
+                        @endif
                         <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                             <span class="font-semibold text-gray-700">Amount Paid:</span>
                             <span

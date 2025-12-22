@@ -48,7 +48,7 @@
                             {{ $transaction->created_at->format('M d, Y H:i') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $transaction->pwd_id }}
+                            {{ $transaction->pwd_id_number ?? 'N/A' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $transaction->sale->customer->name ?? 'Walk-in' }}
@@ -63,7 +63,7 @@
                             -₱{{ number_format($transaction->discount_amount, 2) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-gray-900">
-                            ₱{{ number_format($transaction->discounted_amount, 2) }}
+                            ₱{{ number_format($transaction->final_amount, 2) }}
                         </td>
                     </tr>
                 @empty

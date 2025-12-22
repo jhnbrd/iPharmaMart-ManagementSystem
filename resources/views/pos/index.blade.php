@@ -510,7 +510,7 @@
     <!-- Customer Modal -->
     <div id="customerModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50"
         style="display: none;">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 m-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 m-4 max-h-[70vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-gray-900">Add Customer</h3>
                 <button onclick="closeCustomerModal()" class="text-gray-400 hover:text-gray-600">
@@ -769,19 +769,21 @@
     <!-- Receipt Modal -->
     <div id="receiptModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50"
         style="display: none;">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 m-4">
-            <div class="text-center mb-6">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden m-4 flex flex-col">
+            <div class="p-6 text-center">
                 <h2 class="text-2xl font-bold text-green-600 mb-2">✓ Transaction Complete!</h2>
                 <p class="text-gray-600">Receipt generated successfully</p>
             </div>
 
             <!-- Receipt Content -->
-            <div id="receiptContent" class="bg-white p-6 border-2 border-gray-200 rounded-lg mb-6">
+            <div id="receiptContent"
+                class="flex-1 bg-white px-6 border-2 border-gray-200 rounded-lg mb-0 overflow-y-auto"
+                style="max-height: 70vh">
                 <!-- Receipt will be dynamically inserted here -->
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex gap-3">
+            <!-- Action Buttons (sticky footer) -->
+            <div class="flex gap-3 p-4 border-t border-gray-200 bg-white" style="flex-shrink:0;">
                 <button type="button" onclick="printReceipt()" class="btn btn-primary flex-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1227,23 +1229,23 @@
                         <td>
                             <div class="qty-controls">
                                 ${item.is_voided ? `
-                                                                                                                                                                            <div class="text-xs text-red-600 font-semibold">VOIDED</div>
-                                                                                                                                                                        ` : `
-                                                                                                                                                                            <button onclick="updateQuantity(${item.id}, -1)" class="qty-btn">
-                                                                                                                                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-                                                                                                                                                                                </svg>
-                                                                                                                                                                            </button>
-                                                                                                                                                                            <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.stock}" 
-                                                                                                                                                                                onchange="setQuantity(${item.id}, this.value, ${item.stock})" 
-                                                                                                                                                                                onblur="if(!this.value || this.value < 1) this.value = 1; setQuantity(${item.id}, this.value, ${item.stock})"
-                                                                                                                                                                                autocomplete="off">
-                                                                                                                                                                            <button onclick="updateQuantity(${item.id}, 1)" class="qty-btn">
-                                                                                                                                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/>
-                                                                                                                                                                                </svg>
-                                                                                                                                                                            </button>
-                                                                                                                                                                        `}
+                                                                                                                                                                                                <div class="text-xs text-red-600 font-semibold">VOIDED</div>
+                                                                                                                                                                                            ` : `
+                                                                                                                                                                                                <button onclick="updateQuantity(${item.id}, -1)" class="qty-btn">
+                                                                                                                                                                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                                                                                                                                                                                    </svg>
+                                                                                                                                                                                                </button>
+                                                                                                                                                                                                <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.stock}" 
+                                                                                                                                                                                                    onchange="setQuantity(${item.id}, this.value, ${item.stock})" 
+                                                                                                                                                                                                    onblur="if(!this.value || this.value < 1) this.value = 1; setQuantity(${item.id}, this.value, ${item.stock})"
+                                                                                                                                                                                                    autocomplete="off">
+                                                                                                                                                                                                <button onclick="updateQuantity(${item.id}, 1)" class="qty-btn">
+                                                                                                                                                                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/>
+                                                                                                                                                                                                    </svg>
+                                                                                                                                                                                                </button>
+                                                                                                                                                                                            `}
                             </div>
                         </td>
                         <td class="text-right">₱${item.price.toFixed(2)}</td>
@@ -1867,7 +1869,7 @@
                 }
 
                 if ((paymentMethod === 'gcash' || paymentMethod === 'card') && !getInputValue('referenceNumber')
-                .trim()) {
+                    .trim()) {
                     showToast('Reference number is required for ' + paymentMethod.toUpperCase() + ' payment', 'error');
                     return;
                 }
@@ -2129,9 +2131,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                                                                                                                                                                                                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                                                                                                                                                                                                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                                                                                                                                                                                                                                                                                                    </div>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                            <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                        </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -2150,9 +2152,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                                                                                                                                                                                                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                                                                                                                                                                                                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                                                                                                                                                                                                                                                                                                    </div>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                        </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
@@ -2795,5 +2797,21 @@
         } catch (e) {
             console.error('Failed to initialize navigation guards:', e);
         }
+    </script>
+    <script>
+        // Ensure critical modals are appended to document.body so fixed positioning
+        // and overflow behave correctly even when POS content has filters/transforms.
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                ['receiptModal', 'paymentModal', 'customerModal', 'voidItemModal', 'voidSaleModal'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && el.parentNode !== document.body) {
+                        document.body.appendChild(el);
+                    }
+                });
+            } catch (e) {
+                console.warn('Modal relocation failed:', e);
+            }
+        });
     </script>
 </x-pos-layout>

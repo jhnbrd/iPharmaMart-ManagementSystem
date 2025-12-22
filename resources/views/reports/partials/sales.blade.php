@@ -60,7 +60,7 @@
                             {{ $sale->created_at->format('M d, Y H:i') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $sale->receipt_number }}
+                            {{ $sale->receipt_number ?? 'RCP-' . str_pad($sale->id, 6, '0', STR_PAD_LEFT) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $sale->customer->name ?? 'Walk-in' }}

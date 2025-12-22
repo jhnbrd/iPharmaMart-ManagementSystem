@@ -154,9 +154,8 @@
                             </td>
                             <td class="px-6 py-4">
                                 @if ($movement->batch)
-                                    <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
-                                        {{ $movement->batch->batch_number }}
-                                    </span>
+                                    <span
+                                        class="text-xs font-mono text-gray-700">{{ $movement->batch->batch_number }}</span>
                                     @if ($movement->batch->expiry_date)
                                         <div class="text-xs text-gray-500">
                                             Exp: {{ $movement->batch->expiry_date->format('M d, Y') }}

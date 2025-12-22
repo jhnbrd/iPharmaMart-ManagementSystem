@@ -70,6 +70,31 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
+        /* Prominent void button style for POS header (admin action) */
+        .pos-void-btn {
+            padding: 0.5rem 0.6rem;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+            box-shadow: 0 6px 12px rgba(220, 38, 38, 0.12);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.08s ease, box-shadow 0.12s ease;
+            font-weight: 700;
+        }
+
+        .pos-void-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(220, 38, 38, 0.16);
+        }
+
+        .pos-void-btn:active {
+            transform: translateY(0);
+        }
+
         /* Hide scrollbar but keep functionality */
         .pos-body::-webkit-scrollbar {
             width: 8px;
@@ -261,10 +286,9 @@
 
             <div class="flex items-center gap-3">
                 <!-- Subtle header void button (admin only). Small, de-emphasized to avoid accidental clicks. -->
-                <button id="posHeaderVoidBtn" type="button" onclick="openVoidSaleModal()" class="fullscreen-btn"
-                    title="Void Entire Sale (Admin) — use only when necessary"
-                    style="padding:0.35rem 0.5rem;opacity:1;border:1px solid #dc2626;background:transparent;color:#dc2626;transition:all 0.12s;">
-                    <svg class="w-4 h-4" fill="none" stroke="#dc2626" viewBox="0 0 24 24">
+                <button id="posHeaderVoidBtn" type="button" onclick="openVoidSaleModal()" class="pos-void-btn"
+                    title="Void Entire Sale (Admin) — use only when necessary" aria-label="Void entire sale">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
                     </svg>

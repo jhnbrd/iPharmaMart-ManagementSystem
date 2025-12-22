@@ -45,9 +45,7 @@
                             <td class="px-6 py-4">{{ $user->email }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if ($user->role === 'superadmin')
-                                    <span
-                                        class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium">⚡
-                                        Super Admin</span>
+                                    <span class="font-medium text-purple-800">⚡ Super Admin</span>
                                 @elseif($user->role === 'admin')
                                     <span class="badge-danger">Admin</span>
                                 @elseif($user->role === 'cashier')

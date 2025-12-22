@@ -163,17 +163,17 @@
         }
 
         .badge-success {
-            background-color: #dcfce7;
+            background-color: none;
             color: #166534;
         }
 
         .badge-warning {
-            background-color: #fef3c7;
+            background-color: none;
             color: #92400e;
         }
 
         .badge-info {
-            background-color: #dbeafe;
+            background-color: none;
             color: #1e40af;
         }
 
