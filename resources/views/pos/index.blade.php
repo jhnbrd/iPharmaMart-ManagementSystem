@@ -1852,9 +1852,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                                                                                                                    </div>` : ''}
+                                                                                                                                                                                                                    <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                                                                                                                    <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                                                                                                                </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1873,9 +1873,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                                                                                                                    </div>` : ''}
+                                                                                                                                                                                                                    <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                                                                                                                    <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                                                                                                                </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
@@ -1942,8 +1942,10 @@
                 location.reload();
             }, 1000);
         }
-        document.getElementById('customerDisplay').innerHTML =
-            '<div class="text-sm text-gray-600 italic">Walk-in Customer</div>';
+        const _customerDisplay = document.getElementById('customerDisplay');
+        if (_customerDisplay) {
+            _customerDisplay.innerHTML = '<div class="text-sm text-gray-600 italic">Walk-in Customer</div>';
+        }
 
         // Show success message
         const notification = document.createElement('div');
@@ -1956,22 +1958,28 @@
             notification.remove();
         }, 2000);
 
-        // Close modals when clicking outside
-        document.getElementById('customerModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeCustomerModal();
-            }
-        });
+        // Close modals when clicking outside (guard elements)
+        const _customerModal = document.getElementById('customerModal');
+        if (_customerModal) {
+            _customerModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeCustomerModal();
+                }
+            });
+        }
 
-        document.getElementById('paymentModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePaymentModal();
-            }
-        });
+        const _paymentModal = document.getElementById('paymentModal');
+        if (_paymentModal) {
+            _paymentModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePaymentModal();
+                }
+            });
+        }
 
         // AJAX Filter and Pagination (keeps fullscreen mode)
         let filterTimeout;
-        let currentPage = {{ $products->currentPage() }};
+        var currentPage = {{ $products->currentPage() }};
 
         // Apply filters with AJAX
         function applyFilters(page = 1) {
@@ -2000,7 +2008,7 @@
             const url = `{{ route('pos.index') }}?${params.toString()}`;
             console.debug('Applying filters, fetching:', url);
 
-            // Fetch filtered products
+            // Fetch filtered products (with extra debug logging)
             fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
@@ -2008,20 +2016,52 @@
                     }
                 })
                 .then(response => {
+                    console.debug('Filter response status:', response.status, response.statusText);
+                    const ct = response.headers.get('content-type') || '';
+                    console.debug('Filter response content-type:', ct);
                     if (!response.ok) throw new Error('Server responded with status ' + response.status + ' ' + response
                         .statusText);
-                    return response.text();
+                    return response.text().then(text => ({
+                        text,
+                        status: response.status,
+                        contentType: ct
+                    }));
                 })
-                .then(html => {
+                .then(({
+                    text: html,
+                    status,
+                    contentType
+                }) => {
                     try {
+                        // If the response doesn't include the products grid, dump a preview for debugging
+                        if (typeof html === 'string' && html.indexOf('id="productsGrid"') === -1) {
+                            console.warn('AJAX response does not contain #productsGrid. Response preview:', html
+                                .substring(0, 1200));
+                        }
+
                         // Parse the response
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
+
+                        // Detect if server returned a login page (session expired / unauthorized)
+                        const loginForm = doc.querySelector('form[action*=login], form#loginForm');
+                        if (loginForm) {
+                            console.warn(
+                                'AJAX product fetch returned a login page — possible session/authorization issue.');
+                            if (productsGrid) {
+                                productsGrid.style.opacity = '1';
+                                productsGrid.style.pointerEvents = 'auto';
+                            }
+                            showToast('Session expired or not authorized. Please reload and sign in again.', 'error');
+                            return;
+                        }
 
                         // Update products grid
                         const newProductsGrid = doc.getElementById('productsGrid');
                         if (newProductsGrid && productsGrid) {
                             productsGrid.innerHTML = newProductsGrid.innerHTML;
+                        } else {
+                            console.debug('No productsGrid found in AJAX response.');
                         }
 
                         // Update pagination
@@ -2047,7 +2087,7 @@
                             productsGrid.style.opacity = '1';
                             productsGrid.style.pointerEvents = 'auto';
                         }
-                        alert('Error loading products. Please try again.');
+                        showToast('Error loading products. Please try again.', 'error');
                     }
                 })
                 .catch(error => {
@@ -2056,7 +2096,7 @@
                         productsGrid.style.opacity = '1';
                         productsGrid.style.pointerEvents = 'auto';
                     }
-                    alert('Error loading products. ' + (error.message || 'Please try again.'));
+                    showToast('Error loading products. ' + (error.message || 'Please try again.'), 'error');
                 });
         }
 
