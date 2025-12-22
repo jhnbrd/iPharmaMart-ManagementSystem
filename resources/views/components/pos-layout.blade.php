@@ -298,23 +298,36 @@
         const modal = document.getElementById('fullscreenModal');
         const posContent = document.getElementById('posContent');
 
-        // Function to enter fullscreen from modal
-        function enterFullscreen() {
-            document.documentElement.requestFullscreen()
-                .then(() => {
-                    modal.classList.add('hidden');
-                    posContent.classList.add('active');
-                })
-                .catch(err => {
-                    alert(`Error: ${err.message}\n\nPlease press F11 to enter fullscreen mode.`);
-                });
+        // Function to enter fullscreen from modal or button. Returns a Promise<boolean>.
+        async function enterFullscreen() {
+            if (!document.fullscreenEnabled || !document.documentElement.requestFullscreen) {
+                return false;
+            }
+
+            try {
+                await document.documentElement.requestFullscreen();
+                modal.classList.add('hidden');
+                posContent.classList.add('active');
+                try {
+                    localStorage.setItem('posFullscreen', 'true');
+                } catch (e) {}
+                return true;
+            } catch (err) {
+                // Keep modal visible; advise manual fallback
+                console.warn('Fullscreen request failed:', err);
+                return false;
+            }
         }
 
         // Fullscreen toggle for header button
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    alert(`Error attempting to enable fullscreen: ${err.message}`);
+                enterFullscreen().then(success => {
+                    if (!success) {
+                        alert(
+                            'Fullscreen could not be entered automatically. Please click the "Enter Fullscreen Mode" button.'
+                        );
+                    }
                 });
             } else {
                 if (document.exitFullscreen) {
@@ -340,29 +353,67 @@
             }
         });
 
-        // Check fullscreen status on page load
+        // Check fullscreen status on page load - bind a one-time user gesture to enter fullscreen
         window.addEventListener('DOMContentLoaded', () => {
-            // Always try to enter fullscreen immediately on POS page load
-            if (!document.fullscreenElement) {
-                // Try to enter fullscreen automatically
-                document.documentElement.requestFullscreen()
-                    .then(() => {
-                        modal.classList.add('hidden');
-                        posContent.classList.add('active');
-                        localStorage.setItem('posFullscreen', 'true');
-                    })
-                    .catch((err) => {
-                        // Browser blocked auto-entry, show modal for user to click
-                        console.log('Auto fullscreen blocked, showing modal:', err);
-                        modal.classList.remove('hidden');
-                        posContent.classList.remove('active');
-                    });
-            } else {
-                // Already in fullscreen
+            // If already in fullscreen, hide the modal
+            if (document.fullscreenElement) {
                 modal.classList.add('hidden');
                 posContent.classList.add('active');
-                localStorage.setItem('posFullscreen', 'true');
+                try {
+                    localStorage.setItem('posFullscreen', 'true');
+                } catch (e) {}
             }
+
+            // Show modal by default; the user can click the button to enter fullscreen
+            modal.classList.remove('hidden');
+            posContent.classList.remove('active');
+
+            // If user previously opted into fullscreen, bind a one-time listener
+            function onFirstGesture() {
+                // Attempt to enter fullscreen; if succeeds, modal will hide from enterFullscreen
+                enterFullscreen().then(success => {
+                    if (!success) {
+                        // Could not enter fullscreen programmatically; leave modal visible
+                        console.log('Auto fullscreen blocked or denied on user gesture.');
+                    }
+                });
+
+                // remove listeners after first gesture
+                document.removeEventListener('click', onFirstGesture, true);
+                document.removeEventListener('keydown', onFirstGesture, true);
+                document.removeEventListener('touchstart', onFirstGesture, true);
+            }
+
+            document.addEventListener('click', onFirstGesture, true);
+            document.addEventListener('keydown', onFirstGesture, true);
+            document.addEventListener('touchstart', onFirstGesture, true);
+
+            // When the fullscreen modal is visible, allow clicking anywhere in the modal
+            // to attempt entering fullscreen. However, allow the 'Back to Dashboard' link
+            // to function normally.
+            function onModalClick(e) {
+                // If the click target is the dashboard link inside the modal, do nothing
+                const dash = e.target.closest('a[href*="dashboard"]');
+                if (dash) {
+                    // let the navigation happen
+                    return;
+                }
+
+                // Also allow clicks on elements that explicitly request fullscreen (button)
+                const btn = e.target.closest('button');
+                if (btn && btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('enterFullscreen')) {
+                    // let the button's own handler call enterFullscreen
+                    return;
+                }
+
+                // Try to enter fullscreen on any other click while modal is shown
+                enterFullscreen().then(success => {
+                    // leave the listener attached so future modal displays still respond to clicks
+                }).catch(() => {});
+            }
+
+            // Use capture so clicks inside modal content are caught
+            modal.addEventListener('click', onModalClick, true);
 
             // Clear flag when leaving POS
             const dashboardLink = document.querySelector('a[href*="dashboard"]');
@@ -370,13 +421,17 @@
 
             if (dashboardLink) {
                 dashboardLink.addEventListener('click', () => {
-                    localStorage.removeItem('posFullscreen');
+                    try {
+                        localStorage.removeItem('posFullscreen');
+                    } catch (e) {}
                 });
             }
 
             if (logoutForm) {
                 logoutForm.addEventListener('submit', () => {
-                    localStorage.removeItem('posFullscreen');
+                    try {
+                        localStorage.removeItem('posFullscreen');
+                    } catch (e) {}
                 });
             }
         });

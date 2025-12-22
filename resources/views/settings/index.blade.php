@@ -299,7 +299,7 @@
                             </div>
                             <div class="flex gap-2">
                                 <a href="/settings/download-backup/${encodeURIComponent(backup.filename)}"
-                                    class="px-4 py-2 text-sm font-semibold bg-[var(--color-brand-green)] text-black rounded-lg hover:bg-green-700 transition-colors shadow-md hover:shadow-lg">
+                                    class="px-4 py-2 text-sm font-semibold bg-[var(--color-brand-green)] text-white rounded-lg hover:bg-green-700 transition-colors shadow-md hover:shadow-lg">
                                     Download
                                 </a>
                                 <button onclick="deleteBackup('${backup.filename}')"
