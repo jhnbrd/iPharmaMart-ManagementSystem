@@ -18,7 +18,7 @@ class UnifiedDiscountController extends Controller
         $start = Carbon::parse($startDate)->startOfDay();
         $end = Carbon::parse($endDate)->endOfDay();
 
-        $perPage = $request->input('per_page', 15);
+        $perPage = $request->input('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 15));
 
         if ($discountType === 'pwd') {
             $transactions = PwdTransaction::with(['sale.customer', 'sale.user'])

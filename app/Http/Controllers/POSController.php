@@ -37,7 +37,7 @@ class POSController extends Controller
             $query->where('product_type', $request->product_type);
         }
 
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 8));
         $products = $query->orderBy('name')->paginate($perPage);
 
         $customers = Customer::orderBy('name')->get();
@@ -54,6 +54,9 @@ class POSController extends Controller
                 'password' => 'required|string',
                 'action' => 'required|string',
                 'item_id' => 'nullable|integer',
+                'items' => 'nullable|array',
+                'items.*.product_id' => 'nullable|integer',
+                'items.*.quantity' => 'nullable|integer',
                 'reason' => 'required|string',
             ]);
 
@@ -81,12 +84,87 @@ class POSController extends Controller
                 null,
                 [
                     'action' => $validated['action'],
-                    'item_id' => $validated['item_id'],
+                    'item_id' => $validated['item_id'] ?? null,
                     'reason' => $validated['reason'],
                     'authorized_by' => $admin->name,
                     'authorized_by_username' => $admin->username,
                 ]
             );
+
+            // If this is a void of the entire sale initiated from POS (cart discard),
+            // create a voided Sale record so it appears in Sales History. The client
+            // should pass the cart items in 'items' when requesting this action.
+            if ($validated['action'] === 'void_entire_sale' && !empty($validated['items']) && is_array($validated['items'])) {
+                // Build sale and items but DO NOT decrement stock (these were only in cart)
+                // Ensure a valid customer_id exists (use Walk-in Customer as default)
+                $walkIn = Customer::firstOrCreate(
+                    ['name' => 'Walk-in Customer'],
+                    ['phone' => 'N/A', 'address' => 'N/A']
+                );
+
+                $saleData = [
+                    'customer_id' => $walkIn->id,
+                    'user_id' => $admin->id,
+                    'total' => 0,
+                    'payment_method' => 'void',
+                    'paid_amount' => 0,
+                    'change_amount' => 0,
+                    'is_voided' => true,
+                    'voided_at' => now(),
+                    'voided_by' => $admin->id,
+                    'void_reason' => $validated['reason'],
+                ];
+
+                $sale = \App\Models\Sale::create($saleData);
+
+                $itemsForReceipt = [];
+                foreach ($validated['items'] as $it) {
+                    $product = \App\Models\Product::find($it['product_id']);
+                    if (!$product) continue;
+                    $quantity = intval($it['quantity'] ?? 1);
+                    $price = $product->price;
+                    $subtotal = 0; // voided, not counted
+
+                    \App\Models\SaleItem::create([
+                        'sale_id' => $sale->id,
+                        'product_id' => $product->id,
+                        'quantity' => $quantity,
+                        'price' => $price,
+                        'subtotal' => $subtotal,
+                        'is_voided' => true,
+                    ]);
+
+                    $itemsForReceipt[] = [
+                        'name' => $product->name,
+                        'quantity' => $quantity,
+                        'price' => $price,
+                        'subtotal' => $subtotal,
+                        'is_voided' => true,
+                    ];
+                }
+
+                // Prepare receipt-like response for client (optional)
+                $receipt = [
+                    'receipt_number' => 'RCP-' . str_pad($sale->id, 6, '0', STR_PAD_LEFT),
+                    'date' => $sale->created_at->format('F d, Y'),
+                    'time' => $sale->created_at->format('h:i A'),
+                    'cashier' => $admin->name,
+                    'customer' => null,
+                    'items' => $itemsForReceipt,
+                    'subtotal' => 0,
+                    'tax' => 0,
+                    'total' => 0,
+                    'payment_method' => 'void',
+                ];
+
+                return response()->json([
+                    'success' => true,
+                    'admin_name' => $admin->name,
+                    'message' => 'Authorization successful',
+                    'void_sale_id' => $sale->id,
+                    'receipt' => $receipt,
+                ]);
+            }
 
             return response()->json([
                 'success' => true,

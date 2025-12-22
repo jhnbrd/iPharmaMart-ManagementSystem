@@ -53,7 +53,7 @@ class InventoryController extends Controller
             }
         }
 
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 10));
         $products = $query->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->appends($request->except('page'));

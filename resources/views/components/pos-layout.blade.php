@@ -260,11 +260,13 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button onclick="toggleFullscreen()" class="fullscreen-btn" id="fullscreenBtn"
-                    title="Toggle Fullscreen">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Subtle header void button (admin only). Small, de-emphasized to avoid accidental clicks. -->
+                <button id="posHeaderVoidBtn" type="button" onclick="openVoidSaleModal()" class="fullscreen-btn"
+                    title="Void Entire Sale (Admin) — use only when necessary"
+                    style="padding:0.35rem 0.5rem;opacity:1;border:1px solid #dc2626;background:transparent;color:#dc2626;transition:all 0.12s;">
+                    <svg class="w-4 h-4" fill="none" stroke="#dc2626" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
 
@@ -275,9 +277,10 @@
                     </svg>
                 </a>
 
+
                 <form method="POST" action="{{ route('logout') }}" class="inline" id="posLogoutForm">
                     @csrf
-                    <button type="button" onclick="showPosLogoutModal()" class="fullscreen-btn" title="Logout">
+                    <button type="button" onclick="showLogoutModal()" class="fullscreen-btn" title="Logout">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -600,11 +603,71 @@
             localStorage.setItem('posFullscreen', 'true');
         }
 
-        function showPosLogoutModal() {
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('posFullscreen');
-                document.getElementById('posLogoutForm').submit();
+        function showPosLogoutConfirm() {
+            // Create or show a POS-specific logout modal that submits `posLogoutForm` on confirm
+            let modal = document.getElementById('posLogoutModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'posLogoutModal';
+                modal.className = 'fullscreen-modal';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-icon" style="background: linear-gradient(135deg,#ef4444 0%,#dc2626 100%);">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            </svg>
+                        </div>
+                        <h2 class="modal-title">Confirm Logout</h2>
+                        <p class="modal-text">Are you sure you want to logout? You will need to sign in again to access your account.</p>
+                        <button id="posLogoutConfirmBtn" class="modal-btn">Yes, Logout</button>
+                        <a id="posLogoutCancelBtn" class="modal-back-btn">Cancel</a>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                document.getElementById('posLogoutCancelBtn').addEventListener('click', function() {
+                    modal.classList.add('hidden');
+                });
+
+                document.getElementById('posLogoutConfirmBtn').addEventListener('click', function() {
+                    try {
+                        localStorage.removeItem('posFullscreen');
+                    } catch (e) {}
+                    // Mark navigating so fullscreen logic doesn't remove stored flag incorrectly
+                    window.navigating = true;
+                    document.getElementById('posLogoutForm').submit();
+                });
             }
+
+            // Show modal
+            modal.classList.remove('hidden');
+        }
+
+        function showPosLogoutModal() {
+            // If cart exists and has items, require the unsaved-cart workflow
+            try {
+                if (window.cart && Array.isArray(window.cart) && window.cart.length > 0) {
+                    if (typeof showUnsavedCartModal === 'function') {
+                        // Pass callback to show the POS logout confirm after the user voids the cart
+                        showUnsavedCartModal(() => {
+                            showPosLogoutConfirm();
+                        });
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error('Error checking cart state before logout:', e);
+            }
+
+            // Otherwise show confirmation directly
+            showPosLogoutConfirm();
+        }
+
+        // Provide a generic name `showLogoutModal` so navigation guards in `pos/index.blade.php`
+        // can find and intercept logout triggers the same way they intercept Back-to-Dashboard.
+        function showLogoutModal() {
+            return showPosLogoutModal();
         }
     </script>
 

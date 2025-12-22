@@ -41,7 +41,7 @@ class SalesController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 10));
         $sales = $query->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->appends($request->except('page'));
@@ -68,6 +68,7 @@ class SalesController extends Controller
                 'items' => 'required|array|min:1',
                 'items.*.product_id' => 'required|exists:products,id',
                 'items.*.quantity' => 'required|integer|min:1',
+                'items.*.is_voided' => 'nullable|boolean',
                 'payment_method' => 'required|in:cash,gcash,card',
                 'paid_amount' => 'required|numeric|min:0',
                 'change_amount' => 'required|numeric|min:0',
@@ -121,13 +122,18 @@ class SalesController extends Controller
                 foreach ($validated['items'] as $item) {
                     $product = Product::lockForUpdate()->find($item['product_id']);
 
-                    // Check stock availability using total_stock accessor
-                    $availableStock = $product->total_stock;
-                    if ($availableStock < $item['quantity']) {
-                        throw new \Exception("Insufficient stock for product: {$product->name}. Available: {$availableStock}, Requested: {$item['quantity']}");
+                    $isVoided = !empty($item['is_voided']);
+
+                    if (!$isVoided) {
+                        // Check stock availability using total_stock accessor
+                        $availableStock = $product->total_stock;
+                        if ($availableStock < $item['quantity']) {
+                            throw new \Exception("Insufficient stock for product: {$product->name}. Available: {$availableStock}, Requested: {$item['quantity']}");
+                        }
                     }
 
-                    $itemSubtotal = $product->price * $item['quantity'];
+                    // If item is voided, it should not affect subtotal
+                    $itemSubtotal = $isVoided ? 0 : ($product->price * $item['quantity']);
                     $subtotal += $itemSubtotal;
 
                     $itemsDetails[] = [
@@ -136,6 +142,7 @@ class SalesController extends Controller
                         'quantity' => $item['quantity'],
                         'price' => $product->price,
                         'subtotal' => $itemSubtotal,
+                        'is_voided' => $isVoided,
                     ];
                 }
 
@@ -193,7 +200,13 @@ class SalesController extends Controller
                         'quantity' => $item['quantity'],
                         'price' => $item['price'],
                         'subtotal' => $item['subtotal'],
+                        'is_voided' => $item['is_voided'] ?? false,
                     ]);
+
+                    // If the item was voided before sale, do not decrement stock
+                    if (!empty($item['is_voided'])) {
+                        continue;
+                    }
 
                     // Update product stock using FIFO for products with expiration dates
                     $quantityToDecrement = $item['quantity'];

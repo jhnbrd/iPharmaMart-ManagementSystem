@@ -20,7 +20,7 @@ class UserController extends Controller
                 ->with('error', 'Unauthorized access.');
         }
 
-        $perPage = request('per_page', 10);
+        $perPage = request('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 10));
         $users = User::orderBy('created_at', 'desc')->paginate($perPage);
 
         return view('users.index', compact('users'));

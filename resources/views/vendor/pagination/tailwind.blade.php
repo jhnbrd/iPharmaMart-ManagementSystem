@@ -15,7 +15,7 @@
                 <div class="flex items-center gap-2">
                     <label for="perPageInput" class="text-sm text-gray-600 whitespace-nowrap">Items per page:</label>
                     <input type="number" id="perPageInput" min="1" max="1000"
-                        value="{{ request('per_page', 15) }}"
+                        value="{{ request('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 15)) }}"
                         class="w-20 px-3 py-1.5 text-sm border border-gray-300 rounded-md shadow-sm focus:border-[var(--color-brand-green)] focus:ring focus:ring-[var(--color-brand-green)] focus:ring-opacity-50"
                         onkeypress="if(event.key === 'Enter') changePerPage(this.value)">
                     <button onclick="changePerPage(document.getElementById('perPageInput').value)"

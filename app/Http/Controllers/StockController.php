@@ -50,7 +50,7 @@ class StockController extends Controller
             $query->where('reference_number', 'like', '%' . $request->reference_number . '%');
         }
 
-        $perPage = $request->input('per_page', 20);
+        $perPage = $request->input('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 20));
         $movements = $query->paginate($perPage)->appends($request->except('page'));
         $products = Product::orderBy('name')->get();
 

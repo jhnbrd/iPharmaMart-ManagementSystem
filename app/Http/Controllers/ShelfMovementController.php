@@ -37,7 +37,7 @@ class ShelfMovementController extends Controller
             }
         }
 
-        $perPage = $request->input('per_page', 20);
+        $perPage = $request->input('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 20));
         $movements = $query->paginate($perPage);
         $products = Product::orderBy('name')->get();
 

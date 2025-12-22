@@ -346,11 +346,11 @@
                         <input type="text" name="search" id="searchProduct"
                             placeholder="Search products by name or ID..." class="form-input pl-10 w-full text-base"
                             value="{{ request('search') }}" autocomplete="off">
-                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none"
+                        {{-- <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        </svg> --}}
                     </div>
                     <select name="product_type" id="productTypeFilter" class="form-select"
                         style="flex: 1; min-width: 140px;">
@@ -368,12 +368,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <button type="button" onclick="applyFilters(1)" class="btn btn-primary" style="min-width: 80px;">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </button>
+                    <!-- Search button removed: realtime filtering handles input and selects -->
                 </form>
             </div>
 
@@ -399,7 +394,7 @@
                             data-name="{{ strtolower($productFullName) }}" data-id="{{ $product->id }}"
                             data-type="{{ $product->product_type }}" data-product-name="{{ $productFullName }}"
                             data-price="{{ $product->price }}" data-stock="{{ $product->total_stock }}"
-                            data-category-name="{{ $categoryName }}" onclick="addToCartFromData(this)">
+                            data-category-name="{{ $categoryName }}">
                             <div class="product-info">
                                 <div class="product-name"
                                     title="{{ ($product->brand_name ? $product->brand_name . ' ' : '') . $product->name }}">
@@ -453,17 +448,6 @@
 
         <!-- Right Panel: Cart & Customer -->
         <div class="right-panel">
-            <!-- Void Sale Button Section -->
-            <div class="customer-section">
-                <button onclick="openVoidSaleModal()"
-                    class="btn btn-danger w-full flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Void Entire Sale
-                </button>
-            </div>
 
             <!-- Cart Section -->
             <div class="cart-section">
@@ -578,6 +562,41 @@
             <div class="grid grid-cols-2 gap-4">
                 <!-- Left Column -->
                 <div class="space-y-3">
+                    <!-- Discount Section (moved above customer selection) -->
+                    <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <label class="form-label text-xs mb-2">Discount (Optional)</label>
+                        <div class="space-y-2">
+                            <label
+                                class="flex items-center p-2 bg-white rounded border cursor-pointer hover:border-blue-500 transition">
+                                <input type="checkbox" id="seniorDiscount" class="mr-2"
+                                    onchange="handleDiscountChange()">
+                                <div class="flex-1">
+                                    <div class="font-semibold text-sm">Senior Citizen (20%)</div>
+                                    <input type="text" id="seniorIdNumber" class="form-input text-xs mt-1"
+                                        placeholder="ID Number" disabled onclick="event.stopPropagation()"
+                                        autocomplete="off" oninput="searchDiscountId('senior')">
+                                    <div id="seniorIdDropdown"
+                                        class="hidden bg-white border border-gray-200 rounded mt-1 max-h-40 overflow-y-auto text-sm">
+                                    </div>
+                                </div>
+                            </label>
+                            <label
+                                class="flex items-center p-2 bg-white rounded border cursor-pointer hover:border-blue-500 transition">
+                                <input type="checkbox" id="pwdDiscount" class="mr-2"
+                                    onchange="handleDiscountChange()">
+                                <div class="flex-1">
+                                    <div class="font-semibold text-sm">PWD (20%)</div>
+                                    <input type="text" id="pwdIdNumber" class="form-input text-xs mt-1"
+                                        placeholder="PWD ID Number" disabled onclick="event.stopPropagation()"
+                                        autocomplete="off" oninput="searchDiscountId('pwd')">
+                                    <div id="pwdIdDropdown"
+                                        class="hidden bg-white border border-gray-200 rounded mt-1 max-h-40 overflow-y-auto text-sm">
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Customer Selection Section -->
                     <div class="p-3 bg-gray-50 rounded-lg">
                         <label class="form-label text-xs mb-2">Customer Information</label>
@@ -651,41 +670,6 @@
                                             placeholder="Address (optional)" disabled
                                             onclick="event.stopPropagation()" autocomplete="off">
                                     </div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Discount Section -->
-                    <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <label class="form-label text-xs mb-2">Discount (Optional)</label>
-                        <div class="space-y-2">
-                            <label
-                                class="flex items-center p-2 bg-white rounded border cursor-pointer hover:border-blue-500 transition">
-                                <input type="checkbox" id="seniorDiscount" class="mr-2"
-                                    onchange="handleDiscountChange()">
-                                <div class="flex-1">
-                                    <div class="font-semibold text-sm">Senior Citizen (20%)</div>
-                                    <input type="text" id="seniorIdNumber" class="form-input text-xs mt-1"
-                                        placeholder="ID Number" disabled onclick="event.stopPropagation()"
-                                        autocomplete="off">
-                                    <input type="text" id="seniorName" class="form-input text-xs mt-1"
-                                        placeholder="Senior Citizen Name" disabled onclick="event.stopPropagation()"
-                                        autocomplete="off">
-                                </div>
-                            </label>
-                            <label
-                                class="flex items-center p-2 bg-white rounded border cursor-pointer hover:border-blue-500 transition">
-                                <input type="checkbox" id="pwdDiscount" class="mr-2"
-                                    onchange="handleDiscountChange()">
-                                <div class="flex-1">
-                                    <div class="font-semibold text-sm">PWD (20%)</div>
-                                    <input type="text" id="pwdIdNumber" class="form-input text-xs mt-1"
-                                        placeholder="PWD ID Number" disabled onclick="event.stopPropagation()"
-                                        autocomplete="off">
-                                    <input type="text" id="pwdName" class="form-input text-xs mt-1"
-                                        placeholder="PWD Name" disabled onclick="event.stopPropagation()"
-                                        autocomplete="off">
                                 </div>
                             </label>
                         </div>
@@ -911,17 +895,31 @@
                         class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
                     </div>
                 </div>
-                <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="closeVoidSaleModal()" class="btn btn-secondary flex-1">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-danger flex-1">
-                        <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Void Sale
-                    </button>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <!-- Require explicit confirmation before enabling the destructive action -->
+                        <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;color:#6b7280;">
+                            <input type="checkbox" id="confirmVoidSaleCheck"
+                                onchange="document.getElementById('voidSaleSubmitBtn').disabled = !this.checked;">
+                            <span>I understand this will void the entire sale</span>
+                        </label>
+                    </div>
+
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button type="button" onclick="closeVoidSaleModal()" class="btn btn-secondary">
+                            Cancel
+                        </button>
+
+                        <button type="submit" id="voidSaleSubmitBtn" class="" disabled
+                            style="display:inline-flex;align-items:center;gap:8px;justify-content:center;min-width:130px;padding:10px 14px;border-radius:8px;background:transparent;border:1px solid #dc2626;color:#dc2626;cursor:pointer;font-weight:700;font-size:0.98rem;">
+                            <svg class="w-5 h-5 inline mr-1" fill="none" stroke="#dc2626" viewBox="0 0 24 24"
+                                style="width:18px;height:18px;vertical-align:middle;flex-shrink:0;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Void Sale
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -1101,7 +1099,11 @@
                         password: password,
                         action: 'void_entire_sale',
                         item_id: null,
-                        reason: reason
+                        reason: reason,
+                        items: cart.map(i => ({
+                            product_id: i.id,
+                            quantity: i.quantity
+                        }))
                     })
                 })
                 .then(response => response.json())
@@ -1116,6 +1118,20 @@
                         // Show success message
                         showToast(`Sale voided successfully by ${data.admin_name} - ${itemCount} item(s) cleared`,
                             'success');
+
+                        // If there is a pending navigation (triggered before void), execute it now
+                        if (window.pendingNavigation && typeof window.pendingNavigation === 'function') {
+                            try {
+                                const nav = window.pendingNavigation;
+                                window.pendingNavigation = null;
+                                // Slight delay to allow modal close animation
+                                setTimeout(() => {
+                                    nav();
+                                }, 200);
+                            } catch (err) {
+                                console.error('Error executing pending navigation after void:', err);
+                            }
+                        }
                     } else {
                         // Show error
                         const errorDiv = document.getElementById('voidSaleAuthError');
@@ -1159,16 +1175,19 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Get item name before removing
+                        // Mark the item in the cart as voided so it appears on receipt
                         const item = cart.find(i => i.id === productId);
                         const itemName = item ? item.name : 'Item';
-
-                        // Remove item from cart
-                        removeFromCart(productId);
+                        if (item) {
+                            item.is_voided = true;
+                            item.void_reason = reason;
+                            item.voided_by = data.admin_name || null;
+                        }
+                        updateCart();
                         closeVoidItemModal();
 
                         // Show success message
-                        showToast(`"${itemName}" voided by ${data.admin_name}`, 'success');
+                        showToast(`"${itemName}" marked VOIDED by ${data.admin_name}`, 'success');
                     } else {
                         // Show error
                         const errorDiv = document.getElementById('voidAuthError');
@@ -1203,28 +1222,32 @@
                     <tr data-item-id="${item.id}" data-item-name="${item.name}">
                         <td>
                             <div class="font-medium text-sm">${item.name}</div>
-                            <div class="text-xs text-gray-500">${item.category}</div>
+                            <div class="text-xs text-gray-500">${item.category}${item.is_voided ? ' • (VOIDED)' : ''}</div>
                         </td>
                         <td>
                             <div class="qty-controls">
-                                <button onclick="updateQuantity(${item.id}, -1)" class="qty-btn">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-                                    </svg>
-                                </button>
-                                <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.stock}" 
-                                    onchange="setQuantity(${item.id}, this.value, ${item.stock})" 
-                                    onblur="if(!this.value || this.value < 1) this.value = 1; setQuantity(${item.id}, this.value, ${item.stock})"
-                                    autocomplete="off">
-                                <button onclick="updateQuantity(${item.id}, 1)" class="qty-btn">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/>
-                                    </svg>
-                                </button>
+                                ${item.is_voided ? `
+                                                                                                                                                                            <div class="text-xs text-red-600 font-semibold">VOIDED</div>
+                                                                                                                                                                        ` : `
+                                                                                                                                                                            <button onclick="updateQuantity(${item.id}, -1)" class="qty-btn">
+                                                                                                                                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                                                                                                                                                                </svg>
+                                                                                                                                                                            </button>
+                                                                                                                                                                            <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.stock}" 
+                                                                                                                                                                                onchange="setQuantity(${item.id}, this.value, ${item.stock})" 
+                                                                                                                                                                                onblur="if(!this.value || this.value < 1) this.value = 1; setQuantity(${item.id}, this.value, ${item.stock})"
+                                                                                                                                                                                autocomplete="off">
+                                                                                                                                                                            <button onclick="updateQuantity(${item.id}, 1)" class="qty-btn">
+                                                                                                                                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/>
+                                                                                                                                                                                </svg>
+                                                                                                                                                                            </button>
+                                                                                                                                                                        `}
                             </div>
                         </td>
                         <td class="text-right">₱${item.price.toFixed(2)}</td>
-                        <td class="text-right font-semibold">₱${subtotal.toFixed(2)}</td>
+                        <td class="text-right font-semibold">₱${(item.is_voided ? 0 : subtotal).toFixed(2)}</td>
                         <td>
                             <button onclick="openVoidItemModalFromRow(this)" class="text-red-600 hover:text-red-800" title="Void Item">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1241,18 +1264,21 @@
         }
 
         function updateSummary() {
-            const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const tax = subtotal * 0.12; // 12% VAT
-            const total = subtotal + tax;
+            // Only count non-voided items towards totals
+            const nonVoidedItemCount = cart.reduce((sum, item) => sum + (item.is_voided ? 0 : item.quantity), 0);
+            // Prices are VAT-inclusive. Compute VAT portion and keep total equal to subtotal.
+            const subtotal = cart.reduce((sum, item) => sum + (item.is_voided ? 0 : (item.price * item.quantity)), 0);
+            const tax = subtotal * (0.12 / 1.12); // VAT portion included in prices (12% of the net)
+            const total = subtotal; // since prices already include VAT
 
-            document.getElementById('itemCount').textContent = itemCount;
+            document.getElementById('itemCount').textContent = nonVoidedItemCount;
             document.getElementById('subtotal').textContent = `₱${subtotal.toFixed(2)}`;
             document.getElementById('tax').textContent = `₱${tax.toFixed(2)}`;
             document.getElementById('total').textContent = `₱${total.toFixed(2)}`;
 
-            // Enable checkout button if cart has items
-            document.getElementById('checkoutBtn').disabled = cart.length === 0;
+            // Enable checkout button only if there are non-voided items
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            if (checkoutBtn) checkoutBtn.disabled = nonVoidedItemCount === 0;
         }
 
         function openCustomerModal() {
@@ -1479,6 +1505,23 @@
                 filterCustomers();
             }
 
+            // Disable walk-in option while any discount is checked; if walk-in was selected, switch to existing
+            const walkinRadio = document.querySelector('input[name="customerOption"][value="walkin"]');
+            if (walkinRadio) {
+                if (seniorChecked || pwdChecked) {
+                    if (walkinRadio.checked) {
+                        const existingRadio = document.querySelector('input[name="customerOption"][value="existing"]');
+                        if (existingRadio) {
+                            existingRadio.checked = true;
+                            selectCustomerOption('existing');
+                        }
+                    }
+                    walkinRadio.disabled = true;
+                } else {
+                    walkinRadio.disabled = false;
+                }
+            }
+
             // Auto-fill discount ID if customer is already selected
             if (currentCustomer) {
                 if (seniorChecked && currentCustomer.is_senior && currentCustomer.senior_id) {
@@ -1493,11 +1536,35 @@
             updatePaymentSummary();
         }
 
-        function updatePaymentSummary() {
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const tax = subtotal * 0.12;
+        // Calculate change and enable/disable confirm button
+        function calculateChange() {
+            const totalEl = document.getElementById('modalTotal');
+            const paidInput = document.getElementById('paidAmount');
+            const changeEl = document.getElementById('changeAmount');
+            const confirmBtn = document.getElementById('confirmPaymentBtn');
 
-            // Calculate discount
+            const total = totalEl ? parseFloat((totalEl.textContent || '').replace('₱', '').replace(/,/g, '')) : 0;
+            const paid = paidInput ? parseFloat(paidInput.value) || 0 : 0;
+            const change = Math.max(0, paid - total);
+
+            if (changeEl) changeEl.textContent = `₱${change.toFixed(2)}`;
+            if (confirmBtn) confirmBtn.disabled = paid < total;
+        }
+
+        // Safe helper to get input value or empty string
+        function getInputValue(id) {
+            const el = document.getElementById(id);
+            if (!el) return '';
+            return (el.value || '').toString();
+        }
+
+        function updatePaymentSummary() {
+            // Compute subtotal from non-voided items (prices are VAT-inclusive)
+            const subtotal = cart.reduce((sum, item) => sum + (item.is_voided ? 0 : (item.price * item.quantity)), 0);
+            // VAT portion included in prices: VAT = subtotal * (0.12/1.12)
+            const tax = subtotal * (0.12 / 1.12);
+
+            // Calculate discount (20% on subtotal, matching server behavior)
             let discount = 0;
             let discountLabel = '';
             const seniorChecked = document.getElementById('seniorDiscount').checked;
@@ -1511,7 +1578,8 @@
                 discountLabel = 'PWD Discount (20%)';
             }
 
-            const total = subtotal + tax - discount;
+            // Total is subtotal minus discount (subtotal already includes VAT)
+            const total = subtotal - discount;
 
             document.getElementById('modalSubtotal').textContent = `₱${subtotal.toFixed(2)}`;
             document.getElementById('modalTax').textContent = `₱${tax.toFixed(2)}`;
@@ -1535,6 +1603,219 @@
             calculateChange();
         }
 
+        // Embed customers for client-side ID lookups
+        window._customers = {!! $customers->map->only(['id', 'name', 'phone', 'is_senior_citizen', 'is_pwd', 'senior_citizen_id', 'pwd_id'])->values()->toJson() !!};
+
+        // Search discount ID (senior/pwd) and show dropdown of matches
+        function searchDiscountId(type) {
+            const inputId = type === 'senior' ? 'seniorIdNumber' : 'pwdIdNumber';
+            const dropdownId = type === 'senior' ? 'seniorIdDropdown' : 'pwdIdDropdown';
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            const val = (input.value || '').trim();
+
+            // If empty, hide dropdown and re-enable walk-in
+            if (!val) {
+                dropdown.classList.add('hidden');
+                enableCustomerRadios();
+                return;
+            }
+
+            // Disable walk-in option while an ID is being entered
+            disableWalkinOption();
+
+            const matches = window._customers.filter(c => {
+                if (type === 'senior') {
+                    return c.is_senior_citizen && c.senior_citizen_id && c.senior_citizen_id.toLowerCase().includes(
+                        val.toLowerCase());
+                }
+                return c.is_pwd && c.pwd_id && c.pwd_id.toLowerCase().includes(val.toLowerCase());
+            });
+
+            let html = '';
+            if (matches.length === 0) {
+                html =
+                    `<div class="px-3 py-2 text-sm text-gray-600 cursor-pointer hover:bg-gray-50" data-action="add">No existing customer, add details?</div>`;
+            } else {
+                matches.forEach(c => {
+                    const idVal = type === 'senior' ? c.senior_citizen_id : c.pwd_id;
+                    html +=
+                        `<div class="px-3 py-2 border-b last:border-b-0 cursor-pointer hover:bg-gray-50" data-id="${c.id}" data-name="${escapeHtml(c.name)}">${escapeHtml(c.name)} — ${escapeHtml(idVal)}</div>`;
+                });
+            }
+
+            dropdown.innerHTML = html;
+            dropdown.classList.remove('hidden');
+        }
+
+        // Utility to escape HTML for insertion
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, function(s) {
+                switch (s) {
+                    case '&':
+                        return '&amp;';
+                    case '<':
+                        return '&lt;';
+                    case '>':
+                        return '&gt;';
+                    case '"':
+                        return '&quot;';
+                    case "'":
+                        return '&#39;';
+                    default:
+                        return s;
+                }
+            });
+        }
+
+        // Disable only the walk-in radio while ID is present
+        function disableWalkinOption() {
+            const walkin = document.querySelector('input[name="customerOption"][value="walkin"]');
+            if (walkin) walkin.disabled = true;
+        }
+
+        function enableCustomerRadios() {
+            document.querySelectorAll('input[name="customerOption"]').forEach(r => r.disabled = false);
+        }
+
+        // Click handlers for the ID dropdowns (event delegation)
+        document.addEventListener('click', function(e) {
+            // senior dropdown
+            const sDrop = document.getElementById('seniorIdDropdown');
+            if (sDrop && sDrop.contains(e.target)) {
+                e.preventDefault();
+                e.stopPropagation();
+                const el = e.target.closest('div[data-id], div[data-action]');
+                if (!el) return;
+                if (el.dataset.action === 'add') {
+                    // switch to new customer and mark as senior
+                    document.querySelector('input[name="customerOption"][value="new"]').checked = true;
+                    selectCustomerOption('new');
+                    // disable other radios to prevent changing
+                    document.querySelectorAll('input[name="customerOption"]').forEach(r => {
+                        if (r.value !== 'new') r.disabled = true;
+                    });
+                    // ensure new customer form is visible and mark as senior on submit
+                    document.getElementById('newCustomerName').disabled = false;
+                    document.getElementById('newCustomerPhone').disabled = false;
+                    document.getElementById('newCustomerAddress').disabled = false;
+                    // remember to flag server via discount checkbox (seniorDiscount already checked)
+                } else if (el.dataset.id) {
+                    // existing customer selected
+                    const id = el.dataset.id;
+                    const name = el.dataset.name;
+
+                    // find the corresponding existing customer element first
+                    const matching = document.querySelector(`.customer-item[data-id="${id}"]`);
+
+                    // If we found the matching customer element, populate the ID input first
+                    if (matching) {
+                        try {
+                            const seniorCheckbox = document.getElementById('seniorDiscount');
+                            const seniorInput = document.getElementById('seniorIdNumber');
+                            const seniorId = matching.getAttribute('data-senior-id') || '';
+                            if (seniorCheckbox && seniorInput) {
+                                if (seniorId) {
+                                    seniorCheckbox.checked = true;
+                                    seniorInput.disabled = false;
+                                    seniorInput.value = seniorId;
+                                } else {
+                                    if (!seniorCheckbox.checked) {
+                                        seniorInput.value = '';
+                                        seniorInput.disabled = true;
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error pre-populating Senior id before selection', e);
+                        }
+                    }
+
+                    // Now set existing option and lock radios, then trigger existing selection
+                    const existingRadio = document.querySelector('input[name="customerOption"][value="existing"]');
+                    if (existingRadio) {
+                        existingRadio.checked = true;
+                        selectCustomerOption('existing');
+                    }
+                    document.querySelectorAll('input[name="customerOption"]').forEach(r => {
+                        if (r.value !== 'existing') r.disabled = true;
+                    });
+
+                    if (matching) {
+                        selectExistingCustomer(matching);
+                    }
+                }
+                sDrop.classList.add('hidden');
+            }
+
+            // pwd dropdown
+            const pDrop = document.getElementById('pwdIdDropdown');
+            if (pDrop && pDrop.contains(e.target)) {
+                e.preventDefault();
+                e.stopPropagation();
+                const el = e.target.closest('div[data-id], div[data-action]');
+                if (!el) return;
+                if (el.dataset.action === 'add') {
+                    document.querySelector('input[name="customerOption"][value="new"]').checked = true;
+                    selectCustomerOption('new');
+                    document.querySelectorAll('input[name="customerOption"]').forEach(r => {
+                        if (r.value !== 'new') r.disabled = true;
+                    });
+                    document.getElementById('newCustomerName').disabled = false;
+                    document.getElementById('newCustomerPhone').disabled = false;
+                    document.getElementById('newCustomerAddress').disabled = false;
+                } else if (el.dataset.id) {
+                    const id = el.dataset.id;
+                    // set existing option and lock radios BEFORE selecting to avoid clearing currentCustomer
+                    const existingRadioP = document.querySelector('input[name="customerOption"][value="existing"]');
+                    if (existingRadioP) {
+                        existingRadioP.checked = true;
+                        selectCustomerOption('existing');
+                    }
+                    document.querySelectorAll('input[name="customerOption"]').forEach(r => {
+                        if (r.value !== 'existing') r.disabled = true;
+                    });
+                    const matching = document.querySelector(`.customer-item[data-id="${id}"]`);
+                    if (matching) {
+                        // Pre-populate PWD id and checkbox before running selectExistingCustomer
+                        try {
+                            const pwdCheckbox = document.getElementById('pwdDiscount');
+                            const pwdInput = document.getElementById('pwdIdNumber');
+                            const pwdId = matching.getAttribute('data-pwd-id') || '';
+                            if (pwdCheckbox && pwdInput) {
+                                if (pwdId) {
+                                    pwdCheckbox.checked = true;
+                                    pwdInput.disabled = false;
+                                    pwdInput.value = pwdId;
+                                } else {
+                                    if (!pwdCheckbox.checked) {
+                                        pwdInput.value = '';
+                                        pwdInput.disabled = true;
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error pre-populating PWD id before selection', e);
+                        }
+
+                        // Now set existing option and run selection
+                        const existingRadioP = document.querySelector(
+                            'input[name="customerOption"][value="existing"]');
+                        if (existingRadioP) {
+                            existingRadioP.checked = true;
+                            selectCustomerOption('existing');
+                        }
+                        document.querySelectorAll('input[name="customerOption"]').forEach(r => {
+                            if (r.value !== 'existing') r.disabled = true;
+                        });
+                        selectExistingCustomer(matching);
+                    }
+                }
+                pDrop.classList.add('hidden');
+            }
+        });
+
         function handlePaymentMethodChange() {
             const method = document.getElementById('paymentMethod').value;
             const refDiv = document.getElementById('referenceNumberDiv');
@@ -1542,59 +1823,51 @@
             const paidAmountInput = document.getElementById('paidAmount');
             const total = parseFloat(document.getElementById('modalTotal').textContent.replace('₱', '').replace(',', '')) ||
                 0;
-
             // Show/hide reference number field
-            refDiv.style.display = (method === 'gcash' || method === 'card') ? 'block' : 'none';
+            if (refDiv) refDiv.style.display = (method === 'gcash' || method === 'card') ? 'block' : 'none';
 
             // Show/hide card details fields (only for card)
-            cardDetailsDiv.style.display = (method === 'card') ? 'block' : 'none';
+            if (cardDetailsDiv) cardDetailsDiv.style.display = (method === 'card') ? 'block' : 'none';
 
             // Auto-fill and disable amount for GCash/Card
-            if (method === 'gcash' || method === 'card') {
-                paidAmountInput.value = total.toFixed(2);
-                paidAmountInput.disabled = true;
-            } else {
-                paidAmountInput.value = '';
-                paidAmountInput.disabled = false;
+            if (paidAmountInput) {
+                if (method === 'gcash' || method === 'card') {
+                    paidAmountInput.value = total.toFixed(2);
+                    paidAmountInput.disabled = true;
+                } else {
+                    paidAmountInput.value = '';
+                    paidAmountInput.disabled = false;
+                }
             }
 
             calculateChange();
         }
 
-        function calculateChange() {
-            const total = parseFloat(document.getElementById('modalTotal').textContent.replace('₱', '').replace(',',
-                '')) || 0;
-            const paid = parseFloat(document.getElementById('paidAmount').value) || 0;
-            const change = Math.max(0, paid - total);
-
-            document.getElementById('changeAmount').textContent = `₱${change.toFixed(2)}`;
-
-            // Enable/disable confirm button
-            const confirmBtn = document.getElementById('confirmPaymentBtn');
-            confirmBtn.disabled = paid < total;
-        }
-
         async function confirmPayment() {
             try {
                 // Validate inputs
-                const paymentMethod = document.getElementById('paymentMethod').value;
-                const paidAmount = parseFloat(document.getElementById('paidAmount').value);
-                const total = parseFloat(document.getElementById('modalTotal').textContent.replace('₱', '').replace(',',
-                    ''));
+                const paymentMethod = getInputValue('paymentMethod');
+                const paidAmount = parseFloat(getInputValue('paidAmount'));
+                const total = parseFloat((document.getElementById('modalTotal') && document.getElementById('modalTotal')
+                    .textContent ? document.getElementById('modalTotal').textContent.replace('₱', '').replace(
+                        /,/g, '') : 0));
 
+                const paidInput = document.getElementById('paidAmount');
                 if (!paidAmount || isNaN(paidAmount) || paidAmount <= 0) {
                     showToast('Please enter a valid payment amount', 'error');
+                    if (paidInput) paidInput.focus();
                     return;
                 }
 
                 if (paidAmount < total) {
                     showToast(`Insufficient payment - Need ₱${total.toFixed(2)}, received ₱${paidAmount.toFixed(2)}`,
                         'error');
+                    if (paidInput) paidInput.focus();
                     return;
                 }
 
-                if ((paymentMethod === 'gcash' || paymentMethod === 'card') && !document.getElementById(
-                        'referenceNumber').value.trim()) {
+                if ((paymentMethod === 'gcash' || paymentMethod === 'card') && !getInputValue('referenceNumber')
+                .trim()) {
                     showToast('Reference number is required for ' + paymentMethod.toUpperCase() + ' payment', 'error');
                     return;
                 }
@@ -1603,12 +1876,12 @@
                 const seniorChecked = document.getElementById('seniorDiscount').checked;
                 const pwdChecked = document.getElementById('pwdDiscount').checked;
 
-                if (seniorChecked && !document.getElementById('seniorIdNumber').value.trim()) {
+                if (seniorChecked && !getInputValue('seniorIdNumber').trim()) {
                     showToast('Senior Citizen ID number is required', 'error');
                     return;
                 }
 
-                if (pwdChecked && !document.getElementById('pwdIdNumber').value.trim()) {
+                if (pwdChecked && !getInputValue('pwdIdNumber').trim()) {
                     showToast('PWD ID number is required', 'error');
                     return;
                 }
@@ -1627,9 +1900,9 @@
                         id: currentCustomer.id
                     };
                 } else if (customerOption === 'new') {
-                    const name = document.getElementById('newCustomerName').value.trim();
-                    const phone = document.getElementById('newCustomerPhone').value.trim();
-                    const address = document.getElementById('newCustomerAddress').value.trim();
+                    const name = getInputValue('newCustomerName').trim();
+                    const phone = getInputValue('newCustomerPhone').trim();
+                    const address = getInputValue('newCustomerAddress').trim();
 
                     if (!name || !phone) {
                         showToast('Customer name and phone number are required', 'error');
@@ -1657,14 +1930,14 @@
                 formData.append('change_amount', paidAmount - total);
 
                 if (paymentMethod === 'gcash' || paymentMethod === 'card') {
-                    formData.append('reference_number', document.getElementById('referenceNumber').value.trim());
+                    formData.append('reference_number', getInputValue('referenceNumber').trim());
                 }
 
                 // Add card payment details if card payment
                 if (paymentMethod === 'card') {
-                    const bankName = document.getElementById('cardBankName').value.trim();
-                    const holderName = document.getElementById('cardHolderName').value.trim();
-                    const lastFour = document.getElementById('cardLastFour').value.trim();
+                    const bankName = getInputValue('cardBankName').trim();
+                    const holderName = getInputValue('cardHolderName').trim();
+                    const lastFour = getInputValue('cardLastFour').trim();
 
                     if (bankName) formData.append('card_bank_name', bankName);
                     if (holderName) formData.append('card_holder_name', holderName);
@@ -1684,25 +1957,29 @@
                 // Add discount information
                 if (seniorChecked) {
                     formData.append('discount_type', 'senior_citizen');
-                    formData.append('discount_id_number', document.getElementById('seniorIdNumber').value.trim());
-                    formData.append('discount_name', document.getElementById('seniorName').value.trim());
+                    formData.append('discount_id_number', getInputValue('seniorIdNumber').trim());
+                    formData.append('discount_name', (document.getElementById('seniorName') ? getInputValue(
+                        'seniorName').trim() : (currentCustomer && currentCustomer.name ? currentCustomer
+                        .name : '')));
                     formData.append('discount_percentage', 20);
                 } else if (pwdChecked) {
                     formData.append('discount_type', 'pwd');
-                    formData.append('discount_id_number', document.getElementById('pwdIdNumber').value.trim());
-                    formData.append('discount_name', document.getElementById('pwdName').value.trim());
+                    formData.append('discount_id_number', getInputValue('pwdIdNumber').trim());
+                    formData.append('discount_name', (document.getElementById('pwdName') ? getInputValue('pwdName')
+                        .trim() : (currentCustomer && currentCustomer.name ? currentCustomer.name : '')));
                     formData.append('discount_percentage', 20);
                 }
 
                 cart.forEach((item, index) => {
                     formData.append(`items[${index}][product_id]`, item.id);
                     formData.append(`items[${index}][quantity]`, item.quantity);
+                    formData.append(`items[${index}][is_voided]`, item.is_voided ? 1 : 0);
                 });
 
                 // Disable button during processing
                 const confirmBtn = document.getElementById('confirmPaymentBtn');
                 confirmBtn.disabled = true;
-                confirmBtn.innerHTML = 'Processing...';
+                confirmBtn.innerHTML = 'Confirm & Print Receipt';
 
                 // Submit sale
                 const response = await fetch('{{ route('sales.store') }}', {
@@ -1852,9 +2129,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                                                                                                                                    <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                                                                                                                                    <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                                                                                                                                </div>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                                                                                                                                                                                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                                                                                                                                                                                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1873,9 +2150,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                                                                                                                                    <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                                                                                                                                    <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                                                                                                                                </div>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                                                                                                                                                                                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                                                                                                                                                                                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
@@ -1910,37 +2187,160 @@
             // Close receipt modal
             document.getElementById('receiptModal').style.display = 'none';
 
+            // Capture sold items (include name) for optimistic UI update, then clear cart
+            const soldItems = cart.map(i => ({
+                id: i.id,
+                quantity: i.quantity,
+                name: i.name
+            }));
+
             // Clear cart and reset state
             cart = [];
             updateCart();
 
-            // Reset customer selection
-            selectedCustomerId = null;
-            document.getElementById('existingCustomerSelect').value = '';
-            document.getElementById('customerOption-walkin').checked = true;
-            document.getElementById('customerDisplay').innerHTML =
-                '<div class="text-sm text-gray-600 italic">Walk-in Customer</div>';
+            // Reset customer selection safely (guard missing elements)
+            try {
+                currentCustomer = null;
+                const existingSelect = document.getElementById('existingCustomerSelect');
+                if (existingSelect) existingSelect.value = '';
+                const walkinRadio = document.querySelector('input[name="customerOption"][value="walkin"]');
+                if (walkinRadio) {
+                    walkinRadio.checked = true;
+                    selectCustomerOption('walkin');
+                }
+                const customerDisplayEl = document.getElementById('customerDisplay');
+                if (customerDisplayEl) customerDisplayEl.innerHTML =
+                    '<div class="text-sm text-gray-600 italic">Walk-in Customer</div>';
 
-            // Reset discount fields
-            document.getElementById('seniorDiscount').checked = false;
-            document.getElementById('pwdDiscount').checked = false;
-            document.getElementById('seniorIdNumber').value = '';
-            document.getElementById('seniorIdNumber').disabled = true;
-            document.getElementById('seniorName').value = '';
-            document.getElementById('seniorName').disabled = true;
-            document.getElementById('pwdIdNumber').value = '';
-            document.getElementById('pwdIdNumber').disabled = true;
-            document.getElementById('pwdName').value = '';
-            document.getElementById('pwdName').disabled = true;
+                // Reset discount fields safely
+                const seniorCheckbox = document.getElementById('seniorDiscount');
+                const pwdCheckbox = document.getElementById('pwdDiscount');
+                const seniorInput = document.getElementById('seniorIdNumber');
+                const pwdInput = document.getElementById('pwdIdNumber');
+
+                if (seniorCheckbox) seniorCheckbox.checked = false;
+                if (pwdCheckbox) pwdCheckbox.checked = false;
+                if (seniorInput) {
+                    seniorInput.value = '';
+                    seniorInput.disabled = true;
+                }
+                if (pwdInput) {
+                    pwdInput.value = '';
+                    pwdInput.disabled = true;
+                }
+            } catch (e) {
+                console.warn('newTransaction: safe reset encountered an issue', e);
+            }
 
             // Reset payment method
             document.getElementById('paymentMethod').value = 'cash';
             handlePaymentMethodChange();
 
-            // Reload the page to refresh product list with updated stock
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
+            // Optimistically decrement product cards to reflect just-completed transaction
+            optimisticDecrementStock(soldItems);
+
+            // Attempt a targeted AJAX refresh of the products grid first, keep fullscreen flags if fallback reload required
+            try {
+                refreshProductsGrid(typeof currentPage !== 'undefined' ? currentPage : 1).catch(err => {
+                    // Persist fullscreen requirement so reload can attempt to re-enter fullscreen/user gesture
+                    try {
+                        localStorage.setItem('posRequireFullscreen', 'true');
+                        localStorage.setItem('posFullscreen', 'true');
+                    } catch (e) {}
+                    // Fallback to full reload if AJAX refresh fails
+                    setTimeout(() => {
+                        location.reload();
+                    }, 800);
+                });
+            } catch (err) {
+                try {
+                    localStorage.setItem('posRequireFullscreen', 'true');
+                    localStorage.setItem('posFullscreen', 'true');
+                } catch (e) {}
+                setTimeout(() => {
+                    location.reload();
+                }, 800);
+            }
+        }
+
+        // Optimistically decrement product card stock counts for sold items
+        function optimisticDecrementStock(soldItems) {
+            if (!Array.isArray(soldItems) || soldItems.length === 0) return;
+
+            soldItems.forEach(si => {
+                try {
+                    // Try to find card by id first
+                    let card = null;
+                    if (si.id !== undefined && si.id !== null) {
+                        card = document.querySelector(`.product-item[data-id="${si.id}"]`);
+                    }
+
+                    // If not found by id, try matching by product-name or .product-name text
+                    if (!card) {
+                        const nameToMatch = (si.name || '').toLowerCase().trim();
+                        const all = document.querySelectorAll('.product-item');
+                        for (let i = 0; i < all.length; i++) {
+                            const c = all[i];
+                            const productNameAttr = (c.getAttribute('data-product-name') || c.getAttribute(
+                                'data-name') || '').toLowerCase();
+                            const titleEl = c.querySelector('.product-name');
+                            const titleText = titleEl ? titleEl.textContent.toLowerCase() : '';
+                            if (nameToMatch && (productNameAttr.includes(nameToMatch) || titleText.includes(
+                                    nameToMatch))) {
+                                card = c;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!card) {
+                        console.debug('optimisticDecrementStock: no matching product card for', si.id, si.name);
+                        return;
+                    }
+
+                    const stockEl = card.querySelector('.product-stock');
+                    if (!stockEl) return;
+
+                    // read current data-stock attribute if present, otherwise parse from text
+                    let currentStock = parseInt(card.getAttribute('data-stock'));
+                    if (isNaN(currentStock)) {
+                        const txt = stockEl.textContent || '';
+                        const m = txt.match(/(\d+)/);
+                        currentStock = m ? parseInt(m[1]) : 0;
+                    }
+
+                    let newStock = currentStock - (si.quantity || 0);
+                    if (newStock < 0) newStock = 0;
+
+                    // Update data attribute and display
+                    card.setAttribute('data-stock', String(newStock));
+                    stockEl.textContent =
+                        `${newStock <= 0 ? 'Out of Stock' : (newStock <= 10 ? 'Low Stock' : 'In Stock')}: ${newStock}`;
+                    stockEl.classList.remove('stock-good', 'stock-low', 'stock-out');
+                    if (newStock <= 0) stockEl.classList.add('stock-out');
+                    else if (newStock <= 10) stockEl.classList.add('stock-low');
+                    else stockEl.classList.add('stock-good');
+
+                    // Flash highlight so the change is obvious
+                    try {
+                        const prev = card.style.transition || '';
+                        card.style.transition = 'background-color 0.45s ease';
+                        const originalBg = card.style.backgroundColor;
+                        card.style.backgroundColor = '#fef3c7';
+                        setTimeout(() => {
+                            card.style.backgroundColor = originalBg || '';
+                            // restore transition after animation
+                            setTimeout(() => {
+                                card.style.transition = prev;
+                            }, 300);
+                        }, 450);
+                    } catch (e) {
+                        // ignore
+                    }
+                } catch (err) {
+                    console.error('optimisticDecrementStock error for item', si, err);
+                }
+            });
         }
         const _customerDisplay = document.getElementById('customerDisplay');
         if (_customerDisplay) {
@@ -2100,6 +2500,59 @@
                 });
         }
 
+        // Refresh products grid via AJAX (partial fetch) and preserve fullscreen
+        function refreshProductsGrid(page = typeof currentPage !== 'undefined' ? currentPage : 1) {
+            const productsGrid = document.getElementById('productsGrid');
+            const pagination = document.getElementById('paginationWrapper');
+            if (!productsGrid) return Promise.resolve();
+
+            // Build same query params used by applyFilters
+            const searchEl = document.getElementById('searchProduct');
+            const productTypeEl = document.getElementById('productTypeFilter');
+            const categoryEl = document.getElementById('categoryFilter');
+
+            const params = new URLSearchParams();
+            if (searchEl && searchEl.value) params.append('search', searchEl.value);
+            if (productTypeEl && productTypeEl.value) params.append('product_type', productTypeEl.value);
+            if (categoryEl && categoryEl.value) params.append('category', categoryEl.value);
+            if (page > 1) params.append('page', page);
+
+            const url = `{{ route('pos.index') }}?${params.toString()}`;
+
+            productsGrid.style.opacity = '0.5';
+            productsGrid.style.pointerEvents = 'none';
+
+            return fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'text/html'
+                }
+            }).then(resp => {
+                if (!resp.ok) throw new Error('Server responded ' + resp.status);
+                return resp.text();
+            }).then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newGrid = doc.getElementById('productsGrid');
+                const newPagination = doc.getElementById('paginationWrapper');
+                if (newGrid) productsGrid.innerHTML = newGrid.innerHTML;
+                if (pagination) {
+                    if (newPagination) pagination.innerHTML = newPagination.innerHTML;
+                    else pagination.innerHTML = '';
+                }
+                interceptPaginationLinks();
+                productsGrid.style.opacity = '1';
+                productsGrid.style.pointerEvents = 'auto';
+                showToast('Product list refreshed', 'success');
+            }).catch(err => {
+                console.error('refreshProductsGrid error:', err);
+                productsGrid.style.opacity = '1';
+                productsGrid.style.pointerEvents = 'auto';
+                // Let caller handle fallback
+                throw err;
+            });
+        }
+
         // Intercept pagination link clicks
         function interceptPaginationLinks() {
             const paginationLinks = document.querySelectorAll('#paginationWrapper a');
@@ -2219,6 +2672,128 @@
             document.addEventListener('DOMContentLoaded', initPosFilters);
         } else {
             initPosFilters();
+        }
+
+        // Navigation guards: prevent navigating away (dashboard/logout) when cart has items
+        // pendingNavigation will be executed after a successful admin-void when set
+        window.pendingNavigation = null;
+
+        function showUnsavedCartModal(onProceed) {
+            // If modal already exists reuse
+            let modal = document.getElementById('unsavedCartModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'unsavedCartModal';
+                modal.style.position = 'fixed';
+                modal.style.left = '0';
+                modal.style.top = '0';
+                modal.style.width = '100vw';
+                modal.style.height = '100vh';
+                modal.style.background = 'rgba(0,0,0,0.6)';
+                modal.style.display = 'flex';
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
+                modal.style.zIndex = '999999';
+
+                modal.innerHTML = `
+                    <div style="background:#fff;border-radius:12px;padding:20px;max-width:520px;width:94%;box-shadow:0 10px 30px rgba(0,0,0,0.3);text-align:left;">
+                        <h3 style="margin:0 0 8px;font-size:18px;font-weight:700;color:#111">Cart has items</h3>
+                        <p style="margin:0 0 12px;color:#444">You currently have items in the cart. You must either complete the order or void the entire sale (admin authorization required) before navigating away.</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <!-- Void button intentionally de-emphasized: outline, small, separated from primary actions -->
+                                <button id="unsavedVoidBtn" title="Admin only — use only when necessary" style="padding:6px 10px;border-radius:8px;background:transparent;border:1px solid #dc2626;color:#dc2626;cursor:pointer;font-weight:600;font-size:0.875rem;">Void Entire Sale</button>
+                            </div>
+
+                            <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
+                                <button id="unsavedCancelBtn" style="padding:8px 12px;border-radius:8px;background:#f3f4f6;border:1px solid #d1d5db;color:#111;cursor:pointer">Cancel</button>
+                                <button id="unsavedCompleteBtn" style="padding:8px 12px;border-radius:8px;background:#047857;border:none;color:#fff;cursor:pointer">Complete Order</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                document.getElementById('unsavedCancelBtn').addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+
+                document.getElementById('unsavedCompleteBtn').addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    // Open payment modal for completing the order
+                    if (typeof openPaymentModal === 'function') {
+                        openPaymentModal();
+                    } else {
+                        // Fallback: just show a toast
+                        showToast('Open payment modal to complete order', 'info');
+                    }
+                });
+
+                document.getElementById('unsavedVoidBtn').addEventListener('click', function() {
+                    modal.style.display = 'none';
+                    // Set pending navigation and open void sale modal for admin authorization
+                    if (typeof onProceed === 'function') {
+                        window.pendingNavigation = onProceed;
+                    }
+                    if (typeof openVoidSaleModal === 'function') {
+                        openVoidSaleModal();
+                    } else {
+                        showToast('Open void sale dialog to authorize discard', 'info');
+                    }
+                });
+            } else {
+                modal.style.display = 'flex';
+            }
+        }
+
+        function addNavigationGuards() {
+            try {
+                const dashboardUrl = '{{ route('dashboard') }}';
+
+                // Guard dashboard links
+                const dashboardLinks = Array.from(document.querySelectorAll(`a[href]`)).filter(a => a.href ===
+                    dashboardUrl || a.getAttribute('href') === dashboardUrl);
+                dashboardLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        if (cart && cart.length > 0) {
+                            e.preventDefault();
+                            // Pass a navigation callback that will execute AFTER a successful admin void
+                            showUnsavedCartModal(() => {
+                                window.location.href = link.href;
+                            });
+                        }
+                    });
+                });
+
+                // Guard logout triggers (elements that call showLogoutModal)
+                const logoutTriggers = Array.from(document.querySelectorAll('[onclick]')).filter(el => el.getAttribute(
+                    'onclick') && el.getAttribute('onclick').includes('showLogoutModal'));
+                logoutTriggers.forEach(el => {
+                    // Remove inline handler and replace with safe handler
+                    el.removeAttribute('onclick');
+                    el.addEventListener('click', function(e) {
+                        if (cart && cart.length > 0) {
+                            e.preventDefault();
+                            // Pass a callback that will show the logout modal after void
+                            showUnsavedCartModal(() => {
+                                if (typeof showLogoutModal === 'function') showLogoutModal();
+                            });
+                        } else {
+                            if (typeof showLogoutModal === 'function') showLogoutModal();
+                        }
+                    });
+                });
+            } catch (err) {
+                console.error('Error adding navigation guards:', err);
+            }
+        }
+
+        // Call guards after initializing POS interactions
+        try {
+            addNavigationGuards();
+        } catch (e) {
+            console.error('Failed to initialize navigation guards:', e);
         }
     </script>
 </x-pos-layout>

@@ -23,7 +23,7 @@ class AuditLogController extends Controller
             $query->whereDate('created_at', $request->date);
         }
 
-        $perPage = request('per_page', 10);
+        $perPage = request('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 10));
         $logs = $query->paginate($perPage);
         $actions = AuditLog::distinct()->pluck('action');
 
