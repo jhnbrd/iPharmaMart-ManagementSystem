@@ -47,6 +47,8 @@ class LoginController extends Controller
 
                 // Redirect cashiers to POS, others to dashboard
                 if (Auth::user()->role === 'cashier') {
+                    // Indicate to the next request that POS should attempt fullscreen
+                    $request->session()->flash('enter_fullscreen', true);
                     return redirect()->intended(route('pos.index'));
                 }
 

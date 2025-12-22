@@ -353,15 +353,14 @@
                         </svg>
                     </div>
                     <select name="product_type" id="productTypeFilter" class="form-select"
-                        style="flex: 1; min-width: 140px;" onchange="applyFilters()">
+                        style="flex: 1; min-width: 140px;">
                         <option value="">All Types</option>
                         <option value="pharmacy" {{ request('product_type') == 'pharmacy' ? 'selected' : '' }}>Pharmacy
                         </option>
                         <option value="mini_mart" {{ request('product_type') == 'mini_mart' ? 'selected' : '' }}>Mini
                             Mart</option>
                     </select>
-                    <select name="category" id="categoryFilter" class="form-select" style="flex: 1; min-width: 150px;"
-                        onchange="applyFilters()">
+                    <select name="category" id="categoryFilter" class="form-select" style="flex: 1; min-width: 150px;">
                         <option value="">All Categories</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->id }}"
@@ -1853,9 +1852,9 @@
                     </div>
                     ${receiptData.discount ? 
                         `<div class="flex justify-between text-sm mb-1.5 text-yellow-700">
-                                                                                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
-                                                                                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
-                                                                                                                                                                                    </div>` : ''}
+                                                                                                                                                                                                        <span>Discount (${receiptData.discount.percentage}%):</span>
+                                                                                                                                                                                                        <span class="font-medium">- ₱${parseFloat(receiptData.discount.amount).toFixed(2)}</span>
+                                                                                                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5">
                         <span class="text-gray-700">VAT (12%):</span>
                         <span class="font-medium">₱${parseFloat(receiptData.tax).toFixed(2)}</span>
@@ -1874,9 +1873,9 @@
                     </div>
                     ${receiptData.reference_number ? 
                         `<div class="flex justify-between text-sm mb-1.5">
-                                                                                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
-                                                                                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
-                                                                                                                                                                                    </div>` : ''}
+                                                                                                                                                                                                        <span class="font-semibold text-gray-700">Reference #:</span>
+                                                                                                                                                                                                        <span class="font-mono">${receiptData.reference_number}</span>
+                                                                                                                                                                                                    </div>` : ''}
                     <div class="flex justify-between text-sm mb-1.5 border-t border-gray-300 pt-2 mt-2">
                         <span class="font-semibold text-gray-700">Amount Paid:</span>
                         <span class="font-semibold text-green-600">₱${parseFloat(receiptData.paid_amount).toFixed(2)}</span>
@@ -1976,9 +1975,13 @@
 
         // Apply filters with AJAX
         function applyFilters(page = 1) {
-            const search = document.getElementById('searchProduct').value;
-            const productType = document.getElementById('productTypeFilter').value;
-            const category = document.getElementById('categoryFilter').value;
+            const searchEl = document.getElementById('searchProduct');
+            const productTypeEl = document.getElementById('productTypeFilter');
+            const categoryEl = document.getElementById('categoryFilter');
+
+            const search = searchEl ? searchEl.value : '';
+            const productType = productTypeEl ? productTypeEl.value : '';
+            const category = categoryEl ? categoryEl.value : '';
 
             // Build query string
             const params = new URLSearchParams();
@@ -1989,49 +1992,71 @@
 
             // Show loading state
             const productsGrid = document.getElementById('productsGrid');
-            productsGrid.style.opacity = '0.5';
-            productsGrid.style.pointerEvents = 'none';
+            if (productsGrid) {
+                productsGrid.style.opacity = '0.5';
+                productsGrid.style.pointerEvents = 'none';
+            }
+
+            const url = `{{ route('pos.index') }}?${params.toString()}`;
+            console.debug('Applying filters, fetching:', url);
 
             // Fetch filtered products
-            fetch(`{{ route('pos.index') }}?${params.toString()}`, {
+            fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'text/html'
                     }
                 })
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) throw new Error('Server responded with status ' + response.status + ' ' + response
+                        .statusText);
+                    return response.text();
+                })
                 .then(html => {
-                    // Parse the response
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
+                    try {
+                        // Parse the response
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
 
-                    // Update products grid
-                    const newProductsGrid = doc.getElementById('productsGrid');
-                    if (newProductsGrid) {
-                        productsGrid.innerHTML = newProductsGrid.innerHTML;
+                        // Update products grid
+                        const newProductsGrid = doc.getElementById('productsGrid');
+                        if (newProductsGrid && productsGrid) {
+                            productsGrid.innerHTML = newProductsGrid.innerHTML;
+                        }
+
+                        // Update pagination
+                        const newPagination = doc.getElementById('paginationWrapper');
+                        const pagination = document.getElementById('paginationWrapper');
+                        if (newPagination && pagination) {
+                            pagination.innerHTML = newPagination.innerHTML;
+                            interceptPaginationLinks();
+                        } else if (pagination && !newPagination) {
+                            pagination.innerHTML = '';
+                        }
+
+                        // Restore state
+                        if (productsGrid) {
+                            productsGrid.style.opacity = '1';
+                            productsGrid.style.pointerEvents = 'auto';
+                        }
+
+                        currentPage = page;
+                    } catch (e) {
+                        console.error('Error parsing filter response:', e);
+                        if (productsGrid) {
+                            productsGrid.style.opacity = '1';
+                            productsGrid.style.pointerEvents = 'auto';
+                        }
+                        alert('Error loading products. Please try again.');
                     }
-
-                    // Update pagination
-                    const newPagination = doc.getElementById('paginationWrapper');
-                    const pagination = document.getElementById('paginationWrapper');
-                    if (newPagination && pagination) {
-                        pagination.innerHTML = newPagination.innerHTML;
-                        interceptPaginationLinks();
-                    } else if (pagination && !newPagination) {
-                        pagination.innerHTML = '';
-                    }
-
-                    // Restore state
-                    productsGrid.style.opacity = '1';
-                    productsGrid.style.pointerEvents = 'auto';
-
-                    currentPage = page;
                 })
                 .catch(error => {
                     console.error('Filter error:', error);
-                    productsGrid.style.opacity = '1';
-                    productsGrid.style.pointerEvents = 'auto';
-                    alert('Error loading products. Please try again.');
+                    if (productsGrid) {
+                        productsGrid.style.opacity = '1';
+                        productsGrid.style.pointerEvents = 'auto';
+                    }
+                    alert('Error loading products. ' + (error.message || 'Please try again.'));
                 });
         }
 
@@ -2048,8 +2073,8 @@
             });
         }
 
-        // Defer DOM event bindings until DOMContentLoaded to avoid missing elements
-        document.addEventListener('DOMContentLoaded', function() {
+        // Initialize POS interactions. Run immediately if DOM already loaded.
+        function initPosFilters() {
             // Delegate product clicks to the products grid (works after AJAX updates)
             const productsGrid = document.getElementById('productsGrid');
             if (productsGrid) {
@@ -2070,7 +2095,70 @@
                     clearTimeout(localFilterTimeout);
                     localFilterTimeout = setTimeout(() => {
                         applyFilters(1);
-                    }, 500);
+                    }, 300);
+                });
+            }
+
+            // Handle product type changes: fetch relevant categories and apply filters
+            const productTypeSelect = document.getElementById('productTypeFilter');
+            const categorySelect = document.getElementById('categoryFilter');
+
+            function populateCategoryOptions(categories, selectedId = '') {
+                if (!categorySelect) return;
+                categorySelect.innerHTML = '';
+                const allOpt = document.createElement('option');
+                allOpt.value = '';
+                allOpt.text = 'All Categories';
+                categorySelect.appendChild(allOpt);
+
+                categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.text = cat.name;
+                    if (String(cat.id) === String(selectedId)) opt.selected = true;
+                    categorySelect.appendChild(opt);
+                });
+            }
+
+            if (productTypeSelect) {
+                productTypeSelect.addEventListener('change', function() {
+                    const val = this.value;
+                    // Fetch categories for selected product type
+                    const categoriesUrl = `{{ route('pos.categories') }}?product_type=${encodeURIComponent(val)}`;
+                    console.debug('Fetching categories from', categoriesUrl);
+                    fetch(categoriesUrl, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(resp => {
+                            if (!resp.ok) throw new Error('Categories request failed: ' + resp.status + ' ' +
+                                resp.statusText);
+                            return resp.json();
+                        })
+                        .then(data => {
+                            populateCategoryOptions(data);
+                            applyFilters(1);
+                        })
+                        .catch(err => {
+                            console.error('Error fetching categories:', err);
+                            // Even on error, still apply filters
+                            applyFilters(1);
+                        });
+                });
+            }
+
+            // If there is an initial product type selected on page load, fetch matching categories
+            if (productTypeSelect && productTypeSelect.value) {
+                const ev = new Event('change');
+                // Slight delay to allow other DOM init to complete
+                setTimeout(() => productTypeSelect.dispatchEvent(ev), 50);
+            }
+
+            if (categorySelect) {
+                categorySelect.addEventListener('change', function() {
+                    applyFilters(1);
                 });
             }
 
@@ -2085,6 +2173,12 @@
 
             // Initial pagination link interception
             interceptPaginationLinks();
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPosFilters);
+        } else {
+            initPosFilters();
+        }
     </script>
 </x-pos-layout>

@@ -208,40 +208,40 @@
             filter: none;
             pointer-events: auto;
         }
+
+        /* Fullscreen banner */
+        #fullscreenBanner.hidden {
+            display: none;
+        }
+
+        #fullscreenBanner {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99998;
+            pointer-events: none;
+        }
+
+        #fullscreenBanner .banner-content {
+            pointer-events: auto;
+            background: rgba(44, 99, 86, 0.95);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(6px);
+            opacity: 0.95;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 
 <body class="pos-fullscreen">
-    <!-- Fullscreen Required Modal -->
-    <div id="fullscreenModal" class="fullscreen-modal">
-        <div class="modal-content">
-            <div class="modal-icon">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                </svg>
-            </div>
-            <h2 class="modal-title">Fullscreen Mode Required</h2>
-            <p class="modal-text">
-                For the best Point of Sale experience and to ensure optimal workflow,
-                this system must be used in fullscreen mode.
-            </p>
-            <button onclick="enterFullscreen()" class="modal-btn">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                </svg>
-                Enter Fullscreen Mode
-            </button>
-            <a href="{{ route('dashboard') }}" class="modal-back-btn">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to Dashboard
-            </a>
-        </div>
-    </div>
+    <!-- Fullscreen modal removed per UI revision (POS will attempt fullscreen without modal) -->
 
     <div class="pos-container pos-content" id="posContent">
         <!-- POS Header -->
@@ -293,9 +293,13 @@
         </div>
     </div>
 
+    <!-- Unobtrusive fullscreen banner (shows when POS should attempt fullscreen) -->
+    <div id="fullscreenBanner" class="hidden" aria-hidden="true" style="">
+        <div class="banner-content">Click anywhere to enter fullscreen</div>
+    </div>
+
     <script>
-        // Modal and fullscreen management
-        const modal = document.getElementById('fullscreenModal');
+        // Fullscreen management (modal removed)
         const posContent = document.getElementById('posContent');
 
         // Function to enter fullscreen from modal or button. Returns a Promise<boolean>.
@@ -306,7 +310,6 @@
 
             try {
                 await document.documentElement.requestFullscreen();
-                modal.classList.add('hidden');
                 posContent.classList.add('active');
                 try {
                     localStorage.setItem('posFullscreen', 'true');
@@ -343,77 +346,115 @@
             if (document.fullscreenElement) {
                 // In fullscreen mode
                 btn.title = 'Exit Fullscreen';
-                modal.classList.add('hidden');
                 posContent.classList.add('active');
             } else {
-                // Exited fullscreen mode
+                // Exited fullscreen mode - keep pos content interactive but re-enter fullscreen on Esc
                 btn.title = 'Toggle Fullscreen';
-                modal.classList.remove('hidden');
                 posContent.classList.remove('active');
             }
         });
 
         // Check fullscreen status on page load - bind a one-time user gesture to enter fullscreen
         window.addEventListener('DOMContentLoaded', () => {
-            // If already in fullscreen, hide the modal
+            // If already in fullscreen, ensure posContent is active
             if (document.fullscreenElement) {
-                modal.classList.add('hidden');
                 posContent.classList.add('active');
                 try {
                     localStorage.setItem('posFullscreen', 'true');
                 } catch (e) {}
             }
 
-            // Show modal by default; the user can click the button to enter fullscreen
-            modal.classList.remove('hidden');
-            posContent.classList.remove('active');
+            // Bind a persistent click/touch handler so clicking anywhere will attempt fullscreen
+            function tryEnterOnUserGesture(e) {
+                // If already in fullscreen, do nothing
+                if (document.fullscreenElement) return;
 
-            // If user previously opted into fullscreen, bind a one-time listener
-            function onFirstGesture() {
-                // Attempt to enter fullscreen; if succeeds, modal will hide from enterFullscreen
-                enterFullscreen().then(success => {
-                    if (!success) {
-                        // Could not enter fullscreen programmatically; leave modal visible
-                        console.log('Auto fullscreen blocked or denied on user gesture.');
+                // Ignore explicit dashboard navigation clicks
+                if (e && e.type === 'click') {
+                    const dash = e.target.closest && e.target.closest('a[href*="dashboard"]');
+                    if (dash) return;
+                }
+
+                // Attempt to enter fullscreen as a side-effect of user gesture
+                enterFullscreen().catch(() => {});
+            }
+
+            if (!window._posFullscreenHandlerBound) {
+                document.addEventListener('click', tryEnterOnUserGesture, true);
+                document.addEventListener('touchstart', tryEnterOnUserGesture, true);
+                window._posFullscreenHandlerBound = true;
+            }
+
+            // No modal: rely on server-side flag or persistent localStorage flag to require fullscreen
+            const shouldAttempt = @json(session('enter_fullscreen', false)) || (function() {
+                try {
+                    return !!localStorage.getItem('posRequireFullscreen');
+                } catch (e) {
+                    return false;
+                }
+            })();
+
+            if (shouldAttempt) {
+                // Bind a one-time gesture to enter fullscreen (must be user gesture)
+                // Persistent click/gesture handler that will always try to re-enter fullscreen
+                function tryEnterOnUserGesture(e) {
+                    // If already in fullscreen, do nothing
+                    if (document.fullscreenElement) return;
+
+                    // Ignore dashboard navigation clicks
+                    if (e && e.type === 'click') {
+                        const dash = e.target.closest && e.target.closest('a[href*="dashboard"]');
+                        if (dash) return;
                     }
-                });
 
-                // remove listeners after first gesture
-                document.removeEventListener('click', onFirstGesture, true);
-                document.removeEventListener('keydown', onFirstGesture, true);
-                document.removeEventListener('touchstart', onFirstGesture, true);
-            }
-
-            document.addEventListener('click', onFirstGesture, true);
-            document.addEventListener('keydown', onFirstGesture, true);
-            document.addEventListener('touchstart', onFirstGesture, true);
-
-            // When the fullscreen modal is visible, allow clicking anywhere in the modal
-            // to attempt entering fullscreen. However, allow the 'Back to Dashboard' link
-            // to function normally.
-            function onModalClick(e) {
-                // If the click target is the dashboard link inside the modal, do nothing
-                const dash = e.target.closest('a[href*="dashboard"]');
-                if (dash) {
-                    // let the navigation happen
-                    return;
+                    // Do not block the event; just attempt fullscreen as a side-effect
+                    enterFullscreen().catch(() => {});
                 }
 
-                // Also allow clicks on elements that explicitly request fullscreen (button)
-                const btn = e.target.closest('button');
-                if (btn && btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('enterFullscreen')) {
-                    // let the button's own handler call enterFullscreen
-                    return;
+                // Bind persistently so banner and clicks keep working after exit
+                if (!window._posFullscreenHandlerBound) {
+                    document.addEventListener('click', tryEnterOnUserGesture, true);
+                    document.addEventListener('keydown', tryEnterOnUserGesture, true);
+                    document.addEventListener('touchstart', tryEnterOnUserGesture, true);
+                    window._posFullscreenHandlerBound = true;
                 }
 
-                // Try to enter fullscreen on any other click while modal is shown
-                enterFullscreen().then(success => {
-                    // leave the listener attached so future modal displays still respond to clicks
-                }).catch(() => {});
-            }
+                // Show unobtrusive banner prompting user to click
+                try {
+                    const banner = document.getElementById('fullscreenBanner');
+                    if (banner && !document.fullscreenElement) {
+                        banner.classList.remove('hidden');
 
-            // Use capture so clicks inside modal content are caught
-            modal.addEventListener('click', onModalClick, true);
+                        function onBannerClick(e) {
+                            const dash = e.target.closest && e.target.closest('a[href*="dashboard"]');
+                            if (dash) return;
+                            enterFullscreen().then(() => {
+                                try {
+                                    banner.classList.add('hidden');
+                                } catch (e) {}
+                            });
+                        }
+
+                        banner.addEventListener('click', onBannerClick, true);
+
+                        // keep persistent handler; just remove banner click listener
+                        document.addEventListener('fullscreenchange', function _hideBanner() {
+                            if (document.fullscreenElement) {
+                                try {
+                                    banner.classList.add('hidden');
+                                } catch (e) {}
+                                // keep persistent handler; just remove banner click listener
+                                banner.removeEventListener('click', onBannerClick, true);
+                            } else {
+                                // If we exited fullscreen, show the banner again (if requirement is set)
+                                try {
+                                    banner.classList.remove('hidden');
+                                } catch (e) {}
+                            }
+                        });
+                    }
+                } catch (e) {}
+            }
 
             // Clear flag when leaving POS
             const dashboardLink = document.querySelector('a[href*="dashboard"]');
@@ -478,7 +519,7 @@
                 document.documentElement.requestFullscreen()
                     .then(() => {
                         prompt.remove();
-                        modal.classList.add('hidden');
+                        // modal removed; ensure posContent active
                         posContent.classList.add('active');
                     });
             };
@@ -494,17 +535,23 @@
             }, 10000);
         }
 
-        // Handle F11 key - enhance browser fullscreen
+        // Handle F11 key - enhance browser fullscreen and prevent exiting via Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'F11') {
-                // Let browser handle F11 naturally
-                // Just ensure our UI state updates
+                // Let browser handle F11 naturally; ensure our UI state updates
                 setTimeout(() => {
                     if (document.fullscreenElement) {
-                        modal.classList.add('hidden');
                         posContent.classList.add('active');
                     }
                 }, 100);
+            }
+
+            // Intercept Escape to prevent leaving fullscreen for POS users
+            if (e.key === 'Escape') {
+                // Prevent default behavior and re-enter fullscreen
+                e.preventDefault();
+                e.stopPropagation();
+                enterFullscreen().catch(() => {});
             }
         });
 

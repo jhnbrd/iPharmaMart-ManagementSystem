@@ -139,6 +139,8 @@ Route::middleware('auth')->group(function () {
     // Cashier Only - POS
     Route::middleware('role:cashier')->group(function () {
         Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
+        // AJAX helper to fetch categories relevant for a product type
+        Route::get('/pos/categories', [POSController::class, 'categories'])->name('pos.categories');
         Route::post('/pos/verify-admin', [POSController::class, 'verifyAdmin'])->name('pos.verify-admin');
         Route::post('/sales', [SalesController::class, 'store'])->name('sales.store');
     });

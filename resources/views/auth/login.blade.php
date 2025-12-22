@@ -105,7 +105,7 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit"
+                        <button type="submit" id="loginSubmit"
                             class="w-full bg-[#3a7d6f] hover:bg-[#2c6356] text-white font-semibold py-4 px-4 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
                             Sign In to Dashboard
                         </button>
@@ -134,5 +134,16 @@
                         '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
                 }
             }
+            // Mark that the login button was clicked (used by POS page to know a login gesture occurred)
+            document.addEventListener('DOMContentLoaded', function() {
+                var loginBtn = document.getElementById('loginSubmit');
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', function() {
+                        try {
+                            localStorage.setItem('posRequireFullscreen', '1');
+                        } catch (e) {}
+                    });
+                }
+            });
         </script>
 </x-auth-layout>

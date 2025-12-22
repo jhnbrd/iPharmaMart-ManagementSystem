@@ -106,4 +106,24 @@ class POSController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Return categories relevant to a given product type.
+     * Used by the POS AJAX filter to populate category options.
+     */
+    public function categories(Request $request)
+    {
+        $productType = $request->query('product_type');
+
+        if (empty($productType)) {
+            $categories = Category::orderBy('name')->get();
+        } else {
+            // Only return categories that have products of the given product_type
+            $categories = Category::whereHas('products', function ($q) use ($productType) {
+                $q->where('product_type', $productType);
+            })->orderBy('name')->get();
+        }
+
+        return response()->json($categories);
+    }
 }
