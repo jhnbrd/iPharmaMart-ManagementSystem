@@ -53,87 +53,96 @@
         </form>
     </div>
 
-    <div class="table-container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Date & Time</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Description</th>
-                    <th>IP Address</th>
-                    <th>Details</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($logs as $log)
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold">Audit Logs</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <td class="font-medium">{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
-                        <td>
-                            @if ($log->user)
-                                <div>
-                                    <p class="font-medium">{{ $log->user->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ '@' . $log->user->username }}</p>
-                                </div>
-                            @else
-                                <span class="text-gray-400">System</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if ($log->action === 'create')
-                                <span class="badge-success">Created</span>
-                            @elseif($log->action === 'update')
-                                <span class="badge-info">Updated</span>
-                            @elseif($log->action === 'delete')
-                                <span class="badge-danger">Deleted</span>
-                            @elseif($log->action === 'sale')
-                                <span class="badge-success">💰 Sale</span>
-                            @elseif($log->action === 'stock_in')
-                                <span class="badge-success">📦 Stock In</span>
-                            @elseif($log->action === 'stock_out')
-                                <span class="badge-danger">📤 Stock Out</span>
-                            @elseif($log->action === 'login')
-                                <span class="badge-info">Login</span>
-                            @elseif($log->action === 'logout')
-                                <span class="badge-secondary">Logout</span>
-                            @else
-                                <span class="badge-warning">{{ ucfirst($log->action) }}</span>
-                            @endif
-                        </td>
-                        <td>{{ $log->description }}</td>
-                        <td class="text-sm text-gray-600">{{ $log->ip_address }}</td>
-                        <td>
-                            @if ($log->old_values || $log->new_values)
-                                <button onclick="showDetails({{ $log->id }})"
-                                    class="text-blue-600 hover:underline text-sm">
-                                    View
-                                </button>
-                                <div id="details-{{ $log->id }}" class="hidden mt-2">
-                                    @if ($log->old_values)
-                                        <div class="text-xs bg-red-50 p-2 rounded mb-1">
-                                            <strong>Old:</strong> {{ json_encode($log->old_values) }}
-                                        </div>
-                                    @endif
-                                    @if ($log->new_values)
-                                        <div class="text-xs bg-green-50 p-2 rounded">
-                                            <strong>New:</strong> {{ json_encode($log->new_values) }}
-                                        </div>
-                                    @endif
-                                </div>
-                            @else
-                                <span class="text-gray-400">-</span>
-                            @endif
-                        </td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date
+                            & Time</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Action</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP
+                            Address</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Details</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center py-8 text-[var(--color-text-secondary)]">
-                            No audit logs found.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($logs as $log)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">
+                                {{ $log->created_at->format('Y-m-d H:i:s') }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if ($log->user)
+                                    <div>
+                                        <p class="font-medium">{{ $log->user->name }}</p>
+                                        <p class="text-xs text-gray-500">{{ '@' . $log->user->username }}</p>
+                                    </div>
+                                @else
+                                    <span class="text-gray-400">System</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if ($log->action === 'create')
+                                    <span class="badge-success">Created</span>
+                                @elseif($log->action === 'update')
+                                    <span class="badge-info">Updated</span>
+                                @elseif($log->action === 'delete')
+                                    <span class="badge-danger">Deleted</span>
+                                @elseif($log->action === 'sale')
+                                    <span class="badge-success">💰 Sale</span>
+                                @elseif($log->action === 'stock_in')
+                                    <span class="badge-success">📦 Stock In</span>
+                                @elseif($log->action === 'stock_out')
+                                    <span class="badge-danger">📤 Stock Out</span>
+                                @elseif($log->action === 'login')
+                                    <span class="badge-info">Login</span>
+                                @elseif($log->action === 'logout')
+                                    <span class="badge-secondary">Logout</span>
+                                @else
+                                    <span class="badge-warning">{{ ucfirst($log->action) }}</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4">{{ $log->description }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $log->ip_address }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if ($log->old_values || $log->new_values)
+                                    <button onclick="showDetails({{ $log->id }})"
+                                        class="text-blue-600 hover:underline text-sm">View</button>
+                                    <div id="details-{{ $log->id }}" class="hidden mt-2">
+                                        @if ($log->old_values)
+                                            <div class="text-xs bg-red-50 p-2 rounded mb-1">
+                                                <strong>Old:</strong> {{ json_encode($log->old_values) }}
+                                            </div>
+                                        @endif
+                                        @if ($log->new_values)
+                                            <div class="text-xs bg-green-50 p-2 rounded">
+                                                <strong>New:</strong> {{ json_encode($log->new_values) }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-[var(--color-text-secondary)]">No audit
+                                logs found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="mt-6">

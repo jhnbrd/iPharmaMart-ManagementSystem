@@ -21,7 +21,12 @@ class UserController extends Controller
         }
 
         $perPage = request('per_page', \Illuminate\Support\Facades\Cache::get('settings.pagination_per_page', 10));
-        $users = User::orderBy('created_at', 'desc')->paginate($perPage);
+
+        // Order users by role priority (superadmin first), then by newest
+        // Use CASE expression for cross-DB compatibility
+        $users = User::orderByRaw("(CASE WHEN role = 'superadmin' THEN 1 WHEN role = 'admin' THEN 2 WHEN role = 'inventory_manager' THEN 3 WHEN role = 'cashier' THEN 4 ELSE 5 END) ASC")
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
 
         return view('users.index', compact('users'));
     }
